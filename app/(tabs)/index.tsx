@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform } from "react-native";
+import { Image, StyleSheet, Platform, SafeAreaView } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -16,7 +16,8 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
+      <ThemedView //style={styles.titleContainer}
+      >
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
@@ -29,12 +30,12 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">
             {Platform.select({ ios: "cmd + d", android: "cmd + m" })}
           </ThemedText>{" "}
-          to open developer tools.
+          to open the developer tools.
         </ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
+        <ThemedText className="">
           Tap the Explore tab to learn more about what's included in this
           starter app.
         </ThemedText>
@@ -46,8 +47,11 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
           to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
           directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+          <ThemedText type="defaultSemiBold">app-not</ThemedText> to{" "}
+          <ThemedText className="bg-blue-700" type="defaultSemiBold">
+            app-example
+          </ThemedText>
+          .
         </ThemedText>
       </ThemedView>
     </ParallaxScrollView>
