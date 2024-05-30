@@ -109,6 +109,5 @@ const LandingScreenStyle = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 54,
     //textAlign: "center",
-    transform : 
   },
 });
