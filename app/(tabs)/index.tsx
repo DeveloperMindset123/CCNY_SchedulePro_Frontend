@@ -1,60 +1,67 @@
-import { Image, StyleSheet, Platform, SafeAreaView } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  SafeAreaView,
+  View,
+  Text,
+} from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 
-export default function HomeScreen() {
+/**
+ * 
+ * @referenceCode 
+ * import React from 'react';
+
+import React from 'react';
+
+const styles = {
+  Text: {
+    color: '#ffffff',
+    fontSize: '48px',
+    fontFamily: 'Source Sans Pro',
+    fontWeight: 600,
+    lineHeight: '54px',
+    textAlign: 'center',
+  },
+};
+
+const defaultProps = {
+  text: 'CCNY SchedulePro',
+};
+
+const Text = (props) => {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView //style={styles.titleContainer}
-      >
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: "cmd + d", android: "cmd + m" })}
-          </ThemedText>{" "}
-          to open the developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText className="">
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app-not</ThemedText> to{" "}
-          <ThemedText className="bg-blue-700" type="defaultSemiBold">
-            app-example
-          </ThemedText>
-          .
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <div style={styles.Text}>
+      {props.text ?? defaultProps.text}
+    </div>
+  );
+};
+
+export default Text;
+ */
+
+const defaultProps = {
+  text: "CCNY Schedule Pro",
+};
+
+export default function HomeScreen(this: any, props: { text: any }) {
+  return (
+    <SafeAreaView style={LandingScreenStyle.background}>
+      <Image
+        source={require("@/assets/images/LandingPageImage.png")}
+        style={LandingScreenStyle.ImageContainer}
+      />
+      <View {...this.props} style={LandingScreenStyle.TitleTextStyling}>
+        <Text style={LandingScreenStyle.TitleTextStyling}>
+          CCNY Schedule Pro
+        </Text>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -75,5 +82,33 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: "absolute",
+  },
+});
+
+const LandingScreenStyle = StyleSheet.create({
+  ImageContainer: {
+    //no units needs to be specified, use number values only, numerical values are automatically assigned px
+    top: 119,
+    left: 88,
+    width: 200,
+    height: 200,
+    borderRadius: 24,
+    backgroundColor: "black",
+  },
+  background: {
+    backgroundColor: "black",
+    /*
+     *flex : 1 ensures 100% width and height
+     */
+    flex: 1,
+  },
+  TitleTextStyling: {
+    color: " #ffffff",
+    fontSize: 48,
+    fontFamily: "Source Sans pro",
+    fontWeight: 600,
+    lineHeight: 54,
+    //textAlign: "center",
+    transform : 
   },
 });
