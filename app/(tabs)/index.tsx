@@ -151,4 +151,15 @@ const LandingScreenStyle = StyleSheet.create({
     lineHeight: 30,
     textAlign: "center",
   },
+  ButtonStyling: {
+    cursor: "pointer",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    top: 524,
+    left: 164,
+    width: 47,
+    height: 48,
+    //border: 0,
+  },
 });
