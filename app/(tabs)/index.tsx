@@ -46,19 +46,19 @@ export default Text;
  */
 
 const defaultProps = {
-  text: "CCNY Schedule Pro",
+  text: "CCNY",
 };
 
-export default function HomeScreen(this: any, props: { text: any }) {
+export default function HomeScreen(this: any, props: any) {
   return (
     <SafeAreaView style={LandingScreenStyle.background}>
       <Image
         source={require("@/assets/images/LandingPageImage.png")}
         style={LandingScreenStyle.ImageContainer}
       />
-      <View {...this.props} style={LandingScreenStyle.TitleTextStyling}>
+      <View {...this.props}>
         <Text style={LandingScreenStyle.TitleTextStyling}>
-          CCNY Schedule Pro
+          {props.text ?? defaultProps.text}
         </Text>
       </View>
     </SafeAreaView>
@@ -103,13 +103,14 @@ const LandingScreenStyle = StyleSheet.create({
     flex: 1,
   },
   TitleTextStyling: {
-    color: " #ffffff",
+    color: "white",
     fontSize: 48,
     fontFamily: "Arial, Helvetica, sans-serif",
-    fontWeight: 900,
+    fontWeight: 700,
     lineHeight: 54,
     textAlign: "center",
-    marginTop: 100,
+
+    marginTop: 150,
     padding: 12,
   },
 });
