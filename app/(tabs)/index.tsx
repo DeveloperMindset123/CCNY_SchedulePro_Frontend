@@ -105,9 +105,11 @@ const LandingScreenStyle = StyleSheet.create({
   TitleTextStyling: {
     color: " #ffffff",
     fontSize: 48,
-    fontFamily: "Source Sans pro",
-    fontWeight: 600,
+    fontFamily: "Arial, Helvetica, sans-serif",
+    fontWeight: 900,
     lineHeight: 54,
-    //textAlign: "center",
+    textAlign: "center",
+    marginTop: 100,
+    padding: 12,
   },
 });
