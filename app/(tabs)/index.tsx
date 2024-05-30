@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   View,
   Text,
+  Button,
 } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
@@ -77,7 +78,16 @@ const defaultSubheadingProps = {
   text: "Class Schedule Manager",
 };
 
-export default function HomeScreen(this: any, props: any) {
+const IconComponent = () => (
+  <svg style={LandingScreenStyle.IconStyling} viewBox="0 0 448 512">
+    <path d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></path>
+  </svg>
+);
+
+const DefaultIconProp = {
+  IconComponent,
+};
+export default function HomeScreen(this: any, props: any, ButtonProp: any) {
   return (
     <SafeAreaView style={LandingScreenStyle.background}>
       <Image
@@ -91,6 +101,15 @@ export default function HomeScreen(this: any, props: any) {
         <Text style={LandingScreenStyle.SubheadingTextStyling}>
           {props.text ?? defaultSubheadingProps.text}
         </Text>
+        <Image
+          style={{
+            alignContent: "center",
+            marginLeft: 20,
+          }}
+          source={require("@/assets/images/IconArrowRight.png")}
+        />
+
+        <Button title="" />
       </View>
     </SafeAreaView>
   );
@@ -152,7 +171,7 @@ const LandingScreenStyle = StyleSheet.create({
     textAlign: "center",
   },
   ButtonStyling: {
-    cursor: "pointer",
+    // cursor: "pointer",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -160,6 +179,18 @@ const LandingScreenStyle = StyleSheet.create({
     left: 164,
     width: 47,
     height: 48,
-    //border: 0,
+    borderWidth: 0,
+    //Set by default (ref : https://stackoverflow.com/questions/38503451/does-it-exist-an-equivalent-of-box-sizing-border-box-in-flexbox-for-react-nativ)
+    //boxSizing: 'border-box',
+    color: "#161616",
+    backgroundColor: "white",
+    // outline is something exclusive to web
+    //outline : 'none'
+  },
+  IconStyling: {
+    color: "#161616",
+    width: 17,
+    height: 17,
+    fontSize: 17,
   },
 });
