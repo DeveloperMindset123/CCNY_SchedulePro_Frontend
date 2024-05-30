@@ -58,6 +58,7 @@ export default function HomeScreen() {
   );
 }
 
+// Use this as reference for how css should be defined in React Native
 const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
