@@ -87,7 +87,7 @@ const IconComponent = () => (
 const DefaultIconProp = {
   IconComponent,
 };
-export default function HomeScreen(this: any, props: any, ButtonProp: any) {
+export default function LandingView(this: any, props: any, ButtonProp: any) {
   return (
     <SafeAreaView style={LandingScreenStyle.background}>
       <Image
