@@ -8,6 +8,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 
+/*
 export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
@@ -123,3 +124,4 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 });
+*/

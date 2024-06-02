@@ -4,9 +4,15 @@ import React from "react";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import LandingView from ".";
 
-/**TODO : This is where the navbar should be defined */
-export default function TabLayout() {
+// TODO : Implement logic for when navbar should be displayed, important to note that we are using expo-router, which is different from react-navigation
+
+export interface TabLayoutProps {
+  displayTabBar: boolean;
+}
+
+export default function TabLayout({ displayTabBar }: TabLayoutProps) {
   const colorScheme = useColorScheme();
 
   return (
@@ -19,7 +25,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          tabBarStyle: { display: "none" },
+          title: "Not",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "home" : "home-outline"}
@@ -31,6 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
+          tabBarStyle: { display: "none" },
           title: "Explore",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
@@ -43,3 +51,18 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+/*
+const BottomTabNavigator = CreateBottomTabNavigator({
+  LandingView: {
+    screen: LandingView,
+    navigationOptions: () => {
+      return (
+        tabBarVisible: false,
+      );
+    }
+  },
+
+  // add additonal screens here
+})
+*/

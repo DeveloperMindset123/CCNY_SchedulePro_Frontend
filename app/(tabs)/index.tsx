@@ -87,7 +87,7 @@ const IconComponent = () => (
 const DefaultIconProp = {
   IconComponent,
 };
-export default function HomeScreen(this: any, props: any, ButtonProp: any) {
+export default function LandingView(this: any, props: any, ButtonProp: any) {
   return (
     <SafeAreaView style={LandingScreenStyle.background}>
       <Image
@@ -101,13 +101,20 @@ export default function HomeScreen(this: any, props: any, ButtonProp: any) {
         <Text style={LandingScreenStyle.SubheadingTextStyling}>
           {props.text ?? defaultSubheadingProps.text}
         </Text>
-        <Image
+        <View
           style={{
+            flexDirection: "column",
             alignContent: "center",
-            marginLeft: 20,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingTop: 90,
           }}
-          source={require("@/assets/images/IconArrowRight.png")}
-        />
+        >
+          <Image
+            // import the arrow icon
+            source={require("@/assets/images/IconArrowRight.png")}
+          />
+        </View>
 
         <Button title="" />
       </View>
