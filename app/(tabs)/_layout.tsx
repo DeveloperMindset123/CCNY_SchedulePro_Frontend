@@ -6,6 +6,8 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import LandingView from ".";
 
+// TODO : Implement logic for when navbar should be displayed, important to note that we are using expo-router, which is different from react-navigation
+
 export interface TabLayoutProps {
   displayTabBar: boolean;
 }
