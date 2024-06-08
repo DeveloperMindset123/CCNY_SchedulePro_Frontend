@@ -13,7 +13,7 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useNavigation, Stack } from "expo-router";
+import { useNavigation } from "expo-router";
 
 /**
  * 
@@ -72,6 +72,7 @@ const IconButton = (props) => {
 export default IconButton;
  */
 
+/*
 const defaultTitleProps = {
   text: "CCNY",
 };
@@ -89,7 +90,7 @@ const IconComponent = () => (
 const DefaultIconProp = {
   IconComponent,
 };
-export function LandingView(this: any, props: any, ButtonProp: any) {
+export default function LandingView(this: any, props: any, ButtonProp: any) {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={LandingScreenStyle.background}>
@@ -113,8 +114,8 @@ export function LandingView(this: any, props: any, ButtonProp: any) {
             paddingTop: 90,
           }}
         >
-          {/**Touchable Opacity dims the icon on click and also provides a function named onPress*/}
-          <TouchableOpacity onPress={() => navigation.navigate("Overview")}>
+          {/**Touchable Opacity dims the icon on click and also provides a function named onPress
+          <TouchableOpacity onPress={() => navigation.navigate("Login/Signup")}>
             <Image
               // import the arrow icon
               source={require("@/assets/images/IconArrowRight.png")}
@@ -163,7 +164,7 @@ const LandingScreenStyle = StyleSheet.create({
     backgroundColor: "black",
     /*
      *flex : 1 ensures 100% width and height
-     */
+     
     flex: 1,
   },
   TitleTextStyling: {
@@ -207,12 +208,4 @@ const LandingScreenStyle = StyleSheet.create({
     fontSize: 17,
   },
 });
-
-//define the home component for the screen section
-export default function Home() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Stack.Screen options={{ title: "Overview" }} />
-    </View>
-  );
-}
+*/
