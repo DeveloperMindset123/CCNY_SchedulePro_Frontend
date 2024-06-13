@@ -19,6 +19,7 @@ export default function Home() {
     /> */}
       <Text>Home Screen</Text>
       <Link href={{ pathname: "./details" }}>Go To Details</Link>
+      <Link href={{ pathname: "./home/message" }}>Go To Messages</Link>
     </View>
   );
 }
