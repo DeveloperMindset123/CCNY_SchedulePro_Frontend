@@ -1,37 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack, Tabs } from "expo-router";
+import { View } from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+export default function Layout() {
+  //TODO : Define all relevant routes for screens and tabs here, it's good practice to declare them here, can things like how the page UI looks like
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    <>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "green",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      >
+        {/* Optionally configure static options outside the route.*/}
+        <Stack.Screen
+          name="index"
+          //TODO : Remove Later, placed it here as a joke
+          options={{ title: "Yass Queen Slay!", headerShown: true }}
+        />
+        <Stack.Screen name="details" options={{ title: "DetailsTest" }} />
+        <Stack.Screen name="home/message" options={{ title: "Messagepage" }} />
+        {/*Define the tabs section*/}
+        {/**TODO : Look into why this warning is occuring and stating that the route doesn't exist */}
+        {/*<Stack.Screen name="./(tabs)/explore" options={{}} /> */}
       </Stack>
-    </ThemeProvider>
+    </>
   );
 }

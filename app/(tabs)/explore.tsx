@@ -1,12 +1,18 @@
 /*Generated content for the explore section at the bttom navbar */
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Image, Platform } from "react-native";
-
+import { View, SafeAreaView, Text } from "react-native";
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+
+export default function expore() {
+  <View>
+    <Text>This is a Dynamic Explore page</Text>
+  </View>;
+}
 
 /*
 export default function TabTwoScreen() {
