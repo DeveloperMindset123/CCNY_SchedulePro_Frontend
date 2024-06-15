@@ -11,12 +11,6 @@ export default function Home() {
         alignItems: "center",
       }}
     >
-      {/*  --> having this here will override what has been defined in _layout.tsx
-      <Stack.Screen
-        //Note : with the update, we no longer need to seperately define the name and the corresponding component, it will pick up on it
-        //name="Home"
-        options={{ title: "" }}
-    /> */}
       <Text>Home Screen</Text>
       <Link href={{ pathname: "./details" }}>Go To Details</Link>
       <Link href={{ pathname: "./home/message" }}>Go To Messages</Link>
