@@ -56,23 +56,6 @@ export default function Home() {
   );
 }
 
-/*
-Note that below contians css code, which needs to be converted to appropriate tailwindcss
-
-.image {
-  top: 119px;
-  left: 88px;
-  width: 200px;
-  height: 200px;
-  border-radius: 24px;
-  background-image: url(./image.png);
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-*/
-
 const styles = StyleSheet.create({
   image: {
     // NOTE : images must have their width and height specified in order to render properly
