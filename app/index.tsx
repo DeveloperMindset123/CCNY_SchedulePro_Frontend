@@ -33,7 +33,12 @@ export default function Home() {
           />
         </View>
       </View>
-      <Text className="text-white text-5xl">Home Screen</Text>
+      <Text className="flex text-white font-semibold text-5xl items-center justify-center -mt-5 -translate-y-14">
+        CCNY
+      </Text>
+      <Text className="flex items-center justify-center text-white text-2xl leading-8 -translate-y-10">
+        Class Schedule Manager
+      </Text>
       <Link
         className="text-white"
         href={{
@@ -58,14 +63,6 @@ export default function Home() {
 
 /**
  * css placeholder
- * .text {
-  color: #ffffff;
-  font-size: 48px;
-  font-family: "Source Sans Pro";
-  font-weight: 600;
-  line-height: 54px;
-  text-align: center;
-}
 
  */
 const styles = StyleSheet.create({
