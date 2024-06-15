@@ -24,7 +24,7 @@ export default function Home() {
       <View>
         <View>
           <Image
-            style={styles.image}
+            className="-inset-y-[150px] w-[270px] h-[270px]"
             // Note that if we want to reference a specific asset from local asset directory, this is what needs to be done
             source={require("../assets/images/Landing-Screen-Image-Updated.png")}
             placeholder={{ blurhash }}
@@ -33,7 +33,7 @@ export default function Home() {
           />
         </View>
       </View>
-      <Text className="text-black">Home Screen</Text>
+      <Text className="text-white text-5xl">Home Screen</Text>
       <Link
         className="text-white"
         href={{
@@ -56,15 +56,22 @@ export default function Home() {
   );
 }
 
+/**
+ * css placeholder
+ * .text {
+  color: #ffffff;
+  font-size: 48px;
+  font-family: "Source Sans Pro";
+  font-weight: 600;
+  line-height: 54px;
+  text-align: center;
+}
+
+ */
 const styles = StyleSheet.create({
-  image: {
-    // NOTE : images must have their width and height specified in order to render properly
-    top: -150,
-    //left: 88,
-    width: 270,
-    height: 270,
-    alignItems: "center",
-    justifyContent: "center",
-    //backgroundColor: "#0553",
+  text: {
+    color: "white",
+    fontSize: 48,
+    //fontFamily :
   },
 });
