@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
+  TouchableOpacity,
   //Image --> Use the Image route from the expo-image section instead
 } from "react-native";
 import { Stack, Link } from "expo-router";
@@ -40,11 +41,7 @@ export default function Home() {
       <Text className="flex items-center justify-center text-white text-2xl leading-8 -translate-y-10">
         Class Schedule Manager
       </Text>
-
-      <View className="items-center justify-center bg-white rounded-full mb-5 py-2 px-2">
-        {/**
-         * TODO : convert to formal JSDOC for improved readabillity
-         * Include SVG asset here, note that this is how svg assets ought to be inclided, simply download and specify the styling and path, replace path with Path and svg with Svg, both of which can be imported from react-native svg */}
+      <TouchableOpacity>
         <Link
           //className="text-white"
           href={{
@@ -52,15 +49,20 @@ export default function Home() {
             pathname: "./details",
           }}
         >
-          <Svg
-            //xmlns="http://www.w3.org/2000/svg"
-            className="w-10 h-10 overflow-hidden fill-black translate-y-0.5"
-            viewBox="0 0 448 512"
-          >
-            <Path d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></Path>
-          </Svg>
+          <View className="items-center justify-center bg-white rounded-full mb-5 py-4 px-4">
+            {/**
+             * TODO : convert to formal JSDOC for improved readabillity
+             * Include SVG asset here, note that this is how svg assets ought to be inclided, simply download and specify the styling and path, replace path with Path and svg with Svg, both of which can be imported from react-native svg */}
+            <Svg
+              //xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 overflow-hidden fill-black "
+              viewBox="0 0 448 512"
+            >
+              <Path d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"></Path>
+            </Svg>
+          </View>
         </Link>
-      </View>
+      </TouchableOpacity>
       <Link
         className="text-white"
         href={{
