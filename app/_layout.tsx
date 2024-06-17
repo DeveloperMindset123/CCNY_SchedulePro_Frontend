@@ -8,7 +8,7 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "green",
+            backgroundColor: "black",
           },
           headerTintColor: "#fff",
           headerTitleStyle: {
@@ -19,8 +19,8 @@ export default function Layout() {
         {/* Optionally configure static options outside the route.*/}
         <Stack.Screen
           name="index"
-          //TODO : Remove Later, placed it here as a joke
-          options={{ title: "Yass Queen Slay!", headerShown: true }}
+          //TODO : Ensure that the title section is empty as we don't want to display anything unneccessarily
+          options={{ title: "", headerShown: true }}
         />
         <Stack.Screen name="details" options={{ title: "DetailsTest" }} />
         <Stack.Screen name="home/message" options={{ title: "Messagepage" }} />
