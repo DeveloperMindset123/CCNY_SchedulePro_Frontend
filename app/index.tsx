@@ -41,15 +41,16 @@ export default function Home() {
       <Text className="flex items-center justify-center text-white text-2xl leading-8 -translate-y-10">
         Class Schedule Manager
       </Text>
-      <TouchableOpacity>
+      <TouchableOpacity className="items-center justify-center transition-opacity">
         <Link
+          className="hover:transition-opacity"
           //className="text-white"
           href={{
             // Note that the pathname specified can be directly pointing to the specific file, representing the screen within app directory
             pathname: "./details",
           }}
         >
-          <View className="items-center justify-center bg-white rounded-full mb-5 py-4 px-4">
+          <View className="bg-white rounded-full mb-5 py-4 px-4">
             {/**
              * TODO : convert to formal JSDOC for improved readabillity
              * Include SVG asset here, note that this is how svg assets ought to be inclided, simply download and specify the styling and path, replace path with Path and svg with Svg, both of which can be imported from react-native svg */}
@@ -81,9 +82,10 @@ export default function Home() {
 
  */
 const styles = StyleSheet.create({
+  /*
   text: {
     color: "white",
     fontSize: 48,
     //fontFamily :
-  },
+  }, */
 });
