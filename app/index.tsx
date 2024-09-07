@@ -67,7 +67,6 @@ export default function Home() {
       <Link
         className="text-white"
         href={{
-          // Note that the pathname specified can be directly pointing to the specific file, representing the screen within app directory
           pathname: "./home/message",
         }}
       >
@@ -76,16 +75,3 @@ export default function Home() {
     </View>
   );
 }
-
-/**
- * css placeholder
-
- */
-const styles = StyleSheet.create({
-  /*
-  text: {
-    color: "white",
-    fontSize: 48,
-    //fontFamily :
-  }, */
-});
