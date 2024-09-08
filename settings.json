@@ -1,0 +1,7 @@
+{
+    "tailwindCSS.experimental.classRegex": [
+        // ! enables intellisense for classes autocompletion
+        // ? https://www.npmjs.com/package/clsx
+        ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ]
+}
