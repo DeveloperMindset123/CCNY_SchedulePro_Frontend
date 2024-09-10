@@ -1,0 +1,73 @@
+{
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "ts:check": "tsc"
+  },
+  "dependencies": {
+    "@expo/cli": "^0.10.11",
+    "@expo/vector-icons": "^14.0.2",
+    "@hookform/resolvers": "^3.2.0",
+    "@react-native-picker/picker": "2.7.5",
+    "@react-navigation/material-top-tabs": "^6.6.3",
+    "@react-navigation/native": "^6.1.7",
+    "@shopify/flash-list": "^1.6.4",
+    "@types/react-native": "^0.72.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "expo": "51.0.28",
+    "expo-font": "~12.0.9",
+    "expo-image": "~1.12.13",
+    "expo-linking": "^6.3.1",
+    "expo-router": "3.5.23",
+    "expo-splash-screen": "~0.27.5",
+    "expo-status-bar": "~1.12.1",
+    "expo-updates": "~0.25.22",
+    "expo-web-browser": "~13.0.3",
+    "lucide-react-native": "^0.359.0",
+    "nativewind": "^4.0.22",
+    "postcss": "8.4.23",
+    "prettier": "^3.0.0",
+    "prop-types": "^15.8.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.5",
+    "react-native-gesture-handler": "^2.16.1",
+    "react-native-pager-view": "6.3.0",
+    "react-native-reanimated": "3.10.1",
+    "react-native-safe-area-context": "4.10.5",
+    "react-native-screens": "^3.31.1",
+    "react-native-svg": "^15.2.0",
+    "react-native-tab-view": "^3.5.2",
+    "tailwind-merge": "^2.4.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
+    "@types/react": "~18.2.79",
+    "@types/react-native": "^0.72.2",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "tailwindcss": "3.3.2",
+    "typescript": "^5.3.3"
+  },
+  "resolutions": {
+    "react-refresh": "~0.14.0"
+  },
+  "overrides": {
+    "react-refresh": "~0.14.0"
+  },
+  "name": "expo-router-starter-kit",
+  "version": "1.0.0",
+  "private": false,
+  "description": "A simplified Expo-router starter kit.",
+  "license": "MIT",
+  "author": "ritmillio"
+}
