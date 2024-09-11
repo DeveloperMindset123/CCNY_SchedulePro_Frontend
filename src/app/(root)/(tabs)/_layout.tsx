@@ -2,10 +2,15 @@ import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { TabBarIcon } from '@/components/core/icon';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? 'white' : 'black';
+  const router = useRouter();
+  const [currentColor, setColor] = useState('red');
 
   return (
     <Tabs
@@ -37,12 +42,22 @@ export default function TabLayout() {
           tabBarIcon: () => <TabBarIcon name="cog" pathnames={['/settings']} />,
         }}
       />
-      {/**experimentation, on click, will render the content of the screen */}
       <Tabs.Screen
         name="newSetting"
         options={{
           title: 'newSetting',
-          tabBarIcon: () => <TabBarIcon name="home" pathnames={['../../newHome']} />,
+          tabBarIcon: () => (
+            <Ionicons
+              name="key"
+              color={currentColor}
+              // TODO : Fix color Issue Not displaying As Intended
+              onPress={() => {
+                setColor('blue');
+                // take the user back
+                router.replace('/');
+              }}
+            />
+          ),
         }}
       />
     </Tabs>

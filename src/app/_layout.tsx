@@ -35,7 +35,7 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: 'newHome',
+  initialRouteName: 'index',
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -76,9 +76,22 @@ function RootLayoutNav() {
 
       <ThemeProvider value={NAV_THEME[colorScheme]}>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <Stack screenOptions={{ animation: 'ios' }}>
+          <Stack
+            screenOptions={{
+              animation: 'ios',
+              headerStyle: {
+                backgroundColor: 'black',
+              },
+              headerTintColor: 'white',
+              headerTitleStyle: {
+                // font family styling here
+                fontWeight: '900',
+                fontFamily: 'AlNile-Bold',
+              },
+            }}
+          >
             {/**TODO : Remove later the test page */}
-            <Stack.Screen name="index" options={{ headerShown: true }} />
+            <Stack.Screen name="index" options={{ title: 'Welcome', headerShown: true }} />
             <Stack.Screen
               name="modal"
               options={{

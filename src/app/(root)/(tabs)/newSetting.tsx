@@ -3,7 +3,9 @@ import { SafeAreaView } from '@/components/core/safe-area-view';
 import { Text } from '@/components/core/text';
 import { Toggle } from '@/components/core/toggle';
 import { useColorScheme } from 'nativewind';
-
+{
+  /**This was an experimentation to see if everything words as intended */
+}
 export default function NewSettings() {
   const { colorScheme, setColorScheme } = useColorScheme();
 

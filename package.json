@@ -64,10 +64,10 @@
   "overrides": {
     "react-refresh": "~0.14.0"
   },
-  "name": "expo-router-starter-kit",
+  "name": "CCNY_Schedule_Pro",
   "version": "1.0.0",
   "private": false,
-  "description": "A simplified Expo-router starter kit.",
+  "description": "An advanced scheduling app catered towards CCNY Students",
   "license": "MIT",
-  "author": "ritmillio"
+  "author": "Ayan Das"
 }
