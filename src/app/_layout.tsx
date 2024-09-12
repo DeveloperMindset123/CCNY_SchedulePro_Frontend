@@ -110,6 +110,10 @@ function RootLayoutNav() {
             {/**TODO : Remove later the test page */}
             <Stack.Screen name="index" options={{ title: 'Welcome', headerShown: true }} />
             <Stack.Screen
+              name="authenticationMiddleware"
+              options={{ title: 'Authentication', headerShown: true }}
+            />
+            <Stack.Screen
               name="modal"
               options={{
                 title: 'Modal',
