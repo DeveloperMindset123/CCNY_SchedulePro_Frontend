@@ -6,10 +6,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeToggle } from '@/components/core/toggle';
-
+import { getFontFamily } from '@/lib/utils/getFontFamily';
 // Providers
 import { ThemeProvider } from '@react-navigation/native';
 
+// TODO : fonts not loading
+// @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
  * https://www.npmjs.com/package/react-native-keyboard-controller
  * import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -66,6 +68,8 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { colorScheme } = useColorScheme();
+  const headerFont = getFontFamily('SOFADI');
+  console.log(headerFont);
 
   return (
     <>
@@ -84,9 +88,9 @@ function RootLayoutNav() {
               },
               headerTintColor: 'white',
               headerTitleStyle: {
-                // font family styling here
                 fontWeight: '900',
-                fontFamily: 'AlNile-Bold',
+                // TODO : Change Font here
+                fontFamily: headerFont,
               },
             }}
           >

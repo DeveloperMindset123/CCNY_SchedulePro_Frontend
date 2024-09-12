@@ -2,7 +2,7 @@ name: 'CodeQL'
 
 on:
     push:
-        branches: [main]
+        branches: ["main", "onboarding-screen"]
     schedule:
         - cron: '30 8 * * 5'
 

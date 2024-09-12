@@ -7,7 +7,7 @@ export const getFontFamily = (
 ) => {
   //TODO : add switch statements
   switch (fontFamily) {
-    case 'PLAYPEN':
+    case 'PLAYPEN': {
       if (!weight) {
         return fontFamilies.PLAYPEN.regular;
       } else if (weight === 'thin') {
@@ -29,5 +29,15 @@ export const getFontFamily = (
       } else {
         return fontFamilies.PLAYPEN.variableFont;
       }
+    }
+
+    case 'PACIFICO': {
+      return fontFamilies.PACIFICO.regular;
+    }
+    case 'SOFADI': {
+      return fontFamilies.SOFADI.regular;
+    }
+    default:
+      return;
   }
 };

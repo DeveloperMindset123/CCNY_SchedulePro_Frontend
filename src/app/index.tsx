@@ -74,10 +74,3 @@ const Landing: React.FC = () => {
 };
 
 export default Landing;
-
-const styles = StyleSheet.create({
-  image: {
-    justifyContent: 'center',
-    //alignItems,
-  },
-});
