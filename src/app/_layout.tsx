@@ -5,7 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeToggle } from '@/components/core/toggle';
-import { getFontFamily } from '@/lib/utils/getFontFamily';
 // Providers
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -104,6 +103,7 @@ function RootLayoutNav() {
                 fontWeight: '900',
                 // TODO : Change Font here
                 fontFamily: 'Pacifico',
+                fontSize: 24,
               },
             }}
           >
