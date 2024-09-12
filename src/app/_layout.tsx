@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useFonts } from 'expo-font';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -9,6 +8,7 @@ import { ThemeToggle } from '@/components/core/toggle';
 import { getFontFamily } from '@/lib/utils/getFontFamily';
 // Providers
 import { ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
 
 // TODO : fonts not loading
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
@@ -68,8 +68,21 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { colorScheme } = useColorScheme();
-  const headerFont = getFontFamily('SOFADI');
-  console.log(headerFont);
+  // may be unnneccessary
+  //const headerFont = getFontFamily('SOFADI');
+  const [loaded, error] = useFonts({
+    Pacifico: require('src/assets/fonts/pacifico.ttf'),
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <>
@@ -90,7 +103,7 @@ function RootLayoutNav() {
               headerTitleStyle: {
                 fontWeight: '900',
                 // TODO : Change Font here
-                fontFamily: headerFont,
+                fontFamily: 'Pacifico',
               },
             }}
           >

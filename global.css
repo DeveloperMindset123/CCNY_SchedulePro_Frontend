@@ -23,7 +23,7 @@
       --border: 230 230 235;
       --input: 210 210 215;
       --ring: 230 230 235;
-  
+
       --android-background: 249 249 255;
       --android-foreground: 0 0 0;
       --android-card: 255 255 255;
@@ -44,7 +44,7 @@
       --android-input: 210 210 215;
       --android-ring: 215 217 228;
     }
-  
+
     @media (prefers-color-scheme: dark) {
       :root {
         --background: 0 0 0;
@@ -66,7 +66,7 @@
         --border: 40 40 42;
         --input: 55 55 57;
         --ring: 40 40 42;
-  
+
         --android-background: 0 0 0;
         --android-foreground: 255 255 255;
         --android-card: 16 19 27;
@@ -89,4 +89,14 @@
       }
     }
   }
-  
+
+  @layer base {
+    /*custom fonts? */
+    @font-face {
+      font-family: 'Pacifico';
+      font-style: normal;
+      font-weight: 400;
+      font-display:  swap;
+      src : url(/src/assets/fonts/pacifico.ttf) format('ttf')
+    }
+  }

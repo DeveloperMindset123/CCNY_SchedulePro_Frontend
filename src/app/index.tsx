@@ -67,7 +67,7 @@ const Landing: React.FC = () => {
           width={40}
           height={40}
         />
-        <Text className="text-white"> Image Not Rendering</Text>
+        <Text className="flex text-white font-Pacifico"> Image Not Rendering</Text>
       </FadeInView>
     </View>
   );

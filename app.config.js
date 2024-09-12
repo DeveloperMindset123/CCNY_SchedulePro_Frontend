@@ -1,11 +1,12 @@
 module.exports = {
   expo: {
     name: 'expo-router-starter-kit-(expo-go)',
-    owner: "ritmillio",
+    owner: 'ritmillio',
     experiments: {
       typedRoutes: true,
       tsconfigPaths: true,
     },
+    plugins: ['expo-font'],
     slug: 'expo-router-starter-kit',
     version: '1.0.0',
     orientation: 'portrait',
@@ -19,24 +20,24 @@ module.exports = {
     },
     updates: {
       fallbackToCacheTimeout: 0,
-      url: "https://u.expo.dev/564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef"
+      url: 'https://u.expo.dev/564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef',
     },
     mode: 'production',
     assetBundlePatterns: ['**/*'],
     build: {
       development: {
-        distribution: "internal"
+        distribution: 'internal',
       },
       preview: {
-        distribution: "internal"
+        distribution: 'internal',
       },
       production: {
-        distribution: "store"
-      }
+        distribution: 'store',
+      },
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.your.bundle.identifier'
+      bundleIdentifier: 'com.your.bundle.identifier',
     },
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -67,18 +68,14 @@ module.exports = {
       bundler: 'metro',
       favicon: './public/favicon.png',
     },
-    plugins: [
-      [
-        'expo-router',
-      ]
-    ],
+    plugins: [['expo-router']],
     runtimeVersion: {
-      policy: "appVersion"
+      policy: 'appVersion',
     },
     extra: {
       eas: {
-        projectId: "564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef"
-      }
+        projectId: '564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef',
+      },
     },
   },
 };
