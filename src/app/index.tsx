@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, Animated, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { PropsWithChildren } from 'react';
 import { useFonts } from 'expo-font';
-import Svg, { Path, Use, Defs } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 type FadeInViewProps = PropsWithChildren<{ style: ViewStyle }>;
 
@@ -12,7 +12,7 @@ export const FadeInView: React.FC<FadeInViewProps> = (props) => {
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 5000,
+      duration: 3000,
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
@@ -68,7 +68,6 @@ const Landing: React.FC = () => {
           Class Schedule Manager
         </Text>
       </FadeInView>
-
       <TouchableOpacity className="flex-1 justify-center items-center">
         <Link
           href={{
