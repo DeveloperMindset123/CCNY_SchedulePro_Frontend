@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, useWindowDimensions } from 'react-native';
 import React from 'react';
 import Svg from 'react-native-svg';
 import { AuthenticationMiddlewareIcon } from '@/lib/utils/getSvgs';
@@ -47,7 +47,7 @@ const authenticationMiddleware: React.FC = () => {
         <TouchableOpacity
           className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-10 active:bg-gray-100 active:opacity-30"
           onPress={() => {
-            router.replace('/signin');
+            router.push('/signin');
           }}
         >
           <Text
@@ -64,7 +64,7 @@ const authenticationMiddleware: React.FC = () => {
           className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
           onPress={() => {
             // TODO : Implement this screen
-            router.replace('/signup');
+            router.push('/signup');
           }}
         >
           <Text
