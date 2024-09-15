@@ -113,6 +113,14 @@ function RootLayoutNav() {
               options={{ title: 'Welcome', headerShown: true, headerBackVisible: false }}
             />
             <Stack.Screen
+              name="onboardingWelcome"
+              options={{ title: 'Welcome', headerShown: true }}
+            />
+            <Stack.Screen
+              name="onboardingGetStarted"
+              options={{ title: 'Get Started', headerShown: true }}
+            />
+            <Stack.Screen
               name="authenticationMiddleware"
               options={{ title: '', headerShown: true }}
             />

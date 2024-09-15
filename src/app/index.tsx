@@ -122,7 +122,7 @@ const Landing: React.FC = () => {
       <TouchableOpacity className="flex-1 justify-center items-center">
         <Link
           href={{
-            pathname: '/authenticationMiddleware',
+            pathname: '/onboardingWelcome',
           }}
           className="text-white"
         >
