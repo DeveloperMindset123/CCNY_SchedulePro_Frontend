@@ -19,7 +19,7 @@ const authenticationMiddleware: React.FC = () => {
   return (
     <View className="flex-1 bg-black text-white justify-center">
       <View className="h-80 -translate-y-44 mb-none">
-        <Svg className="">
+        <Svg>
           <AuthenticationMiddlewareIcon
             dimensions={{
               width: 150,
