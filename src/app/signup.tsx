@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, useWindowDimensions } from 'react-native';
+import { View, Text } from 'react-native';
 import Svg from 'react-native-svg';
 import { SignupIcon } from '@/lib/utils/getSvgs';
 import { useFonts } from 'expo-font';
 import { TouchableOpacity } from '@/components/core/button';
 import { router } from 'expo-router';
+import getWindowDimensions from '@/lib/utils/getWindowDimension';
 
 const signup: React.FC = () => {
-  const { height, width, scale, fontScale } = useWindowDimensions();
+  const { width, height } = getWindowDimensions();
 
   return (
     <View className="flex-1 bg-black text-white justify-center">

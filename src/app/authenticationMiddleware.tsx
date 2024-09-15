@@ -1,4 +1,4 @@
-import { View, Text, useWindowDimensions } from 'react-native';
+import { View, Text } from 'react-native';
 import React from 'react';
 import Svg from 'react-native-svg';
 import { AuthenticationMiddlewareIcon } from '@/lib/utils/getSvgs';
@@ -6,31 +6,20 @@ import { useFonts } from 'expo-font';
 import { TouchableOpacity } from '@/components/core/button';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
+import getWindowDimensions from '@/lib/utils/getWindowDimension';
 // TODO : Add more animations
 // @see https://reactnative.dev/docs/animations
 const authenticationMiddleware: React.FC = () => {
-  const { height, width, scale, fontScale } = useWindowDimensions();
-
-  console.log(`Width of current application window : ${width}\n
-  height of current application window : ${height}
-  `);
+  const { width, height } = getWindowDimensions();
   const [loaded, error] = useFonts({
     PlaypenBold: require('src/assets/fonts/PlaypenSans-Bold.ttf'),
     PlaypenRegular: require('src/assets/fonts/PlaypenSans-Regular.ttf'),
   });
-  if (!loaded && !error) {
-    return null;
-  }
 
   const handleImagePosition = () => {
-    let dynamicWidth, dynamicHeight;
     if (width > 600) {
-      dynamicWidth = 500;
-      dynamicHeight = 500;
       return {
         currentClassname: 'w-92 items-center justify-center -translate-y-60 mx-auto',
-        currentWidth: dynamicWidth,
-        currentHeight: dynamicHeight,
       };
     } else {
       return {
@@ -41,6 +30,9 @@ const authenticationMiddleware: React.FC = () => {
     }
   };
 
+  if (!loaded && !error) {
+    return null;
+  }
   const retrievedStyling = handleImagePosition();
   console.log(retrievedStyling);
   return (
