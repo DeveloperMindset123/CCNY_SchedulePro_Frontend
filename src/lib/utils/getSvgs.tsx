@@ -3,18 +3,16 @@ import { View } from 'react-native';
 import Svg, { G, Rect, Defs, Pattern, Use, Image, NumberProp } from 'react-native-svg';
 
 // @see : https://transform.tools/svg-to-react-native
-export function AuthenticationMiddleware(
-  width: NumberProp | undefined,
-  height: NumberProp | undefined
-) {
+export function AuthenticationMiddleware(props: any) {
   return (
     <Svg
       // ignore
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 20 250 220"
-      width={width}
-      height={height}
+      width={props?.width}
+      height={props?.height}
       fill="none"
+      {...props}
     >
       <G opacity="100%" filter="url(#filter_dshadow_0_0_0_00000014)">
         <Rect width={256} height={256} rx={24} fill="url(#a)" />
@@ -43,8 +41,8 @@ export function AuthenticationMiddleware(
 // Bootleg fix
 export class AuthenticationMiddlewareIcon extends React.Component<any> {
   render() {
-    const style = this.props;
-    const component = AuthenticationMiddleware(style.width, style.height);
+    const { style } = this.props;
+    const component = AuthenticationMiddleware(style);
 
     return <View style={style}>{component}</View>;
   }

@@ -9,6 +9,11 @@ import { router } from 'expo-router';
 // TODO : Add more animations
 // @see https://reactnative.dev/docs/animations
 const authenticationMiddleware: React.FC = () => {
+  const { height, width, scale, fontScale } = useWindowDimensions();
+
+  console.log(`Width of current application window : ${width}\n
+  height of current application window : ${height}
+  `);
   const [loaded, error] = useFonts({
     PlaypenBold: require('src/assets/fonts/PlaypenSans-Bold.ttf'),
     PlaypenRegular: require('src/assets/fonts/PlaypenSans-Regular.ttf'),
@@ -16,22 +21,46 @@ const authenticationMiddleware: React.FC = () => {
   if (!loaded && !error) {
     return null;
   }
+
+  const handleImagePosition = () => {
+    let dynamicWidth, dynamicHeight;
+    if (width > 600) {
+      dynamicWidth = 500;
+      dynamicHeight = 500;
+      return {
+        currentClassname: 'w-92 items-center justify-center -translate-y-60 mx-auto',
+        currentWidth: dynamicWidth,
+        currentHeight: dynamicHeight,
+      };
+    } else {
+      return {
+        currentClassname: 'w-auto items-center justify-center mx-auto',
+        currentWidth: width * 0.95,
+        height: 340,
+      };
+    }
+  };
+
+  const retrievedStyling = handleImagePosition();
+  console.log(retrievedStyling);
   return (
     <View className="flex-1 bg-black text-white justify-center">
-      <View className="h-80 -translate-y-44 mb-none">
-        <Svg>
-          <AuthenticationMiddlewareIcon
-            dimensions={{
-              width: 150,
-              height: 150,
-            }}
-          />
-        </Svg>
+      <View className="h-80 mb-10 -translate-y-44 mb-none">
+        <View className={retrievedStyling.currentClassname}>
+          <Svg>
+            <AuthenticationMiddlewareIcon
+              style={{
+                width: width > 600 ? width * 0.97 : width * 0.95,
+                height: width > 600 ? height * 0.5 : 340,
+              }}
+            />
+          </Svg>
+        </View>
         <Text
           style={{
             fontFamily: 'PlaypenBold',
           }}
-          className="text-white mx-auto justify-center items-center mt-10 text-4xl"
+          className="text-white mx-auto justify-center items-center mt-12 text-4xl"
         >
           Class Scheduler
         </Text>

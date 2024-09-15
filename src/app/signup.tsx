@@ -8,7 +8,6 @@ import { router } from 'expo-router';
 
 const signup: React.FC = () => {
   const { height, width, scale, fontScale } = useWindowDimensions();
-  console.log(`Scale : ${scale}\n FontScale : ${fontScale}`);
 
   return (
     <View className="flex-1 bg-black text-white justify-center">
