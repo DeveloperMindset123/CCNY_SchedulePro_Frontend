@@ -117,6 +117,20 @@ function RootLayoutNav() {
               options={{ title: '', headerShown: true }}
             />
             <Stack.Screen
+              name="signin"
+              options={{
+                title: 'Sign In',
+                headerShown: true,
+              }}
+            />
+            <Stack.Screen
+              name="signup"
+              options={{
+                title: 'Sign Up',
+                headerShown: true,
+              }}
+            />
+            <Stack.Screen
               name="modal"
               options={{
                 title: 'Modal',
