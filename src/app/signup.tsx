@@ -12,18 +12,16 @@ const signup: React.FC = () => {
 
   return (
     <View className="flex-1 bg-black text-white justify-center">
-      <View className="items-center justify-center mx-auto mt-10">
-        <Svg>
-          <SignupIcon
-            style={{
-              // occupy 1/4th of screen
-              width: width * 0.55,
-              height: height * 0.4,
-            }}
-          />
-        </Svg>
+      {/**TODO : Make this reponsive depending on the screen */}
+      <View className="-top-28 items-center justify-center mx-auto">
+        <SignupIcon
+          style={{
+            width: width * 0.55,
+            height: height * 0.4,
+          }}
+        />
+        <Text className="text-white">Test Text</Text>
       </View>
-      <Text className="text-white">This is the login screen</Text>
     </View>
   );
 };
