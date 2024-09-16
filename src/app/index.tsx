@@ -36,9 +36,9 @@ const Landing: React.FC = () => {
     width: 0,
     height: 0,
   });
-  const [loaded, error] = useFonts({
+  /*const [loaded, error] = useFonts({
     Sofadi: require('src/assets/fonts/SofadiOne-Regular.ttf'),
-  });
+  }); */
 
   const { width, height } = getWindowDimensions();
   useEffect(() => {
@@ -83,9 +83,9 @@ const Landing: React.FC = () => {
   }, [width, height]);
   const imagePath = require('src/assets/images/Landing-Screen-Image-Updated.png');
 
-  if (!loaded && !error) {
+  /* if (!loaded && !error) {
     return null;
-  }
+  } */
 
   return (
     <View className="flex-1 bg-black text-white">
@@ -103,7 +103,7 @@ const Landing: React.FC = () => {
         />
         <Text
           style={{
-            fontFamily: 'Sofadi',
+            fontFamily: 'sofadi',
           }}
           // TODO : Convert to a function call
           className={titleFont}
@@ -112,7 +112,7 @@ const Landing: React.FC = () => {
         </Text>
         <Text
           style={{
-            fontFamily: 'Sofadi',
+            fontFamily: 'sofadi',
           }}
           className={secondaryTextFont}
         >

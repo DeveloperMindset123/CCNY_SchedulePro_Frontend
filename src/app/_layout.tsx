@@ -43,7 +43,19 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    // gloabl font import here
+    spaceMono: require('src/assets/fonts/spaceMono.ttf'),
+    playpenBold: require('src/assets/fonts/playpenBold.ttf'),
+    playpenExtraBold: require('src/assets/fonts/playpenExtraBold.ttf'),
+    playpenExtraLight: require('src/assets/fonts/playpenExtraLight.ttf'),
+    playpenLight: require('src/assets/fonts/playpenLight.ttf'),
+    playpenMedium: require('src/assets/fonts/playpenMedium.ttf'),
+    playpenRegular: require('src/assets/fonts/playpenRegular.ttf'),
+    playpenSemiBold: require('src/assets/fonts/playpenSemiBold.ttf'),
+    playpenThin: require('src/assets/fonts/playpenThin.ttf'),
+    playpenVariable: require('src/assets/fonts/playpenVariable.ttf'),
+    sofadi: require('src/assets/fonts/sofadi.ttf'),
+    pacifico: require('src/assets/fonts/pacifico.ttf'),
     ...FontAwesome.font,
   });
 
@@ -51,7 +63,6 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  /** Adjust or remove hide Splash Screen TimeOut based on preference */
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hideAsync();
@@ -67,22 +78,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { colorScheme } = useColorScheme();
-  // may be unnneccessary
-  //const headerFont = getFontFamily('SOFADI');
-  const [loaded, error] = useFonts({
-    Pacifico: require('src/assets/fonts/pacifico.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded, error]);
-
-  if (!loaded && !error) {
-    return null;
-  }
-
   return (
     <>
       <StatusBar
@@ -102,7 +97,7 @@ function RootLayoutNav() {
               headerTitleStyle: {
                 fontWeight: '900',
                 // TODO : Change Font here
-                fontFamily: 'Pacifico',
+                fontFamily: 'pacifico',
                 fontSize: 24,
               },
             }}

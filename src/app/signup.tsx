@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import Svg from 'react-native-svg';
 import { SignupIcon } from '@/lib/utils/getSvgs';
-import { useFonts } from 'expo-font';
 import { TouchableOpacity } from '@/components/core/button';
 import { router } from 'expo-router';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
@@ -20,7 +19,14 @@ const signup: React.FC = () => {
             height: height * 0.4,
           }}
         />
-        <Text className="text-white">Test Text</Text>
+        <Text
+          style={{
+            fontFamily: 'playpenVariable',
+          }}
+          className="text-white"
+        >
+          Test Text
+        </Text>
       </View>
     </View>
   );
