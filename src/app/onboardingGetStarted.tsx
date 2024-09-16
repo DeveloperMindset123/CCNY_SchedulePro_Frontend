@@ -4,18 +4,18 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 const classes = [
-  { id: 1, name: 'Physical Education', icon: require('../assets/images/Icon dumbbell.png') },
-  { id: 2, name: 'Literature Study', icon: require('../assets/images/Icon book open.png') },
-  { id: 3, name: 'Field Trips', icon: require('../assets/images/Icon binoculars.png') },
-  { id: 4, name: 'Schedule Planning', icon: require('../assets/images/Icon clipboard check.png') },
-  { id: 5, name: 'Early Morning Classes', icon: require('../assets/images/Icon bed.png') },
+  { id: 1, name: 'Physical Education', icon: require('src/assets/images/Icon dumbbell.png') },
+  { id: 2, name: 'Literature Study', icon: require('src/assets/images/Icon book open.png') },
+  { id: 3, name: 'Field Trips', icon: require('src/assets/images/Icon binoculars.png') },
+  { id: 4, name: 'Schedule Planning', icon: require('src/assets/images/Icon clipboard check.png') },
+  { id: 5, name: 'Early Morning Classes', icon: require('src/assets/images/Icon bed.png') },
   {
     id: 6,
     name: 'Music Appreciation',
-    icon: require('../assets/images/Icon headphones simple.png'),
+    icon: require('src/assets/images/Icon headphones simple.png'),
   },
-  { id: 7, name: 'Note-taking', icon: require('../assets/images/Icon pen fancy.png') },
-  { id: 8, name: 'Photography Breaks', icon: require('../assets/images/Icon camera retro.png') },
+  { id: 7, name: 'Note-taking', icon: require('src/assets/images/Icon pen fancy.png') },
+  { id: 8, name: 'Photography Breaks', icon: require('src/assets/images/Icon camera retro.png') },
 ];
 
 const onboardingGetStarted: React.FC = () => {

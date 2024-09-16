@@ -84,7 +84,7 @@ const authenticationMiddleware: React.FC = () => {
           className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
           onPress={() => {
             // TODO : Implement this screen
-            router.push('/signup');
+            router.push('/onboardingGetSt');
           }}
         >
           <Text
