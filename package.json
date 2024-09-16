@@ -6,7 +6,11 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "ts:check": "tsc"
+    "ts:check": "tsc",
+    "build ios": "eas build --platform ios",
+    "build android": "eas build --platform android",
+    "build all platforms": "eas build --platform all",
+    "build and view log": "eas build:list"
   },
   "dependencies": {
     "@expo/cli": "^0.10.11",
