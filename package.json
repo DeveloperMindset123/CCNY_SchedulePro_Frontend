@@ -9,7 +9,7 @@
     "ts:check": "tsc",
     "build ios": "eas build --platform ios",
     "build android": "eas build --platform android",
-    "build all platforms": "eas build --platform all",
+    "build": "eas build --platform all",
     "build and view log": "eas build:list"
   },
   "dependencies": {
