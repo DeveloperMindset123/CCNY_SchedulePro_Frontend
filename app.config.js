@@ -1,12 +1,30 @@
 module.exports = {
   expo: {
     name: 'expo-router-starter-kit-(expo-go)',
-    owner: 'ritmillio',
+    owner: 'Ayan',
     experiments: {
       typedRoutes: true,
       tsconfigPaths: true,
     },
-    plugins: ['expo-font'],
+    plugins: [
+      'expo-font',
+      {
+        // miscellaneous
+        fonts: [
+          'src/assets/fonts/pacifico.ttf',
+          'src/assets/fonts/playpenBold.ttf',
+          'src/assets/fonts/playpenExtraBold.ttf',
+          'src/assets/fonts/playpenLight.ttf',
+          'src/assets/fonts/playpenMedium.ttf',
+          'src/assets/fonts/playpenRegular.ttf',
+          'src/assets/fonts/playpenSemiBold.ttf',
+          'src/assets/fonts/playpenThin.ttf',
+          'src/assets/fonts/playpenVariable.ttf',
+          'src/assets/fonts/sofadi.ttf',
+          'src/assets/fonts/spaceMono.ttf',
+        ],
+      },
+    ],
     slug: 'expo-router-starter-kit',
     version: '1.0.0',
     orientation: 'portrait',

@@ -11,10 +11,10 @@ import getWindowDimensions from '@/lib/utils/getWindowDimension';
 // @see https://reactnative.dev/docs/animations
 const authenticationMiddleware: React.FC = () => {
   const { width, height } = getWindowDimensions();
-  const [loaded, error] = useFonts({
-    PlaypenBold: require('src/assets/fonts/PlaypenSans-Bold.ttf'),
+  /*const [loaded, error] = useFonts({
+    PlaypenBold: require('src/assets/fonts/playpenBold.ttf'),
     PlaypenRegular: require('src/assets/fonts/PlaypenSans-Regular.ttf'),
-  });
+  }); */
 
   const handleImagePosition = () => {
     if (width > 600) {
@@ -30,11 +30,10 @@ const authenticationMiddleware: React.FC = () => {
     }
   };
 
-  if (!loaded && !error) {
+  /*if (!loaded && !error) {
     return null;
-  }
+  } */
   const retrievedStyling = handleImagePosition();
-  console.log(retrievedStyling);
   return (
     <View className="flex-1 bg-black text-white justify-center">
       <View className="h-80 mb-10 -translate-y-44 mb-none">
@@ -50,7 +49,7 @@ const authenticationMiddleware: React.FC = () => {
         </View>
         <Text
           style={{
-            fontFamily: 'PlaypenBold',
+            fontFamily: 'playpenBold',
           }}
           className="text-white mx-auto justify-center items-center mt-12 text-4xl"
         >
@@ -58,7 +57,7 @@ const authenticationMiddleware: React.FC = () => {
         </Text>
         <Text
           style={{
-            fontFamily: 'PlaypenRegular',
+            fontFamily: 'playpenRegular',
           }}
           className="text-white mx-3 mt-3 text-center text-base"
         >
@@ -73,7 +72,7 @@ const authenticationMiddleware: React.FC = () => {
         >
           <Text
             style={{
-              fontFamily: 'PlaypenRegular',
+              fontFamily: 'playpenRegular',
             }}
             className="text-center text-black text-xl"
           >
@@ -90,7 +89,7 @@ const authenticationMiddleware: React.FC = () => {
         >
           <Text
             style={{
-              fontFamily: 'PlaypenRegular',
+              fontFamily: 'playpenRegular',
             }}
             className="text-center text-black text-xl"
           >
