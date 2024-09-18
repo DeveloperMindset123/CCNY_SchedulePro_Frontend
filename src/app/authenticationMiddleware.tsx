@@ -11,11 +11,6 @@ import getWindowDimensions from '@/lib/utils/getWindowDimension';
 // @see https://reactnative.dev/docs/animations
 const authenticationMiddleware: React.FC = () => {
   const { width, height } = getWindowDimensions();
-  /*const [loaded, error] = useFonts({
-    PlaypenBold: require('src/assets/fonts/playpenBold.ttf'),
-    PlaypenRegular: require('src/assets/fonts/PlaypenSans-Regular.ttf'),
-  }); */
-
   const handleImagePosition = () => {
     if (width > 600) {
       return {
@@ -30,9 +25,6 @@ const authenticationMiddleware: React.FC = () => {
     }
   };
 
-  /*if (!loaded && !error) {
-    return null;
-  } */
   const retrievedStyling = handleImagePosition();
   return (
     <View className="flex-1 bg-black text-white justify-center">
@@ -47,20 +39,10 @@ const authenticationMiddleware: React.FC = () => {
             />
           </Svg>
         </View>
-        <Text
-          style={{
-            fontFamily: 'playpenBold',
-          }}
-          className="text-white mx-auto justify-center items-center mt-12 text-4xl"
-        >
+        <Text className="text-white mx-auto justify-center items-center mt-12 text-4xl font-serif">
           Class Scheduler
         </Text>
-        <Text
-          style={{
-            fontFamily: 'playpenRegular',
-          }}
-          className="text-white mx-3 mt-3 text-center text-base"
-        >
+        <Text className="text-white mx-3 mt-3 text-center text-base font-sans">
           Welcome to CCNY Class Schedule Pro, your go-to app for managing class schedules, course
           information and more at CCNY!
         </Text>
@@ -70,12 +52,7 @@ const authenticationMiddleware: React.FC = () => {
             router.push('/signin');
           }}
         >
-          <Text
-            style={{
-              fontFamily: 'playpenRegular',
-            }}
-            className="text-center text-black text-xl"
-          >
+          <Text className="text-center text-black text-xl font-normal">
             Sign In{'\t'}
             <AntDesign name="login" size={24} color="black" />
           </Text>
@@ -83,16 +60,10 @@ const authenticationMiddleware: React.FC = () => {
         <TouchableOpacity
           className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
           onPress={() => {
-            // TODO : Implement this screen
             router.push('/signup');
           }}
         >
-          <Text
-            style={{
-              fontFamily: 'playpenRegular',
-            }}
-            className="text-center text-black text-xl"
-          >
+          <Text className="text-center text-black text-xl font-normal">
             Sign Up {'\b'}
             <AntDesign name="user" size={24} color="black" />
           </Text>

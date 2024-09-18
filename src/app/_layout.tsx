@@ -138,8 +138,6 @@ function RootLayoutNav() {
                 title: 'Modal',
                 presentation: 'modal',
                 animation: 'fade_from_bottom',
-
-                /** You have the ability to add left and right header JSX/TSX component here fx.: a Pressable Icon component or a Close Icon module*/
                 headerRight: () => <ThemeToggle />,
                 headerLeft: () => null,
               }}

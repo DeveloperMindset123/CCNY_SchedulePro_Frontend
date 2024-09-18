@@ -7,6 +7,8 @@ import Svg, { Path } from 'react-native-svg';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 
 type FadeInViewProps = PropsWithChildren<{ style: ViewStyle }>;
+
+// TODO : ! https://blog.logrocket.com/react-native-push-notifications-complete-guide/ --> notification system guide
 const FadeInView: React.FC<FadeInViewProps> = (props) => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // opacity initial : 0
   useEffect(() => {
@@ -36,19 +38,16 @@ const Landing: React.FC = () => {
     width: 0,
     height: 0,
   });
-  /*const [loaded, error] = useFonts({
-    Sofadi: require('src/assets/fonts/SofadiOne-Regular.ttf'),
-  }); */
 
   const { width, height } = getWindowDimensions();
   useEffect(() => {
     if (width > 600) {
       setCurrentImageStyling('w-[600px] h-[600px] justify-center object-none m-auto mt-1');
       setTitleFont(
-        'flex text-white font-Pacifico font-bold text-8xl items-center justify-center mx-auto mt-6'
+        'flex text-white font-Pacifico font-bold text-8xl items-center justify-center mx-auto mt-6 font-mono'
       );
       setSecondaryTextFont(
-        'mx-auto flex items-center justify-center text-white text-4xl leading-8 mt-4'
+        'mx-auto flex items-center justify-center text-white text-4xl leading-8 mt-4 font-sans'
       );
       // ipads and tablets
       setSvgDimensions({
@@ -58,12 +57,12 @@ const Landing: React.FC = () => {
     } else {
       setCurrentImageStyling('w-80 h-80 justify-center object-none object-center m-auto mt-1');
       setTitleFont(
-        'flex text-white font-Pacifico font-bold text-5xl items-center justify-center mx-auto mt-6'
+        'flex text-white font-Pacifico font-bold text-5xl items-center justify-center mx-auto mt-6 font-mono'
       );
       if (height > 700) {
         // large phones
         setSecondaryTextFont(
-          'mx-auto flex items-center justify-center text-white text-3xl leading-8 mt-4'
+          'mx-auto flex items-center justify-center text-white text-3xl leading-8 mt-4 font-sans'
         );
         setSvgDimensions({
           width: 45,
@@ -71,9 +70,8 @@ const Landing: React.FC = () => {
         });
       } else {
         setSecondaryTextFont(
-          'mx-auto flex items-center justify-center text-white text-2xl leading-8 mt-4'
+          'mx-auto flex items-center justify-center text-white text-2xl leading-8 mt-4 font-sans'
         );
-        // small/mid-sized phones
         setSvgDimensions({
           width: 35,
           height: 35,
@@ -82,10 +80,6 @@ const Landing: React.FC = () => {
     }
   }, [width, height]);
   const imagePath = require('src/assets/images/Landing-Screen-Image-Updated.png');
-
-  /* if (!loaded && !error) {
-    return null;
-  } */
 
   return (
     <View className="flex-1 bg-black text-white">
@@ -102,22 +96,12 @@ const Landing: React.FC = () => {
           height={40}
         />
         <Text
-          style={{
-            fontFamily: 'sofadi',
-          }}
           // TODO : Convert to a function call
           className={titleFont}
         >
           CCNY
         </Text>
-        <Text
-          style={{
-            fontFamily: 'sofadi',
-          }}
-          className={secondaryTextFont}
-        >
-          Class Schedule Manager
-        </Text>
+        <Text className={secondaryTextFont}>Class Schedule Manager</Text>
       </FadeInView>
       <TouchableOpacity className="flex-1 justify-center items-center">
         <Link
