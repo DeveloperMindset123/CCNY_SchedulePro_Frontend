@@ -8,6 +8,9 @@ import getWindowDimensions from '@/lib/utils/getWindowDimension';
 
 // TODO : https://snack.expo.dev/@patriciamilou/react-native-paper-issue-with-textinput?platform=ios
 // reference the above link to see how this issue can be fixed
+{
+  /**TODO : Implement a map to iteraete and implement the inputs as needed, abstract it or make it dynamic */
+}
 const signup: React.FC = () => {
   // TODO : Convert the types
   const [titleFontStyling, setTitleFontStyling] = useState<string>('');
@@ -22,8 +25,6 @@ const signup: React.FC = () => {
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string | any>('');
   const { width, height } = getWindowDimensions();
 
-  // TODO : Remove later
-  console.log(`Current width : ${width}\n Current Height : ${height}`);
   // TODO : Convert to switch statement
   useEffect(() => {
     if (width > 600 && height > 700) {
@@ -98,7 +99,6 @@ const signup: React.FC = () => {
 
         <Text className={titleFontStyling}>Join CCNY Schedule Pro!</Text>
         <Text className={secondaryTextStyling}>Explore and manage class schedules efficiently</Text>
-        {/**TODO : Implement a map to iteraete and implement the inputs as needed, abstract it or make it dynamic */}
         <KeyboardAvoidingView>
           <TextInput
             style={{
