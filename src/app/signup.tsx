@@ -17,6 +17,10 @@ import { router } from 'expo-router';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { ParallaxScrollView } from '@/components/core/parallax-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
+import * as Device from 'expo-device';
+import { AntDesign } from '@expo/vector-icons';
+import { SignupButton } from '@/components/core/signupButton';
+import { TextInputComponent } from '@/components/core/textInputComponent';
 
 // TODO : https://snack.expo.dev/@patriciamilou/react-native-paper-issue-with-textinput?platform=ios
 // reference the above link to see how this issue can be fixed
@@ -25,7 +29,6 @@ const signup: React.FC = () => {
   // TODO : Convert the types
   const [titleFontStyling, setTitleFontStyling] = useState<string>('');
   const [secondaryTextStyling, setSecondaryTextStyling] = useState<string>('');
-  const [imagePositionStyling, setImagePositionStyling] = useState<string>('');
   const [emailInput, setEmailInput] = useState<string | any>('');
   const [emailInputStyling, setEmailInputStyling] = useState<string | any>('');
   const [passwordInput, setPasswordInput] = useState<string | any>('');
@@ -36,12 +39,13 @@ const signup: React.FC = () => {
   const { width, height } = getWindowDimensions();
 
   // TODO : Convert to switch statement
+  // TODO : Convert this to a getter function instead
   useEffect(() => {
     if (width > 600 && height > 700) {
       // ipad styling
       setTitleFontStyling('mt-14 text-white text-[55px] font-serif');
       setSecondaryTextStyling('text-white  text-[35px] text-center px-14 my-7');
-      setPasswordInputStyling(
+      /*setPasswordInputStyling(
         'bg-[#2f2f2f] text-[#94a3b8] h-[40px] m-[12px] border-spacing-1 text-2xl p-[10px] rounded-full pl-10'
       );
       setEmailInputStyling(
@@ -49,12 +53,12 @@ const signup: React.FC = () => {
       );
       setButtonStyling(
         'bg-white w-[700px] h-[60px] justify-center rounded-full items-center mx-auto mt-7 active:bg-gray-100 active:opacity-30'
-      );
+      ); */
     } else if (height > 700 && width > 430) {
       // larger phones
       setTitleFontStyling('text-white text-3xl mt-8 font-serif');
       setSecondaryTextStyling('text-white mt-2 text-lg text-center px-8');
-      setPasswordInputStyling(
+      /* setPasswordInputStyling(
         'bg-[#2f2f2f] text-[#94a3b8] h-[40px] m-[12px] border-spacing-1 text-lg p-[10px] rounded-full pl-10'
       );
       setEmailInputStyling(
@@ -62,23 +66,23 @@ const signup: React.FC = () => {
       );
       setButtonStyling(
         'bg-white w-96 h-12 justify-center rounded-full items-center mx-auto mt-6 active:bg-gray-100 active:opacity-30'
-      );
+      ); */
     }
     // TODO : This is bootleg, see if there's a better way to fix this for older phones
     else if (width === 414) {
       setTitleFontStyling('text-white text-xl mt-4 font-serif text-center');
       setSecondaryTextStyling('text-white mt-1 text-md text-center px-10');
-      setPasswordInputStyling(
+      /*setPasswordInputStyling(
         'bg-[#2f2f2f] text-[#94a3b8] h-[38px] m-[12px] border-spacing-1 text-md rounded-full pl-10'
       );
       setEmailInputStyling(
         'bg-[#2f2f2f] text-[#94a3b8] h-[40px] m-[12px] border-spacing-1 text-md rounded-full pl-10 mt-6'
-      );
+      ); */
     } else {
       setTitleFontStyling('text-white text-2xl mt-6 font-serif');
-      setImagePositionStyling('items-center justify-center mx-auto mt-3');
+      //setImagePositionStyling('items-center justify-center mx-auto mt-3');
       setSecondaryTextStyling('text-white mt-1 text-md text-center px-10');
-      setPasswordInputStyling(
+      /*setPasswordInputStyling(
         'bg-[#2f2f2f] text-[#94a3b8] h-[38px] m-[12px] border-spacing-1 text-md rounded-full pl-10'
       );
       setEmailInputStyling(
@@ -86,7 +90,7 @@ const signup: React.FC = () => {
       );
       setButtonStyling(
         'bg-white w-80 h-12 justify-center rounded-full items-center mx-auto mt-4 active:bg-gray-100 active:opacity-30'
-      );
+      ); */
     }
   }, [width, height]);
 
@@ -113,7 +117,8 @@ const signup: React.FC = () => {
         <Text className={titleFontStyling}>Join CCNY Schedule Pro!</Text>
         <Text className={secondaryTextStyling}>Explore and manage class schedules efficiently</Text>
       </KeyboardAvoidingView>
-      <ScrollView>
+      <TextInputComponent />
+      {/*
         <View className="flex-1 items-center justify-center m-auto">
           <TextInput
             style={{
@@ -122,7 +127,7 @@ const signup: React.FC = () => {
             }}
             className={emailInputStyling}
             onChange={setEmailInput}
-            placeholder="Enter Your Email"
+          placeholder="Enter Your Email"
             value={emailInput}
             placeholderTextColor="black"
             keyboardType="default"
@@ -160,18 +165,13 @@ const signup: React.FC = () => {
             secureTextEntry={true}
             keyboardType="default"
             onSubmitEditing={Keyboard.dismiss}
-          ></TextInput>
-          <Pressable
-            className={buttonStyling}
-            onPress={() => {
-              // TODO : Implement this screen
-              router.push('/onboardingGetStarted');
-            }}
-          >
-            <Text className="text-center text-blue text-xl font-serif bg-white">Sign Up</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+          />
+          <SignupButton
+            width={inputBoxWidth}
+            height={inputBoxHeight}
+            route="/onboardingGetStarted"
+          />
+          </View> */}
     </ScrollView>
   );
 };
