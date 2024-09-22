@@ -17,6 +17,7 @@ export const SignupButton = ({ width, height, route }: SignUpButton) => {
         height: height,
       }}
       className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
+      // TODO : Needs fixing
       onPress={() => router.push(route)}
     >
       <Text className="text-center text-black text-xl font-normal">
