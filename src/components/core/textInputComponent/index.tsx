@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { TextInputChangeEventData } from 'react-native';
-import { View, TextInput, DimensionValue, NativeSyntheticEvent, Keyboard } from 'react-native';
+import { useState } from 'react';
+import { View, TextInput, Keyboard } from 'react-native';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { getSignupStyles } from './getSignupStyles';
 
@@ -8,11 +7,8 @@ import { getSignupStyles } from './getSignupStyles';
 export const TextInputComponent = () => {
   const { width, height } = getWindowDimensions();
   const currentStyles = getSignupStyles();
-  // TODO : remove later
-  //console.log(JSON.stringify(currentStyles));
 
   const dimensions = {
-    // likely where the error was occuring
     width: width * 0.9,
     height: height * 0.07,
   };
@@ -28,31 +24,19 @@ export const TextInputComponent = () => {
 
   const handlePasswordInput = (e: any) => {
     setPasswordInput(e.nativeEvent.text);
-    console.log(passwordInput);
   };
 
   const handleConfirmPasswordInput = (e: any) => {
     setConfirmPasswordInput(e.nativeEvent.text);
-    console.log(confirmPasswordInput);
   };
-  console.log(`Current Email Input : ${emailInput}`);
-  console.log(`Current password input : ${passwordInput}`);
-  console.log(`Current confirm password input : ${confirmPasswordInput}`);
 
-  // TODO : remove later
-  useEffect(() => {
-    // test to see if the inputs are being picked up as intended
-  }, [emailInput]);
-  // array of objects
   const TextInputArray = [
     {
       id: 1,
       dimensions: dimensions,
       tailwindStyling: currentStyles.emailInputStyling,
       placeholderText: 'Enter Your Email',
-      //static value for all 3
-      //placeholderTextColor : "gray-500",
-      onChangeFunction: (e: any) => handleEmailInput(e),
+      onChangeFunction: (newEmail: any) => handleEmailInput(newEmail),
       value: emailInput,
       isPassword: false,
       blur: true,
@@ -62,8 +46,7 @@ export const TextInputComponent = () => {
       dimensions: dimensions,
       tailwindStyling: currentStyles.passwordInputStyling,
       placeholderText: 'Enter your password',
-      // TODO : Define them seperately
-      onChangeFunction: (e: any) => handlePasswordInput(e),
+      onChangeFunction: (newPassword: any) => handlePasswordInput(newPassword),
       value: passwordInput,
       isPassword: true,
       blur: false,
@@ -73,7 +56,7 @@ export const TextInputComponent = () => {
       dimensions: dimensions,
       tailwindStyling: currentStyles.passwordInputStyling,
       placeholderText: 'Retype your password',
-      onChangeFunction: (e: any) => handleConfirmPasswordInput(e),
+      onChangeFunction: (confirmNewPassword: any) => handleConfirmPasswordInput(confirmNewPassword),
       value: confirmPasswordInput,
       isPassword: true,
       blur: false,
@@ -96,6 +79,7 @@ export const TextInputComponent = () => {
           secureTextEntry={TextInputIter.isPassword}
           blurOnSubmit={TextInputIter.blur}
           placeholderTextColor="grey-500"
+          autoCorrect={false}
         />
       ))}
     </View>
