@@ -67,6 +67,7 @@ module.exports = {
         backgroundColor: '#ffffff',
       },
       // Add your custom intent filters here for Deep Linking
+      softwareKeyboardLayoutMode: 'pan',
       intentFilters: [
         {
           action: 'VIEW',
