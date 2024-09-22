@@ -118,60 +118,7 @@ const signup: React.FC = () => {
         <Text className={secondaryTextStyling}>Explore and manage class schedules efficiently</Text>
       </KeyboardAvoidingView>
       <TextInputComponent />
-      {/*
-        <View className="flex-1 items-center justify-center m-auto">
-          <TextInput
-            style={{
-              width: inputBoxWidth,
-              height: inputBoxHeight,
-            }}
-            className={emailInputStyling}
-            onChange={setEmailInput}
-          placeholder="Enter Your Email"
-            value={emailInput}
-            placeholderTextColor="black"
-            keyboardType="default"
-            autoCapitalize="none"
-            onSubmitEditing={Keyboard.dismiss}
-          ></TextInput>
-          <TextInput
-            style={{
-              width: inputBoxWidth,
-              height: inputBoxHeight,
-            }}
-            className={passwordInputStyling}
-            onChange={setPasswordInput}
-            placeholder="Enter Your Password"
-            placeholderTextColor="black"
-            value={passwordInput}
-            autoCapitalize="none"
-            secureTextEntry={true}
-            blurOnSubmit={false}
-            keyboardType="default"
-            onSubmitEditing={Keyboard.dismiss}
-          ></TextInput>
-          <TextInput
-            style={{
-              width: inputBoxWidth,
-              height: inputBoxHeight,
-            }}
-            autoCapitalize="none"
-            className={passwordInputStyling}
-            onChange={setConfirmPasswordInput}
-            placeholder="Confirm Your Password"
-            placeholderTextColor="black"
-            value={confirmPasswordInput}
-            blurOnSubmit={false}
-            secureTextEntry={true}
-            keyboardType="default"
-            onSubmitEditing={Keyboard.dismiss}
-          />
-          <SignupButton
-            width={inputBoxWidth}
-            height={inputBoxHeight}
-            route="/onboardingGetStarted"
-          />
-          </View> */}
+      <SignupButton width={inputBoxWidth} height={inputBoxHeight} route="/onboardingGetStarted" />
     </ScrollView>
   );
 };

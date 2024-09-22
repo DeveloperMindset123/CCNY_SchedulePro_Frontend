@@ -9,19 +9,21 @@ export const TextInputComponent = () => {
   const { width, height } = getWindowDimensions();
   const currentStyles = getSignupStyles();
   // TODO : remove later
-  console.log(JSON.stringify(currentStyles));
+  //console.log(JSON.stringify(currentStyles));
 
   const dimensions = {
-    width: width * 0.45,
-    height: height * 0.25,
+    // likely where the error was occuring
+    width: width * 0.9,
+    height: height * 0.07,
   };
-  const [emailInput, setEmailInput] = useState<string>('');
-  const [emailInputStyling, setEmailInputStyling] = useState<string>('');
+  const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
 
+  // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
+  // proper input handling
   const handleEmailInput = (e: any) => {
-    setEmailInput(e.target.value);
+    setEmailInput(e.nativeEvent.text);
   };
 
   const handlePasswordInput = (e: any) => {
@@ -31,13 +33,24 @@ export const TextInputComponent = () => {
   const handleConfirmPasswordInput = (e: any) => {
     setConfirmPasswordInput(e.target.value);
   };
+  console.log(`Current Email Input : ${emailInput}`);
+
+  // TODO : remove later
+  useEffect(() => {
+    // test to see if the inputs are being picked up as intended
+    console.log(`Current password input : ${passwordInput}`);
+    console.log(`Current confirm password input : ${confirmPasswordInput}`);
+  }, [emailInput]);
   // array of objects
   const TextInputArray = [
     {
       id: 1,
       dimensions: dimensions,
       tailwindStyling: currentStyles.emailInputStyling,
-      onChangeFunction: handleEmailInput,
+      placeholderText: 'Enter Your Email',
+      //static value for all 3
+      //placeholderTextColor : "gray-500",
+      onChangeFunction: (e: any) => handleEmailInput(e),
       value: emailInput,
       isPassword: false,
       blur: true,
@@ -46,6 +59,7 @@ export const TextInputComponent = () => {
       id: 2,
       dimensions: dimensions,
       tailwindStyling: currentStyles.passwordInputStyling,
+      placeholderText: 'Enter your password',
       // TODO : Define them seperately
       onChangeFunction: handlePasswordInput,
       value: passwordInput,
@@ -56,6 +70,7 @@ export const TextInputComponent = () => {
       id: 3,
       dimensions: dimensions,
       tailwindStyling: currentStyles.passwordInputStyling,
+      placeholderText: 'Retype your password',
       onChangeFunction: handleConfirmPasswordInput,
       value: confirmPasswordInput,
       isPassword: true,
@@ -74,12 +89,11 @@ export const TextInputComponent = () => {
           value={TextInputIter.value}
           autoCapitalize="none"
           keyboardType="default"
+          placeholder={TextInputIter.placeholderText}
           onSubmitEditing={Keyboard.dismiss}
           secureTextEntry={TextInputIter.isPassword}
           blurOnSubmit={TextInputIter.blur}
-          // TODO : Replace after setting up a proper design system in figma
-          // based on colors determined
-          placeholderTextColor="black"
+          placeholderTextColor="grey-500"
         />
       ))}
     </View>
