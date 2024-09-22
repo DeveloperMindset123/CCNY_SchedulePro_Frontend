@@ -6,11 +6,10 @@ interface SignUpButton {
   width: DimensionValue | undefined;
   height: DimensionValue | undefined;
   route: Href<string>;
-  handleOnPress?: any;
+  handleOnPress?: () => void | any;
 }
 // component should start with captial letter
 export const SignupButton = ({ width, height, route, handleOnPress }: SignUpButton) => {
-  const router = useRouter();
   return (
     <Pressable
       style={{

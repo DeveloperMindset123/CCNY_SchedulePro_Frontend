@@ -6,14 +6,14 @@ import { createClient } from '@supabase/supabase-js';
 // TODO : Remove hardcoded values prior to commit
 const supabaseAnonKey =
   process.env.EXPO_PUBLIC_KEY === undefined
-    ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHZtd3d3Y3NrcGpwd3dlbHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcwMTUwNjUsImV4cCI6MjA0MjU5MTA2NX0.3_tNMof29lx_PFVgWqpuNbZurzjStZGmTsfBavvfm9c'
+    ? 'REPLACE WITH EXPO PUBLIC KEY FROM .ENV'
     : process.env.EXPO_PUBLIC_KEY;
 const supabaseProjectUrl =
   process.env.EXPO_PUBLIC_PROJECT_URL === undefined
-    ? 'https://srtvmwwwcskpjpwwelzp.supabase.co'
+    ? 'REPLACE WITH PUBLIC PROJECT URL'
     : process.env.EXPO_PUBLIC_PROJECT_URL;
 
-export const supabaseClient = createClient(supabaseProjectUrl, supabaseAnonKey, {
+export const supabaseInstance = createClient(supabaseProjectUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
     autoRefreshToken: true,
@@ -24,8 +24,8 @@ export const supabaseClient = createClient(supabaseProjectUrl, supabaseAnonKey, 
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
-    supabaseClient.auth.startAutoRefresh();
+    supabaseInstance.auth.startAutoRefresh();
   } else {
-    supabaseClient.auth.stopAutoRefresh();
+    supabaseInstance.auth.stopAutoRefresh();
   }
 });

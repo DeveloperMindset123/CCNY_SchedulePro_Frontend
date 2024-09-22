@@ -17,6 +17,7 @@ const schema = z.object({
   EXPO_PUBLIC_SUPABASE_DATABASE_PASSWORD: z.string().url().optional(),
   EXPO_PUBLIC_HCAPTCHA_SITE_KEY: z.string().url().optional(),
   EXPO_PUBLIC_HCAPTCHA_SECRET: z.string().url().optional(),
+  EXPO_PUBLIC_RESEND_API_KEY: z.string().url().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
