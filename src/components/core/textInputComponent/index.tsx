@@ -27,19 +27,21 @@ export const TextInputComponent = () => {
   };
 
   const handlePasswordInput = (e: any) => {
-    setPasswordInput(e.target.value);
+    setPasswordInput(e.nativeEvent.text);
+    console.log(passwordInput);
   };
 
   const handleConfirmPasswordInput = (e: any) => {
-    setConfirmPasswordInput(e.target.value);
+    setConfirmPasswordInput(e.nativeEvent.text);
+    console.log(confirmPasswordInput);
   };
   console.log(`Current Email Input : ${emailInput}`);
+  console.log(`Current password input : ${passwordInput}`);
+  console.log(`Current confirm password input : ${confirmPasswordInput}`);
 
   // TODO : remove later
   useEffect(() => {
     // test to see if the inputs are being picked up as intended
-    console.log(`Current password input : ${passwordInput}`);
-    console.log(`Current confirm password input : ${confirmPasswordInput}`);
   }, [emailInput]);
   // array of objects
   const TextInputArray = [
@@ -61,7 +63,7 @@ export const TextInputComponent = () => {
       tailwindStyling: currentStyles.passwordInputStyling,
       placeholderText: 'Enter your password',
       // TODO : Define them seperately
-      onChangeFunction: handlePasswordInput,
+      onChangeFunction: (e: any) => handlePasswordInput(e),
       value: passwordInput,
       isPassword: true,
       blur: false,
@@ -71,7 +73,7 @@ export const TextInputComponent = () => {
       dimensions: dimensions,
       tailwindStyling: currentStyles.passwordInputStyling,
       placeholderText: 'Retype your password',
-      onChangeFunction: handleConfirmPasswordInput,
+      onChangeFunction: (e: any) => handleConfirmPasswordInput(e),
       value: confirmPasswordInput,
       isPassword: true,
       blur: false,
