@@ -7,13 +7,13 @@ import { TextInputComponent } from '@/components/core/textInputComponent';
 import { getSignupStyles } from '@/components/core/textInputComponent/getSignupStyles';
 
 const signup: React.FC = () => {
+  const [passwordMatch, setPasswordMatch] = React.useState<boolean>(false);
   const { width, height } = getWindowDimensions();
   const { titleFontStyling, secondaryTextStyling } = getSignupStyles();
   let inputBoxWidth = width * 0.9;
   let inputBoxHeight = height * 0.07;
   // @see https://www.npmjs.com/package/react-native-dotenv
   const public_key = process.env.EXPO_PUBLIC_KEY;
-  // TODO : Delete later
   //console.log(process.env.EXPO_PUBLIC_KEY);
 
   return (
@@ -33,7 +33,8 @@ const signup: React.FC = () => {
         <Text className={secondaryTextStyling}>Explore and manage class schedules efficiently</Text>
       </KeyboardAvoidingView>
       <TextInputComponent />
-      <SignupButton width={inputBoxWidth} height={inputBoxHeight} route="/onboardingGetStarted" />
+      {/*
+      <SignupButton width={inputBoxWidth} height={inputBoxHeight} route="/onboardingGetStarted" /> */}
     </ScrollView>
   );
 };

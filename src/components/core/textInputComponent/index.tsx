@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, TextInput, Keyboard } from 'react-native';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { getSignupStyles } from './getSignupStyles';
+import { SignupButton } from '../signupButton';
 
 // ! useRef can be used to store the session cookie for logged in users
 export const TextInputComponent = () => {
@@ -82,6 +83,11 @@ export const TextInputComponent = () => {
           autoCorrect={false}
         />
       ))}
+      <SignupButton
+        width={dimensions.width}
+        height={dimensions.height}
+        route="/onboardingGetStarted"
+      />
     </View>
   );
 };
