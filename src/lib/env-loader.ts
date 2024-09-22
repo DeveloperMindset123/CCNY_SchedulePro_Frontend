@@ -10,6 +10,11 @@ const schema = z.object({
   EXPO_PUBLIC_API_URL: z.string().url(),
   EXPO_PUBLIC_REQRES_API_URL: z.string().url(),
   SEGMENT_KEY: z.string().url().optional(),
+  EXPO_PUBLIC_KEY: z.string().url(),
+  EXPO_PUBLIC_SECRET_KEY: z.string().url().optional(),
+  EXPO_PUBLIC_PROJECT_URL: z.string().url().optional(),
+  EXPO_PUBLIC_JWT_SECRET: z.string().url().optional(),
+  EXPO_PUBLIC_SUPABASE_DATABASE_PASSWORD: z.string().url().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -25,6 +30,6 @@ if (!parsed.success) {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
-    interface ProcessEnv extends TypeOf<typeof schema> { }
+    interface ProcessEnv extends TypeOf<typeof schema> {}
   }
 }

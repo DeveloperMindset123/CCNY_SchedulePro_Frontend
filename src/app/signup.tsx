@@ -11,6 +11,10 @@ const signup: React.FC = () => {
   const { titleFontStyling, secondaryTextStyling } = getSignupStyles();
   let inputBoxWidth = width * 0.9;
   let inputBoxHeight = height * 0.07;
+  // @see https://www.npmjs.com/package/react-native-dotenv
+  const public_key = process.env.EXPO_PUBLIC_KEY;
+  // TODO : Delete later
+  //console.log(process.env.EXPO_PUBLIC_KEY);
 
   return (
     <ScrollView className="flex-1 bg-black text-white overflow-auto">
