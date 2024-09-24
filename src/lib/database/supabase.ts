@@ -2,7 +2,7 @@ import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
-
+/*
 // TODO : Remove hardcoded values prior to commit
 const supabaseAnonKey =
   process.env.EXPO_PUBLIC_KEY === undefined
@@ -29,3 +29,4 @@ AppState.addEventListener('change', (state) => {
     supabaseInstance.auth.stopAutoRefresh();
   }
 });
+*/

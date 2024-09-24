@@ -10,6 +10,7 @@ const schema = z.object({
   EXPO_PUBLIC_API_URL: z.string().url(),
   EXPO_PUBLIC_REQRES_API_URL: z.string().url(),
   SEGMENT_KEY: z.string().url().optional(),
+  /*
   EXPO_PUBLIC_KEY: z.string().url(),
   EXPO_PUBLIC_SECRET_KEY: z.string().url().optional(),
   EXPO_PUBLIC_PROJECT_URL: z.string().url().optional(),
@@ -17,7 +18,7 @@ const schema = z.object({
   EXPO_PUBLIC_SUPABASE_DATABASE_PASSWORD: z.string().url().optional(),
   EXPO_PUBLIC_HCAPTCHA_SITE_KEY: z.string().url().optional(),
   EXPO_PUBLIC_HCAPTCHA_SECRET: z.string().url().optional(),
-  EXPO_PUBLIC_RESEND_API_KEY: z.string().url().optional(),
+  EXPO_PUBLIC_RESEND_API_KEY: z.string().url().optional(), */
 });
 
 const parsed = schema.safeParse(process.env);

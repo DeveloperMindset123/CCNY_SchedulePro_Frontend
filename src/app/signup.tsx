@@ -6,7 +6,7 @@ import { SignupButton } from '@/components/core/signupButton';
 import { TextInputComponent } from '@/components/core/textInputComponent';
 import { getSignupStyles } from '@/components/core/textInputComponent/getSignupStyles';
 
-const signup: React.FC = () => {
+const register: React.FC = () => {
   const [passwordMatch, setPasswordMatch] = React.useState<boolean>(false);
   const { width, height } = getWindowDimensions();
   const { titleFontStyling, secondaryTextStyling } = getSignupStyles();
@@ -39,4 +39,4 @@ const signup: React.FC = () => {
   );
 };
 
-export default signup;
+export default register;

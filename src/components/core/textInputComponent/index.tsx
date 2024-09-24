@@ -3,7 +3,7 @@ import { View, TextInput, Keyboard, Alert } from 'react-native';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { getSignupStyles } from './getSignupStyles';
 import { SignupButton } from '../signupButton';
-import { supabaseInstance } from '@/lib/database/supabase';
+//import { supabaseInstance } from '@/lib/database/supabase';
 import { router } from 'expo-router';
 
 // ! useRef can be used to store the session cookie for logged in users
@@ -35,6 +35,7 @@ export const TextInputComponent = () => {
     setConfirmPasswordInput(e.nativeEvent.text);
   };
 
+  /*
   const signUpWithEmail = async () => {
     setLoading(true);
     if (passwordInput === confirmPasswordInput) {
@@ -56,7 +57,7 @@ export const TextInputComponent = () => {
     if (!session) Alert.alert('Please check your inbox for email verification');
     setLoading(false);
     router.push('/onboardingGetStarted');
-  };
+  }; */
 
   //console.log(supabaseInstance.auth.getSession());
 
@@ -116,7 +117,8 @@ export const TextInputComponent = () => {
         width={dimensions.width}
         height={dimensions.height}
         route="/onboardingGetStarted"
-        handleOnPress={() => signUpWithEmail()}
+        handleOnPress={() => router.push('/signup')}
+        //handleOnPress={() => signUpWithEmail()}
       />
     </View>
   );
