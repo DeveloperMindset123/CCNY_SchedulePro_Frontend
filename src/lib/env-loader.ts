@@ -10,6 +10,7 @@ const schema = z.object({
   EXPO_PUBLIC_API_URL: z.string().url(),
   EXPO_PUBLIC_REQRES_API_URL: z.string().url(),
   SEGMENT_KEY: z.string().url().optional(),
+  // TODO : Cleanup later
   /*
   EXPO_PUBLIC_KEY: z.string().url(),
   EXPO_PUBLIC_SECRET_KEY: z.string().url().optional(),
