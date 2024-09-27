@@ -9,7 +9,6 @@ import { ThemeToggle } from '@/components/core/toggle';
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 
-// TODO : fonts not loading
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
  * https://www.npmjs.com/package/react-native-keyboard-controller
@@ -102,7 +101,6 @@ function RootLayoutNav() {
               },
             }}
           >
-            {/**TODO : Remove later the test page */}
             <Stack.Screen
               name="index"
               options={{ title: 'Welcome', headerShown: true, headerBackVisible: false }}

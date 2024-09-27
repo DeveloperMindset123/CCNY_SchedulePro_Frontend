@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { View, TextInput, Keyboard } from 'react-native';
+import { View, TextInput, Keyboard, Alert } from 'react-native';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { getSignupStyles } from './getSignupStyles';
+import { SignupButton } from '../signupButton';
+//import { supabaseInstance } from '@/lib/database/supabase';
+import { router } from 'expo-router';
 
 // ! useRef can be used to store the session cookie for logged in users
 export const TextInputComponent = () => {
@@ -15,6 +18,8 @@ export const TextInputComponent = () => {
   const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
   // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
   // proper input handling
@@ -29,6 +34,32 @@ export const TextInputComponent = () => {
   const handleConfirmPasswordInput = (e: any) => {
     setConfirmPasswordInput(e.nativeEvent.text);
   };
+
+  /*
+  const signUpWithEmail = async () => {
+    setLoading(true);
+    if (passwordInput === confirmPasswordInput) {
+      setPasswordMatch(true);
+    } else {
+      setPasswordMatch(false);
+      return null;
+    }
+    const {
+      data: { session },
+      error,
+    } = await supabaseInstance.auth.signUp({
+      email: emailInput,
+      password: passwordInput,
+    });
+
+    console.log(session);
+    if (error) Alert.alert(error.message);
+    if (!session) Alert.alert('Please check your inbox for email verification');
+    setLoading(false);
+    router.push('/onboardingGetStarted');
+  }; */
+
+  //console.log(supabaseInstance.auth.getSession());
 
   const TextInputArray = [
     {
@@ -82,6 +113,13 @@ export const TextInputComponent = () => {
           autoCorrect={false}
         />
       ))}
+      <SignupButton
+        width={dimensions.width}
+        height={dimensions.height}
+        route="/onboardingGetStarted"
+        handleOnPress={() => router.push('/signup')}
+        //handleOnPress={() => signUpWithEmail()}
+      />
     </View>
   );
 };

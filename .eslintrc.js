@@ -1,4 +1,7 @@
 module.exports = {
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
   env: {
     node: true, // This line tells ESLint to expect Node.js global variables and scoping.
   },

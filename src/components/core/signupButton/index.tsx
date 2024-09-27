@@ -6,10 +6,10 @@ interface SignUpButton {
   width: DimensionValue | undefined;
   height: DimensionValue | undefined;
   route: Href<string>;
+  handleOnPress?: () => void | any;
 }
 // component should start with captial letter
-export const SignupButton = ({ width, height, route }: SignUpButton) => {
-  const router = useRouter();
+export const SignupButton = ({ width, height, route, handleOnPress }: SignUpButton) => {
   return (
     <Pressable
       style={{
@@ -17,7 +17,8 @@ export const SignupButton = ({ width, height, route }: SignUpButton) => {
         height: height,
       }}
       className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
-      onPress={() => router.push(route)}
+      // TODO : Needs fixing
+      onPress={handleOnPress}
     >
       <Text className="text-center text-black text-xl font-normal">
         Sign Up {'\b'}

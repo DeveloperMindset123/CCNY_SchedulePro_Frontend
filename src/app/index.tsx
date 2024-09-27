@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity, Image, Animated, ViewStyle } from 'react-native';
-import { useFonts } from 'expo-font';
 import { Link } from 'expo-router';
 import React, { useRef, useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
@@ -79,6 +78,7 @@ const Landing: React.FC = () => {
       }
     }
   }, [width, height]);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const imagePath = require('src/assets/images/Landing-Screen-Image-Updated.png');
 
   return (
