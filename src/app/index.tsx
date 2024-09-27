@@ -78,6 +78,7 @@ const Landing: React.FC = () => {
       }
     }
   }, [width, height]);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const imagePath = require('src/assets/images/Landing-Screen-Image-Updated.png');
 
   return (
