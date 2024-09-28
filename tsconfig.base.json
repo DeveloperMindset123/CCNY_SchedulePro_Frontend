@@ -1,17 +1,17 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "display": "Expo",
-
     "compilerOptions": {
       // ** Modified Init
       "strict": true,
       "forceConsistentCasingInFileNames": true,
+      "module" : "NodeNext",
       // ** Modifed End
       "allowJs": false,
       "esModuleInterop": true,
       "jsx": "react-native",
       "lib": ["DOM", "ESNext"],
-      "moduleResolution": "node",
+      "moduleResolution": "NodeNext",
       "noEmit": true,
       "resolveJsonModule": true,
       "skipLibCheck": true,

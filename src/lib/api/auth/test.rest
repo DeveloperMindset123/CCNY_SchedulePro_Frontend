@@ -1,0 +1,9 @@
+
+POST http://localhost:4001/register
+content-type: application/json
+
+{
+  "email" :"asdasda@gmail.com",
+  "password":"123123asdasd"
+}
+

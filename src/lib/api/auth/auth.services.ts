@@ -1,31 +1,54 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import db from '@/lib/utils/db';
-import hashToken from '@/lib/utils/hashToken';
-
-// TODO : too many errors being raised with using any
+import { db } from '../../utils/db';
+import * as cryptoTS from 'crypto-ts';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//import { encryptToken } from '@/lib/utils/tokenization';
+// TODO : Remove later
+
+function encryptToken(token: any) {
+  const cipherText = cryptoTS.AES.encrypt(
+    JSON.stringify(token),
+    process.env.MY_ENCRYPTION_KEY ? process.env.MY_ENCRYPTION_KEY.toString() : 'MYENCRYPTIONKEY'
+  );
+  return cipherText.toString();
+}
+
+function decryptToken(token: any) {
+  const cipherText = encryptToken(token);
+  const bytes = cryptoTS.AES.decrypt(
+    cipherText.toString(),
+    process.env.MY_DECRYPTION_KEY ? process.env.MY_DECRYPTION_KEY.toString() : 'MYDECRYPTIONKEY'
+  );
+  const decryptedData = JSON.parse(bytes.toString(cryptoTS.enc.Utf8));
+  return decryptedData;
+}
+//import crypto from 'crypto';
+//import { PrismaClient } from "@prisma/client";
+
+/*
+const db = new PrismaClient();
+
+export default function hashToken(token: crypto.BinaryLike) {
+  // TODO : hashing logic, modify as needed
+  return crypto.createHash('sha512').update(token).digest('hex');
+} */
 export function addRefreshTokenToWhiteList({
   jti,
   refreshToken,
   userId,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jti: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refreshToken: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userId: any;
 }) {
   return db.refreshTokens.create({
     data: {
       id: jti,
-      hashedToken: hashToken(refreshToken),
+      hashedToken: encryptToken(refreshToken),
       userId,
     },
   });
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function findRefreshTokenById(id: any) {
   return db.refreshTokens.findUnique({
     where: {
@@ -33,8 +56,6 @@ export function findRefreshTokenById(id: any) {
     },
   });
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deleteRefreshToken(id: any) {
   return db.refreshTokens.updateMany({
     where: {
@@ -45,8 +66,6 @@ export function deleteRefreshToken(id: any) {
     },
   });
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function revokeTokens(userId: any) {
   return db.refreshTokens.updateMany({
     where: {
@@ -57,5 +76,3 @@ export function revokeTokens(userId: any) {
     },
   });
 }
-
-// TODO : Continue at STEP 7
