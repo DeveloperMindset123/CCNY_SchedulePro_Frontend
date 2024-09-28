@@ -1,9 +1,9 @@
 
-POST http://localhost:4001/register
+POST http://localhost:4001/auth/register
 content-type: application/json
 
 {
-  "email" :"asdasda@gmail.com",
+  "email" :"again@gmail.com",
   "password":"123123asdasd"
 }
 

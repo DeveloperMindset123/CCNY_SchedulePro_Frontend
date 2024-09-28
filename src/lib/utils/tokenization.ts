@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+//@ts-expect-error
 import * as cryptoTS from 'crypto-ts';
 
 function encryptToken(token: any) {

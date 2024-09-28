@@ -6,12 +6,12 @@ import { generateAccessAndRefreshTokens } from '../../utils/jwt';
 import { addRefreshTokenToWhiteList } from './auth.services';
 import { findUserByEmail, createUserByEmailAndPassword } from '../users/users.services';
 
-const app = express();
+//const app = express();
 //@see https://expressjs.com/en/guide/routing.html
 const authRouter = Router();
 
 // TODO : Test this route using CURL
-app.post('/register', async (req, res, next) => {
+authRouter.post('/register', async (req, res, next) => {
   try {
     // object destructuring to help retrieve
     // @see https://www.geeksforgeeks.org/how-to-post-json-data-using-curl/
