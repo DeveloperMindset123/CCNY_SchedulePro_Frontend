@@ -33,6 +33,7 @@ export function generateAccessAndRefreshTokens(user: any, jti: any) {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user, jti);
 
+  // TODO : Remove these, these were simply methods to check if everything is working as intended
   console.log(`The access token is ${accessToken}\n`);
   console.log(`The refresh token is ${refreshToken}`);
   return {

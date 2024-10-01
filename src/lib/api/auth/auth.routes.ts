@@ -1,16 +1,41 @@
+import { encryptToken } from '@/lib/utils/tokenization';
 // TODO : remove this later once the values are being used
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { generateAccessAndRefreshTokens } from '../../utils/jwt';
-import { addRefreshTokenToWhiteList } from './auth.services';
-import { findUserByEmail, createUserByEmailAndPassword } from '../users/users.services';
+import {
+  addRefreshTokenToWhiteList,
+  deleteRefreshToken,
+  findRefreshTokenById,
+  revokeTokens,
+} from './auth.services';
+import {
+  findUserByEmail,
+  createUserByEmailAndPassword,
+  findUserById,
+} from '../users/users.services';
+import { string } from 'prop-types';
+const bcrypt = import('bcrypt-ts');
+import * as jwt from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
+import { User } from 'lucide-react-native';
+interface userSchema {
+  email: string;
+  password: string;
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
+type existingUserTypes = userSchema | string | undefined | null | any;
+type payloadTypes = string | JwtPayload | any;
 //const app = express();
 //@see https://expressjs.com/en/guide/routing.html
 const authRouter = Router();
 
-// TODO : Test this route using CURL
+// TODO : Clean up bloated comments
+// ! add the /register endpoint
 authRouter.post('/register', async (req, res, next) => {
   try {
     // object destructuring to help retrieve
@@ -65,4 +90,121 @@ app.listen('4000', () => {
   }
 });
 */
+
+// ! Implement the /login endpoint
+authRouter.post('/login', async (req, res, next) => {
+  try {
+    // retrieve the email and password from the user once again
+    const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(400).send('Missing either email or password');
+      throw new Error('You must provide an email and a password.');
+    }
+    // otherwise, check if the user exists by email
+    // ! added any to remove annoying type error, bootleg fix
+    const existingUser: existingUserTypes = await findUserByEmail(email);
+    // in the event that user doesn't exist, provide an error stating that
+    if (!existingUser) {
+      res.status(403).send({
+        message: `There is no user with the email ${email}, please register first before signing in.`,
+      });
+    }
+
+    const validPassword = (await bcrypt).compare(password, existingUser?.password);
+    if (!validPassword) {
+      res.status(403).send('The passwords do not match, please try again');
+      throw new Error('Invalid login credentials');
+    }
+    const jti = uuidv4();
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(existingUser, jti);
+    await addRefreshTokenToWhiteList({ jti, refreshToken, userId: existingUser.id });
+
+    res.json({
+      'access token': accessToken,
+      'refresh token': refreshToken,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
+
+// define the route for updating refresh tokens
+authRouter.post('/refreshToken', async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      res.status(400).send('Invalid Refresh Token');
+      throw new Error('Missing refresh token');
+    }
+    const payload: payloadTypes = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET ? process.env.JWT_REFRESH_SECRET : 'MYOTHERSECRET321'
+    );
+
+    const savedRefreshToken = await findRefreshTokenById(payload.jti);
+
+    if (!savedRefreshToken || savedRefreshToken.revoked === true) {
+      res.status(401).send('Not authorized to enter');
+      console.log(`Payload : ${payload}`);
+      console.log(`Saved Refreshed Token : ${JSON.stringify(savedRefreshToken)}`);
+      throw new Error('Unauthorized entry');
+    }
+
+    const hashedToken = encryptToken(refreshToken);
+    if (hashedToken !== savedRefreshToken.hashedToken) {
+      res.status(401);
+      throw new Error('Unauthorized Entry, mismatch of refresh tokens');
+    }
+
+    const user: any = findUserById(payload.userId);
+    if (!user) {
+      res.status(401).send({
+        message: 'User does not exist',
+      });
+      throw new Error('Unauthorized, user does not exist');
+    }
+    // TODO : Remove later
+    console.log('The user is: ', user);
+    await deleteRefreshToken(savedRefreshToken.id);
+    const jti = uuidv4();
+    const { accessToken, refreshToken: newRefreshToken } = generateAccessAndRefreshTokens(
+      user,
+      jti
+    );
+    await addRefreshTokenToWhiteList({
+      jti,
+      refreshToken: newRefreshToken,
+      userId: user.id,
+    });
+
+    res.json({
+      accessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// TODO : This method should only be called during password reset
+// ! there's some security concerns regarding this, but can be ignored for now
+authRouter.post('/revokeRefreshTokens', async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    await revokeTokens(userId);
+    res.status(200).send({
+      message: `Tokesn revoked for use with id #${userId}`,
+    });
+  } catch (err) {
+    res.status(500).send({
+      message: 'Internal Server Error',
+    });
+    console.error(err);
+    // default error handler function
+    next(err);
+  }
+});
+
+//@see https://medium.com/@xiaominghu19922/proper-error-handling-in-express-server-with-typescript-8cd4ffb67188#:~:text=The%20default%20error%20handler%20takes,any)%20in%20the%20middleware%20stack. --> to understand how the express error handling function works by default.
 export { authRouter };

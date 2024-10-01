@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-//@ts-expect-error
 import * as cryptoTS from 'crypto-ts';
 
-function encryptToken(token: any) {
+export function encryptToken(token: any) {
   const cipherText = cryptoTS.AES.encrypt(
     JSON.stringify(token),
     process.env.MY_ENCRYPTION_KEY ? process.env.MY_ENCRYPTION_KEY.toString() : 'MYENCRYPTIONKEY'
