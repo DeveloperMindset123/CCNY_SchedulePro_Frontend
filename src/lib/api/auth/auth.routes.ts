@@ -122,8 +122,7 @@ authRouter.post('/login', async (req, res, next) => {
   }
 });
 
-// define the route for updating refresh tokens
-// TODO : Broken, fix later
+// TODO : Broken, fix later, helpful for recurring login and should be used alongside /login, ideally
 authRouter.post('/refreshToken', async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -161,8 +160,6 @@ authRouter.post('/refreshToken', async (req, res, next) => {
       });
       throw new Error('Unauthorized, user does not exist');
     }
-    // TODO : Remove later
-    console.log('The user is: ', user);
     await deleteRefreshToken(savedRefreshToken.id);
     const jti = uuidv4();
     const { accessToken, refreshToken: newRefreshToken } = generateAccessAndRefreshTokens(
@@ -186,7 +183,7 @@ authRouter.post('/refreshToken', async (req, res, next) => {
   }
 });
 
-// TODO : Broken, fix later, need /refreshToken to work before revokeRefreshToken can work
+// TODO : Broken, fix later, need /refreshToken to work before revokeRefreshToken can work, intended for use in the event that user decides to reset their password.
 authRouter.post('/revokeRefreshTokens', async (req, res, next) => {
   try {
     const { userId } = req.body;

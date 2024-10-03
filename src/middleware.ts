@@ -5,7 +5,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
   if (!authorization) {
     res.status(401).send({
-      message: `User not authorized to enter`,
+      message: 'User not authorized to enter',
     });
     throw new Error('🚫 Un-Authorized 🚫');
   }
@@ -19,7 +19,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
     //@see custom.d.ts for custom type override for Request
     // appends payload as one of the object's property
     req.payload = payload;
-    // TODO : Delete this
+    // TODO : Delete this when functional
     console.log(`Payload being printed out : ${payload}`);
   } catch (err) {
     console.error(err);

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-//! use this to add all the relevant main routes here
-
 import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
@@ -8,15 +5,12 @@ import userRouter from './users/users.routes';
 const app = express();
 // ** needed to add express.json()
 app.use(express.json());
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 //@see https://medium.com/@pierrephilip/better-route-registration-with-express-js-740c0f342c10
 const router = express.Router();
-// TODO : Remove later
-// ! need to include AFTER declaration
 router.use(express.json());
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
-//http://localhost:4001/auth/register
+//http://localhost:4001/auth/register --> example API call
 app.use(router);
 app.get('/test', (req, res) => {
   console.log('hello world');
@@ -26,63 +20,3 @@ app.get('/test', (req, res) => {
 app.listen('4001', () => {
   console.log(`Listening to port 4001`);
 });
-// ** don't remove, old working changes
-/*
-import { v4 as uuidv4 } from 'uuid';
-import { generateAccessAndRefreshTokens } from '../utils/jwt';
-import { addRefreshTokenToWhiteList } from './auth/auth.services';
-import { findUserByEmail, createUserByEmailAndPassword } from './users/users.services';
-
-//const app = express();
-//@see https://expressjs.com/en/guide/routing.html
-//const authRouter = express.Router();
-
-// TODO : Test this route using CURL
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.post('/register', async (req, res, next) => {
-  try {
-    // @see https://www.geeksforgeeks.org/how-to-post-json-data-using-curl/
-    // ! issue here
-    if (req.body) {
-      console.log('body', req.body);
-      // console.log('lot', JSON.parse(req.body));
-    } else {
-      console.log('Unable to extract data');
-    }
-
-    //return;
-    const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400);
-      throw new Error('You must provide an email and a password.');
-    }
-
-    const existingUser = await findUserByEmail(email);
-
-    if (existingUser) {
-      res.status(404).send({
-        message: `The email ${email} is already in use, please login instead.`,
-      });
-      throw new Error('The email is already in use');
-    }
-
-    const user = await createUserByEmailAndPassword({ email, password });
-    // @see https://stackoverflow.com/questions/20342058/which-uuid-version-to-use
-    const jti = uuidv4();
-    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(user, jti);
-    // TODO : remove this comment maybe
-    // jti is the unique id assigned to the newly created user, think of it as the primary key
-    await addRefreshTokenToWhiteList({ jti, refreshToken, userId: user.id });
-
-    res
-      .json({
-        accessToken,
-        refreshToken,
-      })
-      .status(200);
-  } catch (err) {
-    //next(err);
-    console.error(err);
-  }
-});
-*/
