@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 //! use this to add all the relevant main routes here
 
-import { authRouter } from './auth/auth.routes';
+import authRouter from './auth/auth.routes';
 import express from 'express';
+import userRouter from './users/users.routes';
 
 const app = express();
 // ** needed to add express.json()
@@ -10,8 +11,11 @@ app.use(express.json());
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 //@see https://medium.com/@pierrephilip/better-route-registration-with-express-js-740c0f342c10
 const router = express.Router();
+// TODO : Remove later
+// ! need to include AFTER declaration
 router.use(express.json());
 router.use('/auth', authRouter);
+router.use('/users', userRouter);
 //http://localhost:4001/auth/register
 app.use(router);
 app.get('/test', (req, res) => {
