@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/core/toggle';
 // Providers
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import Toast from 'react-native-toast-message';
 
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
@@ -83,7 +84,6 @@ function RootLayoutNav() {
         style={colorScheme === 'dark' ? 'light' : 'dark'}
         key={`root-status-bar-${colorScheme === 'dark' ? 'light' : 'dark'}`}
       />
-
       <ThemeProvider value={NAV_THEME[colorScheme]}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack
@@ -144,6 +144,7 @@ function RootLayoutNav() {
           </Stack>
         </GestureHandlerRootView>
       </ThemeProvider>
+      <Toast />
     </>
   );
 }

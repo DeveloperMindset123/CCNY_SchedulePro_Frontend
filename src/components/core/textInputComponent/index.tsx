@@ -5,6 +5,7 @@ import { getSignupStyles } from './getSignupStyles';
 import { SignupButton } from '../signupButton';
 //import { supabaseInstance } from '@/lib/database/supabase';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 // ! useRef can be used to store the session cookie for logged in users
 export const TextInputComponent = () => {
@@ -19,6 +20,7 @@ export const TextInputComponent = () => {
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  // ! This isn't important on signup nor signin, since backend APIs are already handling this using compare
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
   // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
@@ -33,6 +35,57 @@ export const TextInputComponent = () => {
 
   const handleConfirmPasswordInput = (e: any) => {
     setConfirmPasswordInput(e.nativeEvent.text);
+  };
+
+  /*
+  const apiPayload = {
+    "email": emailInput,
+    "password" : passwordInput
+  } */
+
+  // ! Regex Expression Check
+  const passwordValidation = (str: string): boolean => {
+    const hasUpperCase = /[A-Z]/.test(str);
+    const hasLowerCase = /[a-z]/.test(str);
+    const hasNumber = /[0-9]/.test(str);
+    const hasSpecialCharacter = /[^a-zA-Z0-9]/.test(str);
+
+    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialCharacter;
+  };
+
+  const handleSignUp = () => {
+    if (passwordInput !== confirmPasswordInput) {
+      const showErrorToast = () => {
+        setPasswordMatch(false);
+        Toast.show({
+          type: 'error',
+          text1: 'Passwords Do Not Match!',
+          text2: 'Please check to make sure your inputs are correct',
+        });
+      };
+      showErrorToast();
+    } else if (
+      passwordInput.length === 0 ||
+      (passwordInput.length < 8 && !passwordValidation(passwordInput))
+    ) {
+      Alert.alert(
+        'Password Must contain the following : Minimum length of 8, one upper case letter, one lower case letter and one special character.'
+      );
+    } else {
+      // * assumes password validation criterias are matched
+      // * assumes that password and confirmPassword both match
+      const showSuccessToast = () => {
+        setPasswordMatch(true);
+        Toast.show({
+          type: 'success',
+          text1: 'Successful Signup',
+        });
+      };
+      showSuccessToast();
+      router.push('/onboardingGetStarted');
+      // TODO : Redirect to onboarding screen afterwards
+      // TODO : Need to make the appropriate API call with the information gathered
+    }
   };
 
   /*
@@ -117,7 +170,7 @@ export const TextInputComponent = () => {
         width={dimensions.width}
         height={dimensions.height}
         route="/onboardingGetStarted"
-        handleOnPress={() => router.push('/signup')}
+        handleOnPress={() => handleSignUp()}
         //handleOnPress={() => signUpWithEmail()}
       />
     </View>
