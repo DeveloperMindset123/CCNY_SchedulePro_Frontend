@@ -9,6 +9,8 @@
     "nativewind-env.d.ts"
   ],
   "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "baseUrl": "./",
     "jsx": "react-jsx",
@@ -16,6 +18,10 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": ["node"]
+  },
+  "ts-node": {
+    "esm": true
   }
 }

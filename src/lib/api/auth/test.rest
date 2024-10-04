@@ -1,0 +1,9 @@
+
+POST http://localhost:4001/auth/login
+content-type: application/json
+
+{
+  "email" : "test5134@gmail.com",
+  "password" : "test5134"
+}
+// use this to test api routes, installation the VSCode extension first
