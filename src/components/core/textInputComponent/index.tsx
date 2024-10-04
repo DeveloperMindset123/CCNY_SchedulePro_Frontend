@@ -19,8 +19,9 @@ export const TextInputComponent = () => {
   const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  //const [loading, setLoading] = useState<boolean>(false);
   // ! This isn't important on signup nor signin, since backend APIs are already handling this using compare
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
   // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
@@ -37,13 +38,13 @@ export const TextInputComponent = () => {
     setConfirmPasswordInput(e.nativeEvent.text);
   };
 
-  /*
   const apiPayload = {
-    "email": emailInput,
-    "password" : passwordInput
-  } */
+    email: emailInput,
+    password: passwordInput,
+  };
 
   // ! Regex Expression Check
+  // TODO : Check if email already exists and warn user if it does, to get them to sign in instead
   const passwordValidation = (str: string): boolean => {
     const hasUpperCase = /[A-Z]/.test(str);
     const hasLowerCase = /[a-z]/.test(str);
@@ -68,12 +69,11 @@ export const TextInputComponent = () => {
       passwordInput.length === 0 ||
       (passwordInput.length < 8 && !passwordValidation(passwordInput))
     ) {
+      // ! Toast doesn't allow me to present all the information needed, alert alternative
       Alert.alert(
         'Password Must contain the following : Minimum length of 8, one upper case letter, one lower case letter and one special character.'
       );
     } else {
-      // * assumes password validation criterias are matched
-      // * assumes that password and confirmPassword both match
       const showSuccessToast = () => {
         setPasswordMatch(true);
         Toast.show({
@@ -82,37 +82,31 @@ export const TextInputComponent = () => {
         });
       };
       showSuccessToast();
+      const sendDataToDatabase = () => {
+        fetch('http://localhost:4001/auth/register', {
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          body: JSON.stringify(apiPayload),
+        })
+          .then((res) => {
+            if (res.ok) {
+              console.log('User Successfully Registered!');
+              console.log(res);
+              return res;
+            } else {
+              console.log(res.json());
+              throw new Error(`The HTTP status of the response: ${res.status} (${res.statusText})`);
+            }
+          })
+          .then((res) => res.json())
+          .then((json) => console.log(json))
+          .catch((err) => console.log(err));
+      };
+      sendDataToDatabase();
       router.push('/onboardingGetStarted');
-      // TODO : Redirect to onboarding screen afterwards
       // TODO : Need to make the appropriate API call with the information gathered
     }
   };
-
-  /*
-  const signUpWithEmail = async () => {
-    setLoading(true);
-    if (passwordInput === confirmPasswordInput) {
-      setPasswordMatch(true);
-    } else {
-      setPasswordMatch(false);
-      return null;
-    }
-    const {
-      data: { session },
-      error,
-    } = await supabaseInstance.auth.signUp({
-      email: emailInput,
-      password: passwordInput,
-    });
-
-    console.log(session);
-    if (error) Alert.alert(error.message);
-    if (!session) Alert.alert('Please check your inbox for email verification');
-    setLoading(false);
-    router.push('/onboardingGetStarted');
-  }; */
-
-  //console.log(supabaseInstance.auth.getSession());
 
   const TextInputArray = [
     {
