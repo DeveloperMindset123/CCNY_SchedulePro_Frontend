@@ -7,6 +7,9 @@ import { SignupButton } from '../signupButton';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 
+// TODO : delete excess comments during cleanup
+//import { checkIfUserExists } from '../../../lib/utils/getUserRegistrationStatus';
+
 // ! useRef can be used to store the session cookie for logged in users
 export const TextInputComponent = () => {
   const { width, height } = getWindowDimensions();
@@ -54,7 +57,7 @@ export const TextInputComponent = () => {
     return hasUpperCase && hasLowerCase && hasNumber && hasSpecialCharacter;
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (passwordInput !== confirmPasswordInput) {
       const showErrorToast = () => {
         setPasswordMatch(false);
@@ -64,13 +67,13 @@ export const TextInputComponent = () => {
           text2: 'Please check to make sure your inputs are correct',
         });
       };
-      showErrorToast();
+      return showErrorToast();
     } else if (
       passwordInput.length === 0 ||
       (passwordInput.length < 8 && !passwordValidation(passwordInput))
     ) {
       // ! Toast doesn't allow me to present all the information needed, alert alternative
-      Alert.alert(
+      return Alert.alert(
         'Password Must contain the following : Minimum length of 8, one upper case letter, one lower case letter and one special character.'
       );
     } else {
@@ -89,22 +92,35 @@ export const TextInputComponent = () => {
           body: JSON.stringify(apiPayload),
         })
           .then((res) => {
-            if (res.ok) {
+            if (res.ok || res.status === 200) {
               console.log('User Successfully Registered!');
-              console.log(res);
-              return res;
+              console.log(`response status : ${res.status}`);
+              // only instance where user should be re-directed
+              return router.push('/onboardingGetStarted');
             } else {
+              // check if the status code is 404
+              if (res.status === 404) {
+                // in this case, user should not be re-routerd
+                // this means the user is already registered
+                const showInfoMessage = () => {
+                  Toast.show({
+                    type: 'info',
+                    text1: 'This email is already registered, please login instead',
+                  });
+                };
+                return showInfoMessage();
+              }
               console.log(res.json());
               throw new Error(`The HTTP status of the response: ${res.status} (${res.statusText})`);
             }
           })
-          .then((res) => res.json())
+          //.then((res) => res.text)
+          // TODO : These callbacks can most likely be removed, since they aren't needed for logic side
           .then((json) => console.log(json))
           .catch((err) => console.log(err));
       };
+      // make the call to the function
       sendDataToDatabase();
-      router.push('/onboardingGetStarted');
-      // TODO : Need to make the appropriate API call with the information gathered
     }
   };
 
