@@ -56,7 +56,7 @@ export const TextInputComponent = () => {
     if (error) Alert.alert(error.message);
     if (!session) Alert.alert('Please check your inbox for email verification');
     setLoading(false);
-    router.push('/onboardingGetStarted');
+    router.push('/onboarding1');
   }; */
 
   //console.log(supabaseInstance.auth.getSession());
@@ -116,8 +116,8 @@ export const TextInputComponent = () => {
       <SignupButton
         width={dimensions.width}
         height={dimensions.height}
-        route="/onboardingGetStarted"
-        handleOnPress={() => router.push('/signup')}
+        route="/onboarding1"
+        handleOnPress={() => router.push('/onboarding1')}
         //handleOnPress={() => signUpWithEmail()}
       />
     </View>

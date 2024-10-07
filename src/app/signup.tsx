@@ -35,7 +35,7 @@ const register: React.FC = () => {
       </KeyboardAvoidingView>
       <TextInputComponent />
       {/*
-      <SignupButton width={inputBoxWidth} height={inputBoxHeight} route="/onboardingGetStarted" /> */}
+      <SignupButton width={inputBoxWidth} height={inputBoxHeight} route="/onboarding1" /> */}
     </ScrollView>
   );
 };
