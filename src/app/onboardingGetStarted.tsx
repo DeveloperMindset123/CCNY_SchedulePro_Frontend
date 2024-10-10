@@ -1,8 +1,12 @@
-// TODO : Fix this
+// @see https://www.telerik.com/blogs/usecallback-useref-two-react-hooks-you-should-learn --> to understand the importance of useCallback and useRef
 
-import React, { useState } from 'react';
+// TODO : Continue implementing this
+import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
+
+//** old code, will be integrated to the default template for the guide being used 
+/* -->
 const classes = [
   { id: 1, name: 'Physical Education', icon: require('src/assets/images/Icon dumbbell.png') },
   { id: 2, name: 'Literature Study', icon: require('src/assets/images/Icon book open.png') },
@@ -60,7 +64,7 @@ const onboardingGetStarted: React.FC = () => {
         contentContainerStyle={{ justifyContent: 'center' }}
       />
 
-      {/** * Skip and Proceed Buttons **/}
+      {/** * Skip and Proceed Buttons
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
         <TouchableOpacity
           className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto"
@@ -100,4 +104,4 @@ const onboardingGetStarted: React.FC = () => {
   );
 };
 
-export default onboardingGetStarted;
+export default onboardingGetStarted; */

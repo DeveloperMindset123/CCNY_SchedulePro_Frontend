@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 // This will update information relevant to the user
 export const insertUserInformationDetails = (RegisteredUser: any) => {
   const UserDetail: Prisma.UserRegistrationDetailsCreateInput = {
+    // Generates a random userID
     userID: Math.floor(Math.random() * 10000) + 1,
     username: RegisteredUser.username,
     emailDuplicate: RegisteredUser.email,
@@ -19,4 +20,10 @@ export const insertUserInformationDetails = (RegisteredUser: any) => {
   return db.userRegistrationDetails.create({
     data: UserDetail,
   });
+};
+
+// TODO : Implement the logic for this
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const updateUserInformationDetails = (ExistingUser: any) => {
+  throw new Error('Not yet implemented!');
 };
