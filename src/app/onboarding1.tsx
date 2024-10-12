@@ -3,17 +3,73 @@
 
 // ! this screen was originally onboardingGetStarted
 import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 
-const classTypes = [
-  {
-    id: 1,
-    name: 'Liberal Arts',
-    icon: require('src/assets/images/LiberalArts.png'),
-  },
-];
+const OnboardingScreen1: React.FC = () => {
+  const classTypes = [
+    {
+      id: 1,
+      name: 'Liberal Arts',
+      icon: require('src/assets/images/LiberalArts.png'),
+    },
+    {
+      id: 2,
+      name: 'Core Courses',
+      icon: require('src/assets/images/CoreCourses.png'),
+    },
+    {
+      id: 3,
+      name: 'Electives',
+      icon: require('src/assets/images/Electives.png'),
+    },
+    {
+      id: 4,
+      name: 'STEM',
+      icon: 'src/assets/images/STEM.png',
+    },
+  ];
+
+  const [selectedClassType, setSelectedClassType] = useState<number | null>(null);
+  const router = useRouter();
+
+  const currentSelectedType = (id: number) => {
+    setSelectedClassType((prev) => (prev == id ? null : id));
+  };
+  // TODO : adjust as needed
+  // ! The ratios may not be fully correct
+  const sharedStyles =
+    'rounded-lg p-5 my-5 items-center justify-center w-24 h-64 shadow-black shadow-xl';
+
+  // ? Defining a local component within a component, I should take advantage of this technique more often
+  // ! if the function body is wrapped around in (), then it expects to be returned HTML elements
+  const renderItem = ({ item }: { item: (typeof classTypes)[0] }) => (
+    <Pressable
+      onPress={() => currentSelectedType(item.id)}
+      className={selectedClassType == item.id ? `#555 ${sharedStyles}` : `#1A1A1A ${sharedStyles}`}
+    >
+      <Image
+        // Image requires a height and width value to render using style
+        // cannot use tailwindcss here
+        source={item.icon}
+        style={{
+          width: 40,
+          height: 40,
+        }}
+      />
+      <Text className="text-white mt-10 text-center">{item.name}</Text>
+    </Pressable>
+  );
+
+  return (
+    // TODO : adjust the css values as needed
+    // ** originally raw css, converted to tailwind
+    <View className="flex-1 bg-black p-20"></View>
+  );
+};
+
+export default OnboardingScreen1;
 
 //** old code, will be integrated to the default template for the guide being used
 /* -->
