@@ -190,7 +190,13 @@ const OnboardingScreen1: React.FC = () => {
       <View className="flex-row justify-center">
         {classTypesRow2.map((item) => renderItem({ item }))}
       </View>
-      <OnboardingButton width={'45%'} height={50} route="/onboarding2" />
+      <OnboardingButton
+        width={'45%'}
+        height={50}
+        route="/onboarding2"
+        handleOnPress={() => router.back()}
+        buttonText={'Proceed'}
+      />
     </View>
   );
 };

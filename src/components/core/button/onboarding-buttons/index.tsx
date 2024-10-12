@@ -1,10 +1,6 @@
 // ! Back and Skip Button is virtually the same structure
 // Abstracted it out for reusabillity
-import {
-  DimensionValue,
-  Pressable,
-  //Text
-} from 'react-native';
+import { DimensionValue, Pressable, Text } from 'react-native';
 //import { AntDesign } from "@expo/vector-icons";
 import { Href } from 'expo-router';
 
@@ -46,8 +42,10 @@ export const OnboardingButton = ({
       className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
       onPress={handleOnPress}
     >
-      {buttonText}
-      {'\b'}
+      <Text>
+        {buttonText}
+        {'\b'}
+      </Text>
     </Pressable>
   );
 };
