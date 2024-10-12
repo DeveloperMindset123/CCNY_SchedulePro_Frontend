@@ -22,9 +22,10 @@ type DimensionTypes = DimensionValue | undefined;
 interface OnboardingButtonProps {
   width: DimensionTypes;
   height: DimensionTypes;
-  route: Href<string>;
+  // This route may not be neccessary
+  route: Href<string> | any;
   buttonText: string;
-  handleOnPress: () => void;
+  handleOnPress?: () => void;
 }
 
 export const OnboardingButton = ({

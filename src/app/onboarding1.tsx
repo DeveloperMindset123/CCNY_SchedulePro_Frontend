@@ -16,6 +16,7 @@ import { CloudUpload } from 'lucide-react-native';
  * @Image requires a height and width value to render using style
  * @Detail cannot use tailwindcss here
  * @TODO : refer to the reistrationDetails schema to determine the type of information to retrieve on the onboarding screen, may need to remove the skip button because the informaiton is mandatory
+ * @TODO Needs to be fixed for smaller phone screen, right now it only seems to match for iphone 15
  * */
 
 const OnboardingScreen1: React.FC = () => {
@@ -61,13 +62,9 @@ const OnboardingScreen1: React.FC = () => {
   const sharedStyles =
     'rounded-lg mx-10 my-8 items-center justify-center w-24 h-50 shadow-black shadow-xl';
 
-  // TODO : Remove this useEffect hook later
-  useEffect(() => {
-    console.log(currentCheckedValues);
-  }, [currentCheckedValues]);
-
   const renderItem = ({ item }: { item: (typeof classTypesRow1)[0] }) => (
     <Pressable
+      key={item.id}
       onPress={() => currentSelectedType(item.id)}
       className={selectedClassType == item.id ? `#555 ${sharedStyles}` : `#1A1A1A ${sharedStyles}`}
     >
@@ -81,12 +78,13 @@ const OnboardingScreen1: React.FC = () => {
         />
       </View>
       <BouncyCheckbox
-        size={25}
-        fillColor="black"
-        unFillColor="#FFFFF"
+        className="w-32 mt-2 ml-6"
+        size={20}
+        fillColor="#9342f5"
+        unFillColor="transparent"
         text={item.name}
         iconStyle={{
-          borderColor: 'white',
+          borderColor: '#9342f5',
         }}
         textStyle={{
           fontSize: 12,
@@ -94,10 +92,9 @@ const OnboardingScreen1: React.FC = () => {
         // TODO : modify this
         onPress={(checked: boolean) => {
           switch (item.id) {
-            // TODO : remove these unneccessary console.log statements later
+            // TODO : this looks kind of bloated, refactor this later
             case 1: {
               if (checked) {
-                console.log('Liberal Arts Checkbox Selected');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   LiberalArts: true,
@@ -107,19 +104,16 @@ const OnboardingScreen1: React.FC = () => {
                   ...prevState,
                   LiberalArts: false,
                 }));
-                console.log('Checkbox has been unchecked');
               }
               break;
             }
             case 2: {
               if (checked) {
-                console.log('Core Courses has been selected');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   CoreCourses: true,
                 }));
               } else {
-                console.log('Core Courses has been unchecked');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   CoreCourses: false,
@@ -129,13 +123,11 @@ const OnboardingScreen1: React.FC = () => {
             }
             case 3: {
               if (checked) {
-                console.log('Electives has been checked');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   Electives: true,
                 }));
               } else {
-                console.log('Electives has been unchecked');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   Electives: false,
@@ -145,13 +137,11 @@ const OnboardingScreen1: React.FC = () => {
             }
             case 4: {
               if (checked) {
-                console.log('STEM has been selected');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   STEM: true,
                 }));
               } else {
-                console.log('STEM has been unchecked');
                 setCurrentCheckedValues((prevState) => ({
                   ...prevState,
                   STEM: false,
@@ -174,7 +164,6 @@ const OnboardingScreen1: React.FC = () => {
           }
         }}
       />
-      <Text className="text-white mt-10 text-center">{item.name}</Text>
     </Pressable>
   );
 
@@ -201,6 +190,7 @@ const OnboardingScreen1: React.FC = () => {
       <View className="flex-row justify-center">
         {classTypesRow2.map((item) => renderItem({ item }))}
       </View>
+      <OnboardingButton width={'45%'} height={50} route="/onboarding2" />
     </View>
   );
 };
