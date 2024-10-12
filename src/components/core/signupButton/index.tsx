@@ -1,15 +1,13 @@
 import { DimensionValue, Pressable, Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { Href, useRouter } from 'expo-router';
 
 interface SignUpButton {
   width: DimensionValue | undefined;
   height: DimensionValue | undefined;
-  route: Href<string>;
   handleOnPress?: () => void | any;
 }
 // component should start with captial letter
-export const SignupButton = ({ width, height, route, handleOnPress }: SignUpButton) => {
+export const SignupButton = ({ width, height, handleOnPress }: SignUpButton) => {
   return (
     <Pressable
       style={{

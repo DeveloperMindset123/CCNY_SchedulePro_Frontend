@@ -7,10 +7,12 @@ import { SignupButton } from '../signupButton';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 
-// TODO : delete excess comments during cleanup
-//import { checkIfUserExists } from '../../../lib/utils/getUserRegistrationStatus';
-
-// ! useRef can be used to store the session cookie for logged in users
+/**
+ * @reminder useRef can be used to store the session cookie for logged in users
+ * @see https://www.ifelsething.com/post/get-value-react-native-text-input/
+ * @TODO Check if email already exists and warn user if it does, to get them to sign in instead
+ * @TODO see if the callback functions are neccessary within the handle sign up function
+ */
 export const TextInputComponent = () => {
   const { width, height } = getWindowDimensions();
   const currentStyles = getSignupStyles();
@@ -22,13 +24,8 @@ export const TextInputComponent = () => {
   const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
-  //const [loading, setLoading] = useState<boolean>(false);
-  // ! This isn't important on signup nor signin, since backend APIs are already handling this using compare
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
-  // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
-  // proper input handling
   const handleEmailInput = (e: any) => {
     setEmailInput(e.nativeEvent.text);
   };
@@ -46,8 +43,6 @@ export const TextInputComponent = () => {
     password: passwordInput,
   };
 
-  // ! Regex Expression Check
-  // TODO : Check if email already exists and warn user if it does, to get them to sign in instead
   const passwordValidation = (str: string): boolean => {
     const hasUpperCase = /[A-Z]/.test(str);
     const hasLowerCase = /[a-z]/.test(str);
@@ -72,7 +67,6 @@ export const TextInputComponent = () => {
       passwordInput.length === 0 ||
       (passwordInput.length < 8 && !passwordValidation(passwordInput))
     ) {
-      // ! Toast doesn't allow me to present all the information needed, alert alternative
       return Alert.alert(
         'Password Must contain the following : Minimum length of 8, one upper case letter, one lower case letter and one special character.'
       );
@@ -96,7 +90,7 @@ export const TextInputComponent = () => {
               console.log('User Successfully Registered!');
               console.log(`response status : ${res.status}`);
               // only instance where user should be re-directed
-              return router.push('/onboardingGetStarted');
+              return router.push('/onboarding1');
             } else {
               // check if the status code is 404
               if (res.status === 404) {
@@ -114,12 +108,9 @@ export const TextInputComponent = () => {
               throw new Error(`The HTTP status of the response: ${res.status} (${res.statusText})`);
             }
           })
-          //.then((res) => res.text)
-          // TODO : These callbacks can most likely be removed, since they aren't needed for logic side
           .then((json) => console.log(json))
           .catch((err) => console.log(err));
       };
-      // make the call to the function
       sendDataToDatabase();
     }
   };
@@ -177,11 +168,12 @@ export const TextInputComponent = () => {
         />
       ))}
       <SignupButton
+        // TODO : route isn't being properly used
         width={dimensions.width}
         height={dimensions.height}
-        route="/onboardingGetStarted"
-        handleOnPress={() => handleSignUp()}
-        //handleOnPress={() => signUpWithEmail()}
+        // TODO : originally working backend, but I don't want this logic to execute at the moment given taht I am working on frontend
+        //handleOnPress={() => handleSignUp()}
+        handleOnPress={() => router.push('/onboarding1')}
       />
     </View>
   );

@@ -2,13 +2,24 @@
 // @see https://www.telerik.com/blogs/usecallback-useref-two-react-hooks-you-should-learn --> to understand the importance of useCallback and useRef
 
 // ! this screen was originally onboardingGetStarted
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
+import { CloudUpload } from 'lucide-react-native';
+
+/**
+ * @purpose TODO : Remove this line later --> purpose is to note down anything relevant to the file here
+ * @see https://blog.logrocket.com/using-react-usestate-object/
+ * @detail the above link explains how to use object within useState hooks
+ * @Image requires a height and width value to render using style
+ * @Detail cannot use tailwindcss here
+ * @TODO : refer to the reistrationDetails schema to determine the type of information to retrieve on the onboarding screen, may need to remove the skip button because the informaiton is mandatory
+ * */
 
 const OnboardingScreen1: React.FC = () => {
-  const classTypes = [
+  const classTypesRow1 = [
     {
       id: 1,
       name: 'Liberal Arts',
@@ -19,6 +30,9 @@ const OnboardingScreen1: React.FC = () => {
       name: 'Core Courses',
       icon: require('src/assets/images/CoreCourses.png'),
     },
+  ];
+
+  const classTypesRow2 = [
     {
       id: 3,
       name: 'Electives',
@@ -27,35 +41,137 @@ const OnboardingScreen1: React.FC = () => {
     {
       id: 4,
       name: 'STEM',
-      icon: 'src/assets/images/STEM.png',
+      icon: require('src/assets/images/STEM.png'),
     },
   ];
 
   const [selectedClassType, setSelectedClassType] = useState<number | null>(null);
   const router = useRouter();
+  const [currentCheckedValues, setCurrentCheckedValues] = useState({
+    LiberalArts: false,
+    CoreCourses: false,
+    Electives: false,
+    STEM: false,
+  });
 
   const currentSelectedType = (id: number) => {
     setSelectedClassType((prev) => (prev == id ? null : id));
   };
-  // TODO : adjust as needed
-  // ! The ratios may not be fully correct
-  const sharedStyles =
-    'rounded-lg p-5 my-5 items-center justify-center w-24 h-64 shadow-black shadow-xl';
 
-  // ? Defining a local component within a component, I should take advantage of this technique more often
-  // ! if the function body is wrapped around in (), then it expects to be returned HTML elements
-  const renderItem = ({ item }: { item: (typeof classTypes)[0] }) => (
+  const sharedStyles =
+    'rounded-lg mx-10 my-8 items-center justify-center w-24 h-50 shadow-black shadow-xl';
+
+  // TODO : Remove this useEffect hook later
+  useEffect(() => {
+    console.log(currentCheckedValues);
+  }, [currentCheckedValues]);
+
+  const renderItem = ({ item }: { item: (typeof classTypesRow1)[0] }) => (
     <Pressable
       onPress={() => currentSelectedType(item.id)}
       className={selectedClassType == item.id ? `#555 ${sharedStyles}` : `#1A1A1A ${sharedStyles}`}
     >
-      <Image
-        // Image requires a height and width value to render using style
-        // cannot use tailwindcss here
-        source={item.icon}
-        style={{
-          width: 40,
-          height: 40,
+      <View className="hover:bg-gray-500">
+        <Image
+          source={item.icon}
+          style={{
+            width: 100,
+            height: 100,
+          }}
+        />
+      </View>
+      <BouncyCheckbox
+        size={25}
+        fillColor="black"
+        unFillColor="#FFFFF"
+        text={item.name}
+        iconStyle={{
+          borderColor: 'white',
+        }}
+        textStyle={{
+          fontSize: 12,
+        }}
+        // TODO : modify this
+        onPress={(checked: boolean) => {
+          switch (item.id) {
+            // TODO : remove these unneccessary console.log statements later
+            case 1: {
+              if (checked) {
+                console.log('Liberal Arts Checkbox Selected');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  LiberalArts: true,
+                }));
+              } else {
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  LiberalArts: false,
+                }));
+                console.log('Checkbox has been unchecked');
+              }
+              break;
+            }
+            case 2: {
+              if (checked) {
+                console.log('Core Courses has been selected');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  CoreCourses: true,
+                }));
+              } else {
+                console.log('Core Courses has been unchecked');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  CoreCourses: false,
+                }));
+              }
+              break;
+            }
+            case 3: {
+              if (checked) {
+                console.log('Electives has been checked');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  Electives: true,
+                }));
+              } else {
+                console.log('Electives has been unchecked');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  Electives: false,
+                }));
+              }
+              break;
+            }
+            case 4: {
+              if (checked) {
+                console.log('STEM has been selected');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  STEM: true,
+                }));
+              } else {
+                console.log('STEM has been unchecked');
+                setCurrentCheckedValues((prevState) => ({
+                  ...prevState,
+                  STEM: false,
+                }));
+              }
+              break;
+            }
+            default: {
+              // everything should be set to false by default
+              // TODO : this might be redundant or unneccessary
+              setCurrentCheckedValues((prevState) => ({
+                ...prevState,
+                LiberalArts: false,
+                CoreCourses: false,
+                Electives: false,
+                STEM: false,
+              }));
+              break;
+            }
+          }
         }}
       />
       <Text className="text-white mt-10 text-center">{item.name}</Text>
@@ -64,110 +180,29 @@ const OnboardingScreen1: React.FC = () => {
 
   return (
     // TODO : adjust the css values as needed
+    // TODO : some of these view tags can be self-closing instead, after implementing everything, convert them to be self-closing tags
     // ** originally raw css, converted to tailwind
-    <View className="flex-1 bg-black p-20"></View>
-  );
-};
-
-export default OnboardingScreen1;
-
-//** old code, will be integrated to the default template for the guide being used
-/* -->
-const classes = [
-  { id: 1, name: 'Physical Education', icon: require('src/assets/images/Icon dumbbell.png') },
-  { id: 2, name: 'Literature Study', icon: require('src/assets/images/Icon book open.png') },
-  { id: 3, name: 'Field Trips', icon: require('src/assets/images/Icon binoculars.png') },
-  { id: 4, name: 'Schedule Planning', icon: require('src/assets/images/Icon clipboard check.png') },
-  { id: 5, name: 'Early Morning Classes', icon: require('src/assets/images/Icon bed.png') },
-  {
-    id: 6,
-    name: 'Music Appreciation',
-    icon: require('src/assets/images/Icon headphones simple.png'),
-  },
-  { id: 7, name: 'Note-taking', icon: require('src/assets/images/Icon pen fancy.png') },
-  { id: 8, name: 'Photography Breaks', icon: require('src/assets/images/Icon camera retro.png') },
-];
-
-const onboardingGetStarted: React.FC = () => {
-  const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
-  const router = useRouter();
-
-  const toggleClassSelection = (id: number) => {
-    setSelectedClasses((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const renderItem = ({ item }: { item: (typeof classes)[0] }) => (
-    <TouchableOpacity
-      onPress={() => toggleClassSelection(item.id)}
-      style={{
-        backgroundColor: selectedClasses.includes(item.id) ? '#333' : '#1A1A1A',
-        borderRadius: 10,
-        padding: 20,
-        margin: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '40%',
-      }}
-    >
-      <Image source={item.icon} style={{ width: 50, height: 50 }} />
-      <Text style={{ color: 'white', marginTop: 10 }}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
-  return (
-    <View style={{ flex: 1, backgroundColor: 'black', padding: 20 }}>
-      <Text style={{ color: 'white', fontSize: 18, marginVertical: 20 }}>
-        Select the classes you want to enroll in
-      </Text>
-
-      <FlatList
-        data={classes}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={2}
-        contentContainerStyle={{ justifyContent: 'center' }}
-      />
-
-      {/** * Skip and Proceed Buttons
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 }}>
-        <TouchableOpacity
-          className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto"
-          style={{ marginTop: 20 }}
-          onPress={() => {
-            router.push('/index');
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: 'PlaypenRegular',
-            }}
-            className="text-center text-black text-xl"
-          >
-            Skip
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto"
-          style={{ marginTop: 20 }}
-          onPress={() => {
-            router.push('/index');
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: 'PlaypenRegular',
-            }}
-            className="text-center text-black text-xl"
-          >
-            Finish
-          </Text>
-        </TouchableOpacity>
+    <View className="flex-1 bg-black p-12">
+      <View className="flex-row justify-between items-center mb-20">
+        {/** Might be excessively redundant, may need to be removed */}
+        <View className="flex-1" />
+        <View className="flex-row items-center">
+          <Text className="text-white text-base mr-8">1/3</Text>
+          <View className="w-24 h-2.5 bg-onboardingBackgroundColor overflow-hidden rounded-md">
+            <View className="w-1.5 h-full bg-[#888]" />
+          </View>
+        </View>
+      </View>
+      <Text className="text-white text-2xl mb-5">Which field of study are you looking into?</Text>
+      <Text className="text-gray-400 text-base">Select One or More Below</Text>
+      <View className="flex-row justify-center">
+        {classTypesRow1.map((item) => renderItem({ item }))}
+      </View>
+      <View className="flex-row justify-center">
+        {classTypesRow2.map((item) => renderItem({ item }))}
       </View>
     </View>
   );
 };
 
-export default onboardingGetStarted; */
+export default OnboardingScreen1;
