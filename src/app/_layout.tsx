@@ -124,7 +124,7 @@ function RootLayoutNav() {
               }}
             />
             <Stack.Screen
-              name="onboardingGetStarted"
+              name="onboarding1"
               options={{
                 title: '',
                 headerShown: true,

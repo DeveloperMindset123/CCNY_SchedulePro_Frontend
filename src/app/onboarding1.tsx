@@ -1,11 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // @see https://www.telerik.com/blogs/usecallback-useref-two-react-hooks-you-should-learn --> to understand the importance of useCallback and useRef
 
-// TODO : Continue implementing this
+// ! this screen was originally onboardingGetStarted
 import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 
-//** old code, will be integrated to the default template for the guide being used 
+const classTypes = [
+  {
+    id: 1,
+    name: 'Liberal Arts',
+    icon: require('src/assets/images/LiberalArts.png'),
+  },
+];
+
+//** old code, will be integrated to the default template for the guide being used
 /* -->
 const classes = [
   { id: 1, name: 'Physical Education', icon: require('src/assets/images/Icon dumbbell.png') },
