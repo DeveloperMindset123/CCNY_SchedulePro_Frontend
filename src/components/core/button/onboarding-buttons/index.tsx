@@ -27,9 +27,6 @@ interface OnboardingButtonProps {
 export const OnboardingButton = ({
   width,
   height,
-  // ? the route prop may be unneccessary
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  route,
   buttonText,
   handleOnPress,
 }: OnboardingButtonProps) => {

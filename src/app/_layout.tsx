@@ -131,6 +131,13 @@ function RootLayoutNav() {
               }}
             />
             <Stack.Screen
+              name="onboarding2"
+              options={{
+                title: '',
+                headerShown: true,
+              }}
+            />
+            <Stack.Screen
               name="modal"
               options={{
                 title: 'Modal',
