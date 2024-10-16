@@ -166,23 +166,43 @@ const OnboardingScreen2: React.FC = () => {
 
   const router = useRouter();
   const [selectedMajor, setSelectedMjaor] = useState<string | null>(null);
+  // TODO : Continue this tommorow
+  // TODO : Fix the logic for why the picker value isn't working as intended
+  //const availableMajors = AllC
 
   return (
-    <View>
-      <OnboardingButton
-        width={'45%'}
-        height={50}
-        route="/onboarding2"
-        handleOnPress={() => router.back()}
-        buttonText={'Go Back'}
-      />
-      <OnboardingButton
-        width={'45%'}
-        height={50}
-        route="/onboarding2"
-        handleOnPress={() => router.push('/onboarding3')}
-        buttonText={'Proceed'}
-      />
+    <View className="flex-1 bg-black p-10">
+      <View className="flex-row justify-between items-center mb-10">
+        <View className="flex-1" />
+        <View className="flex-row items-center" />
+        <Text className="text-white text-base mr-8">2/3</Text>
+        <View className="w-20 h-2 bg-[#555] rounded-sm overflow-hidden">
+          {/**This is the part that deals with the filling animation */}
+          <View className="w-2/3 h-full bg-[#888]" />
+        </View>
+      </View>
+      <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
+      <Text className="text-gray-400 text-sm mb-10">Choose one from the list below</Text>
+      <View className="border-2 border-[#888] p-16 mb-5 rounded-2xl bg-[#1A1A1A]">
+        <Picker></Picker>
+      </View>
+      {/**I modified this here to make the buttons in the form of a row */}
+      <View className="flex-row">
+        <OnboardingButton
+          width={'45%'}
+          height={50}
+          route="/onboarding2"
+          handleOnPress={() => router.back()}
+          buttonText={'Go Back'}
+        />
+        <OnboardingButton
+          width={'45%'}
+          height={50}
+          route="/onboarding2"
+          handleOnPress={() => router.push('/onboarding3')}
+          buttonText={'Proceed'}
+        />
+      </View>
     </View>
   );
 };
