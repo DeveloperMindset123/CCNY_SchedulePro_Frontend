@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
+import { useRoute } from '@react-navigation/native';
 
 const OnboardingScreen2: React.FC = () => {
   // ! Majors should not be hardcoded
@@ -162,9 +163,26 @@ const OnboardingScreen2: React.FC = () => {
     ],
     W: ["Women's Studies"],
   };
+
+  const router = useRouter();
+  const [selectedMajor, setSelectedMjaor] = useState<string | null>(null);
+
   return (
     <View>
-      <Text>To Be Implemented</Text>
+      <OnboardingButton
+        width={'45%'}
+        height={50}
+        route="/onboarding2"
+        handleOnPress={() => router.back()}
+        buttonText={'Go Back'}
+      />
+      <OnboardingButton
+        width={'45%'}
+        height={50}
+        route="/onboarding2"
+        handleOnPress={() => router.push('/onboarding3')}
+        buttonText={'Proceed'}
+      />
     </View>
   );
 };
