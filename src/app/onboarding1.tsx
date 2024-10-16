@@ -194,7 +194,7 @@ const OnboardingScreen1: React.FC = () => {
         width={'45%'}
         height={50}
         route="/onboarding2"
-        handleOnPress={() => router.back()}
+        handleOnPress={() => router.push('/onboarding2')}
         buttonText={'Proceed'}
       />
     </View>
