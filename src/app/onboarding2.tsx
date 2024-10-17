@@ -17,28 +17,40 @@ const OnboardingScreen2 = () => {
   // explains how react-native-picker works
 
   const DegreeType = [
+    // ** In this case, we have an array of objects
+    // ! given that the outer layer is an array, we are still able to successfully map through it as needed
     { label: 0, value: 'Bachelor of Arts (BA)' },
-    { label: 1, value: 'Bachelor of Science (BS) ' },
+    { label: 1, value: 'Bachelor of Science (BS)' },
     { label: 2, value: 'Bachelor of Engineering (BE)' },
     { label: 3, value: 'Bachelor of Science Education (BSED)' },
     { label: 4, value: 'Bachelor of Fine Arts (BFA)' },
-    { label: 5, value: 'Master of Arts (MA)' },
-    { label: 6, value: 'Master of Fine Arts (MFA)' },
-    { label: 7, value: 'Master of Science (MS)' },
-    { label: 8, value: 'Master of Landscape Architecture (MLA)' },
-    { label: 9, value: 'Master of Urban Planning (MUP)' },
-    { label: 10, value: 'Master of Engineering (ME)' },
-    { label: 11, value: 'Master of Professional Studies (MPS)' },
-    { label: 12, value: 'Master of International Affairs (MIA)' },
-    { label: 13, value: 'Master of Music (MM)' },
-    { label: 14, value: 'Master of Public Administration (MPA)' },
-    { label: 15, value: 'Master of Architecture (MArch)' },
-    { label: 16, value: 'Advanced Certificates' },
-    { label: 17, value: 'Undecided' },
+    { label: 5, value: 'Bachelor of Music (BMUS)' },
+    { label: 6, value: 'Bachelor of Science/Doctor of Medicine (BS/MD)' },
+    { label: 7, value: 'Bachelor of Architecture (B.ARCH)' },
+    { label: 8, value: 'Master of Arts (MA)' },
+    { label: 9, value: 'Master of Fine Arts (MFA)' },
+    { label: 10, value: 'Master of Science (MS)' },
+    { label: 11, value: 'Master of Landscape Architecture (MLA)' },
+    { label: 12, value: 'Master of Urban Planning (MUP)' },
+    { label: 13, value: 'Master of Engineering (ME)' },
+    { label: 14, value: 'Master of Professional Studies (MPS)' },
+    { label: 15, value: 'Master of International Affairs (MIA)' },
+    { label: 16, value: 'Master of Music (MM)' },
+    { label: 17, value: 'Master of Public Administration (MPA)' },
+    { label: 18, value: 'Master of Architecture (MArch)' },
+    { label: 19, value: 'Certificate Programs' },
+    { label: 20, value: 'Master of Landscape Architecture (MLA)' },
+    //{ label: 21, value: 'Master of Urban Planning (MUP)' },
+    { label: 21, value: 'Doctoral Degrees (Ph.D) at CCNY' },
+    { label: 22, value: 'Doctoral Degrees (Ph.D) in consortium with the Graduate Center' },
+    { label: 23, value: 'Advanced Certificates (AdvCert)' },
   ];
 
   const undegrad_grad_majors = {
+    // ! when using map, the funciton body within JSX component should be wrapped using () rather than {}
     // ** key : degree type selected, value : list of majors corresponding to the particular dergee type
+    // ? tested and worked as intended
+    // we are accessing the values via the keys which was previous selected and ammping throguh the array of values
     Undecided: ['Not Available'],
     'Bachelor of Arts (BA)': [
       'Anthropology',
@@ -72,172 +84,147 @@ const OnboardingScreen2 = () => {
       'Theatre',
       'Urban Studies and the Built Environment',
     ],
-  };
-
-  // TODO : To render this, we need to first determine the value use previously selected
-  // because we don't want to render everything, only the subset of majors
-  // based on alphabetical orders
-  /*
-  const AllCollegeMajors = [
-    {
-      "label": 'A', "majors": [
-        'Advertising and Public Relations',
-        'Anthropology',
-        'Architecture',
-        'Art',
-        'Art Education',
-        'Art History',
-        'Asian Studies Program',
-        'Atmospheric Sciences',
-      ]
-    },
-
-    {
-      "label": 'B', "majors": [
-        'Bernard and Anne Spitzer School of Architecture',
-        'BFA in Fim & Video',
-        'Billingual Education & TESOL Programs',
-        'Biochemistry',
-        'Biology',
-        'Biomedical Engineering',
-        'Black Studies Program',
-        'Branding + Integrated Communcation',
-        'Business',
-      ]
-    },
-
-    {
-      "label": 'C', "majors": [
-        'CCNY Gaming Pathways',
-        'Center for Worker Education',
-        'Chemical Engineering',
-        'Chemistry',
-        'Childhood Education - Graduate',
-        'Childhood Education - Undergraduate',
-        'Cinema Studies',
-        'Civil Engineering',
-        'Classical and Modern Languages & Literatures',
-        'Collin Powell School for Civic and Gloabl Leadership',
-        'Computer Engineering Program',
-        'Computer Science',
-        'Continuing and Professional Studies',
-        'Core Curriculum',
-        'CUNY School of Medicine',
-        'Cybersecurity',
-      ]
-    },
-
-    {"label" : "D", "majors" : [
-      'Data Science and Engineering',
-      'Department of Mathematics',
-      'Digital and Interdisciplinary Art Practice',
-      'Division of Humanities & the Arts',
-      'Division of Interdisciplinary Studies at the Center for Worker Education',
-      'Division of Science',
-    ]},
-
-    E: [
-      'Early Childhood Education - Graduate',
+    'Bachelor of Science (BS)': [
+      'Biochemistry',
+      'Biology',
+      'Biology Teacher, grades 7-12',
+      'Biotechnology',
+      'Chemistry',
+      'Chemistry Teacher, Grades 7-12',
+      'Computer Science',
+      'Early Childhood Education',
       'Earth and Atmospheric Sciences',
-      'Earth System Science & Environmental Engineering',
-      'Economics and Business',
-      'Education',
-      'Educational Leadership',
-      'Educational Theatre',
-      'Electrical Engineering',
-      'Electronic Design and Multimedia',
-      'Engineering',
-      'English',
-      'English as a Second Language',
-      'English Education',
-      'Environmental Engineering',
-    ],
-
-    F: [
-      'Film & Video - Graduate',
-      'Film & Video - Undergraduate',
-      'Foreign Languages',
-      'Frances S. Patai Program in Holocaust, Genocide and Human Rights Studies',
-    ],
-
-    G: [
-      'Gaming Pathways',
-      'Gender Studies',
-      'General Education Curriculum at City College',
-      'Graduate Research Training Initiative for Student Enhancement',
-      'Grove School of Engineering',
-    ],
-
-    H: [
-      'Health Professions Preparation Certificate Program',
-      'History',
-      'Honors Center',
-      'Honors Program in Legal Studies at the Collen Powell School',
-      'Human Rights Forum',
-      'Human Rights Studies',
-      'Humanities & the Arts',
-    ],
-
-    I: ['Interdisciplinary Studies', 'International Studies'],
-
-    J: ['Jewish Studies Program', 'Journalism'],
-
-    L: ['Legal Studies'],
-
-    M: [
-      'Master in Public Administration',
+      'Earth Science Teacher, Grades 7-12',
+      'Environmental and Earth Systems Science',
       'Mathematics',
-      'Mathematics Education',
-      'Mechanical Engineering',
-      'Media and Communication Arts',
-      'Medicine',
-      'MFA in Film Program',
-      'Minor in Cinema Studies',
-      'Multilingual Creative Writting Conference',
-      'Museum Studies',
-      'Music',
-    ],
-
-    N: ['NOAA-CESSRST', 'NSF Advance'],
-    P: [
-      'Percy Ellis Sutton SEEK Program',
-      'Philosophy',
       'Physics',
-      'Political Science',
-      'Pre-Health Program',
+      'Physics Teacher, Grades 7-12',
+      'Science Learning & Public Engagement',
+    ],
+    'Bachelor of Engineering (BE)': [
+      'Mechanical Engineering',
+      'Biomedical Engineering',
+      'Chemical Engineering',
+      'Civil Engineering',
+      'Computer Engineering',
+      'Earth Systems Science and Environmental Engineering',
+      'Electrical Engineering',
+      'Electrical Engineering',
+      'Mechanical Engineering',
+    ],
+    'Bachelor of Science Education (BSED)': [
+      'Bilingual Childhood Education, Grades 1-6',
+      'Childhood Education',
+    ],
+    'Bachelor of Science/Doctor of Medicine (BS/MD)': [
+      'Biomedical Science (Sophie Davis School of Biomedical Education)',
+    ],
+    'Bachelor of Architecture (B.ARCH)': ['Architecture'],
+    'Bachelor of Fine Arts (BFA)': ['Electronic Design and Multimedia', 'Film'],
+    'Bachelor of Music (BMUS)': [
+      'Jazz Studies (Vocal)',
+      'Jazz Studies (Intrumental)',
+      'Sonic Arts',
+    ],
+    'Certificate Programs': ['Health Professions Preparations (CERTGE30)', 'Publishing (CERTLT30)'],
+    'Master of Arts (MA)': [
+      'Art History',
+      'Languages and Literacy',
+      'English Literature',
+      'Spanish',
+      'History',
+      'MA in Economics',
+      'Mental Health Counseling',
       'Psychology',
-      'Public Administration',
-      'Public Relations',
-    ],
-    S: [
-      'School of Architecture',
-      'School of Education',
-      'School of Medicine',
-      'Science',
-      'Science Education',
-      'Science Learning and Public Engagement',
-      'SEEK',
-      'Skadden, Arps Honors Program in Legal Studies',
-      'Social Justice and Urban Life',
-      'Social Mobillity Lab',
+      'Study of Americas',
+      'English Education',
+      'Science Education (Grades 5-9)',
+      'Science Education (Grades 5-9)',
+      'Science Education - BIOLOGY (Grades 7-12)',
+      'Science Education - CHEMISTRY (Grades 7 - 12)',
+      'Science Education - EARTH & ATMOSPHERIC SCIENCE (Grades 7-12)',
       'Social Studies Education',
-      'Sociology',
-      'Special Education',
-      'Sustainabillity un the Urban Environment',
     ],
-    T: [
-      'TESOL',
-      'The Bernard and Anne Spitzer School of Architecture',
-      'The Division of Science',
-      'The General Education Curriculum at City College',
-      'The Grove School of Engineering',
-      'The Percy Ellis Sutton SEEK program',
-      'Theatre and Speech',
-      'Translational Medicine',
-      'Trauma and Addiction Project',
+    'Master of Science (MS)': [
+      'Architecture',
+      'Biology',
+      'Biochemistry',
+      'Biotechnology',
+      'Biomedical Engineering',
+      'Computer Science',
+      'Computer Engineering',
+      'Chemistry',
+      'Cybersecurity',
+      'Data Science and Engineering',
+      'Earth and Atmospheric Science',
+      'Earth Systems and Environmental Engineering',
+      'Mathematics',
+      'Physics',
+      'Physician Assistant',
+      'Sustainabillity in the Urban Environment',
     ],
-    W: ["Women's Studies"],
-  ]; */
+    'Master of Science in Education (MSED)': [
+      'Bilingual Childhood Education (Grades 1-6)',
+      'Bilingual Special Education (Grades 1-6)',
+      'Childhood Education (Grades 1-6)',
+      'Early Childhood Education (Grades Birth - 2)',
+      'Educational Leadership - School Building Leader',
+      'Educational Theatre for Initial Certification (Online)',
+      'Educational Theatre, Non Teacher Certification (Online)',
+      'Literacy (Grades 5-12)',
+    ],
+    'Master of Fine Arts (MFA)': [
+      'Creative Writting',
+      'Digital and Interdisciplinary Art Practice',
+      'Film',
+      'Studio Art',
+    ],
+    'Master of Engineering (ME)': [
+      'Chemical Engineering',
+      'Civil Engineering',
+      'Electrical Engineering',
+      'Mechanical Engineering',
+    ],
+    'Master of Architecture (MArch)': ['Architecture I'],
+    'Master of Landscape Architecture (MLA)': ['Landscape Architecture'],
+    'Master of Urban Planning (MUP)': ['Urban Design'],
+    'Master of Professional Studies (MPS)': ['Branding + Integrated Communications'],
+    'Master of Public Administration (MPA)': ['Public Service Management'],
+    'Master of International Affairs (MIA)': ['International Relations'],
+    'Master of Music (MM)': ['Jazz Studies'],
+    'Doctoral Degrees (Ph.D) at CCNY': [
+      'Clinical Psychology',
+      'Biomedical Engineering',
+      'Chemical Engineering',
+      'Civil Engineering',
+      'Electrical Engineering',
+      'Mechanical Engineering',
+    ],
+    'Doctoral Degrees (Ph.D) in consortium with the Graduate Center': [
+      'Biology',
+      'Biochemistry',
+      'Chemistry',
+      'Physics',
+    ],
+    'Advanced Certificates (AdvCert)': [
+      'Art Education (Grades K-12)',
+      'Billingual Extension Certificate',
+      'Educational Leadership - Entry Level Leadership',
+      'Educational Leadership - School District Leader',
+      'Educational Theatre (Grades PK-12)',
+      'English Education (Grades 7-12)',
+      'Mathematics Education (Grades 5-9)',
+      'Mathematics Education (Grades 7-12)',
+      'Science Education - BIOLOGY (Grades 7-12)',
+      'Science Education - CHEMISTRY (Grades 7-12)',
+      'Science Education - EARTH & ATMOSPHERIC SCIENCE (Grades 7-12)',
+      'Science Education - PHYSICS (Grades 7-12)',
+      'Social Studies Education (Grades 7-12)',
+      'Special Education (Grades 1-6)',
+      'Special Education (Grades 7-12)',
+      'TESOL Teaching English to Students of Other Languages',
+    ],
+  };
 
   const router = useRouter();
   const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
@@ -260,9 +247,14 @@ const OnboardingScreen2 = () => {
       </Picker>
    */
 
+  // TODO : Testing purposes, remove later
   useEffect(() => {
     console.log(`Current Selected Degree : ${selectedDegree}`);
-  }, [selectedDegree]);
+    console.log(`Current Selected Major : ${selectedMajor}`);
+  }, [selectedDegree, selectedMajor]);
+
+  // TODO : wrap this around view component from before
+  // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling
   return (
     <View>
       <Text>What degree are you pursuing?</Text>
@@ -293,6 +285,7 @@ const OnboardingScreen2 = () => {
 
 export default OnboardingScreen2;
 {
+  // ** old code, integreate it into working changes afterwards
   /*
     <View className="flex-1 bg-black p-10">
       <View className="flex-row justify-between items-center mb-10">
