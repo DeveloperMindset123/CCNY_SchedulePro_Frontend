@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 
@@ -12,7 +12,7 @@ const OnboardingScreen3: React.FC = () => {
         height={50}
         route="/onboarding2"
         handleOnPress={() => router.back()}
-        buttonText={'Proceed'}
+        buttonText={'Go Back'}
       />
       <OnboardingButton
         width={'45%'}
