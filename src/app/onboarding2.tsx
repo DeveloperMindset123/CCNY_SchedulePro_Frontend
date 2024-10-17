@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
-import { useRoute } from '@react-navigation/native';
-import { validate } from 'uuid';
 
 const OnboardingScreen2 = () => {
   // ! Majors should not be hardcoded
@@ -40,7 +38,6 @@ const OnboardingScreen2 = () => {
     { label: 18, value: 'Master of Architecture (MArch)' },
     { label: 19, value: 'Certificate Programs' },
     { label: 20, value: 'Master of Landscape Architecture (MLA)' },
-    //{ label: 21, value: 'Master of Urban Planning (MUP)' },
     { label: 21, value: 'Doctoral Degrees (Ph.D) at CCNY' },
     { label: 22, value: 'Doctoral Degrees (Ph.D) in consortium with the Graduate Center' },
     { label: 23, value: 'Advanced Certificates (AdvCert)' },
@@ -229,89 +226,55 @@ const OnboardingScreen2 = () => {
   const router = useRouter();
   const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
   const [selectedDegree, setSelectedDegree] = useState<string>('Undecided');
-  const selectedClassType = 'C';
-  //const availableMajors = AllCollegeMajors[selectedClassType] || [];
-
-  /**
-   * @working copy of the Picker component code
-   * <Text>What degree are you pursuing?</Text>
-
-      <Picker
-        className="text-black"
-        selectedValue={selectedDegree}
-        onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
-      >
-        {DegreeType.map((Degree, index) => (
-          <Picker.Item key={Degree.label} label={Degree.value} value={Degree.value} />
-        ))}
-      </Picker>
-   */
-
-  // TODO : Testing purposes, remove later
-  useEffect(() => {
-    console.log(`Current Selected Degree : ${selectedDegree}`);
-    console.log(`Current Selected Major : ${selectedMajor}`);
-  }, [selectedDegree, selectedMajor]);
 
   // TODO : wrap this around view component from before
-  // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling
+  // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
   return (
-    <View>
-      <Text>What degree are you pursuing?</Text>
-
-      <Picker
-        className="text-black"
-        selectedValue={selectedDegree}
-        onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
-      >
-        <Picker.Item value="Undecided" label="Undecided" />
-        {DegreeType.map((Degree, index) => (
-          <Picker.Item key={Degree.label} label={Degree.value} value={Degree.value} />
-        ))}
-      </Picker>
-      <Text>Please Select Your Major</Text>
-      <Picker
-        className="text-black"
-        selectedValue={selectedMajor}
-        onValueChange={(currentMajorSelected) => setSelectedMjaor(currentMajorSelected)}
-      >
-        {undegrad_grad_majors[selectedDegree].map((Major: string, index: number) => (
-          <Picker.Item key={index} label={Major} value={Major} />
-        ))}
-      </Picker>
-    </View>
-  );
-};
-
-export default OnboardingScreen2;
-{
-  // ** old code, integreate it into working changes afterwards
-  /*
     <View className="flex-1 bg-black p-10">
       <View className="flex-row justify-between items-center mb-10">
         <View className="flex-1" />
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
-        <View className="w-20 h-2 bg-[#555] rounded-sm overflow-hidden">
-          {/**This is the part that deals with the filling animation
+        <View className="w-20 h-2 rounded-sm overflow-hidden">
           <View className="w-2/3 h-full bg-[#888]" />
         </View>
       </View>
       <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
-      <Text className="text-gray-400 text-sm mb-10">Choose one from the list below</Text>
-      <View className="border-2 border-[#888] p-16 mb-5 rounded-2xl bg-[#1A1A1A]">
-        <Text>What degree are you pursuing?</Text>
+      <View className="rounded-2xl text-white">
+        <Text className="text-gray-400 text-sm text-left">
+          Please Select Your Degree Type and Major
+        </Text>
         <Picker
-          className="text-white"
+          itemStyle={{
+            color: 'white',
+          }}
           selectedValue={selectedDegree}
           onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
         >
-          {DegreeType.map((degreeKey: any, degreeValue: any) => {
-            <Picker.Item key={degreeKey} label={degreeValue} value={degreeValue} />;
-          })}
+          <Picker.Item value="Undecided" label="Undecided" color="white" />
+          {DegreeType.map((Degree, index) => (
+            <Picker.Item
+              key={Degree.label}
+              label={Degree.value}
+              value={Degree.value}
+              style={{
+                color: 'white',
+              }}
+            />
+          ))}
+        </Picker>
+        <Picker
+          className="text-white bg-white"
+          selectedValue={selectedMajor}
+          onValueChange={(currentMajorSelected) => setSelectedMjaor(currentMajorSelected)}
+        >
+          {/**Ignore this, not causing any issues */}
+          {undegrad_grad_majors[selectedDegree].map((Major: string, index: number) => (
+            <Picker.Item key={index} label={Major} value={Major} color="white" />
+          ))}
         </Picker>
       </View>
-      <View className="flex-row">
+      <View className="flex-row mt-3">
         <OnboardingButton
           width={'45%'}
           height={50}
@@ -327,6 +290,8 @@ export default OnboardingScreen2;
           buttonText={'Proceed'}
         />
       </View>
-    </View >
-      */
-}
+    </View>
+  );
+};
+
+export default OnboardingScreen2;
