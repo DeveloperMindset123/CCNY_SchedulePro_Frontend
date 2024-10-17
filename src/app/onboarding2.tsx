@@ -1,14 +1,42 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import { useRoute } from '@react-navigation/native';
+import { validate } from 'uuid';
 
-const OnboardingScreen2: React.FC = () => {
+const OnboardingScreen2 = () => {
   // ! Majors should not be hardcoded
+  // !NOTE : .map is a built in method for Arrays, not Objects
   // TODO : logic for retrieveing from database when screen loads
+  // ? one potential appraoch, have the majors be arranged by the departments
   // ** For now, majors will be stored in alphabetical order
+  // @see https://github.com/react-native-picker/picker
+  // explains how react-native-picker works
+
+  const DegreeType = [
+    { label: 0, value: 'Bachelor of Arts (BA)' },
+    { label: 1, value: 'Bachelor of Science (BS) ' },
+    { label: 2, value: 'Bachelor of Engineering (BE)' },
+    { label: 3, value: 'Bachelor of Science Education (BSED)' },
+    { label: 4, value: 'Bachelor of Fine Arts (BFA)' },
+    { label: 5, value: 'Master of Arts (MA)' },
+    { label: 6, value: 'Master of Fine Arts (MFA)' },
+    { label: 7, value: 'Master of Science (MS)' },
+    { label: 8, value: 'Master of Landscape Architecture (MLA)' },
+    { label: 9, value: 'Master of Urban Planning (MUP)' },
+    { label: 10, value: 'Master of Engineering (ME)' },
+    { label: 11, value: 'Master of Professional Studies (MPS)' },
+    { label: 12, value: 'Master of International Affairs (MIA)' },
+    { label: 13, value: 'Master of Music (MM)' },
+    { label: 14, value: 'Master of Public Administration (MPA)' },
+    { label: 15, value: 'Master of Architecture (MArch)' },
+    { label: 16, value: 'Advanced Certificates' },
+    { label: 17, value: 'Undecided' },
+  ];
+
   const AllCollegeMajors = {
     A: [
       'Advertising and Public Relations',
@@ -165,28 +193,55 @@ const OnboardingScreen2: React.FC = () => {
   };
 
   const router = useRouter();
-  const [selectedMajor, setSelectedMjaor] = useState<string | null>(null);
-  // TODO : Continue this tommorow
-  // TODO : Fix the logic for why the picker value isn't working as intended
-  //const availableMajors = AllC
+  //const [selectedMajor, setSelectedMjaor] = useState<string | null>(null);
+  const [selectedDegree, setSelectedDegree] = useState<string | null>(null);
+  const selectedClassType = 'C';
+  //const availableMajors = AllCollegeMajors[selectedClassType] || [];
 
   return (
+    <View>
+      <Text>What degree are you pursuing?</Text>
+
+      <Picker
+        className="text-black"
+        selectedValue={selectedDegree}
+        onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
+      >
+        {DegreeType.map((Degree, index) => (
+          <Picker.Item key={Degree.label} label={Degree.value} value={Degree.value} />
+        ))}
+      </Picker>
+    </View>
+  );
+};
+
+export default OnboardingScreen2;
+{
+  /*
     <View className="flex-1 bg-black p-10">
       <View className="flex-row justify-between items-center mb-10">
         <View className="flex-1" />
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
         <View className="w-20 h-2 bg-[#555] rounded-sm overflow-hidden">
-          {/**This is the part that deals with the filling animation */}
+          {/**This is the part that deals with the filling animation
           <View className="w-2/3 h-full bg-[#888]" />
         </View>
       </View>
       <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
       <Text className="text-gray-400 text-sm mb-10">Choose one from the list below</Text>
       <View className="border-2 border-[#888] p-16 mb-5 rounded-2xl bg-[#1A1A1A]">
-        <Picker></Picker>
+        <Text>What degree are you pursuing?</Text>
+        <Picker
+          className="text-white"
+          selectedValue={selectedDegree}
+          onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
+        >
+          {DegreeType.map((degreeKey: any, degreeValue: any) => {
+            <Picker.Item key={degreeKey} label={degreeValue} value={degreeValue} />;
+          })}
+        </Picker>
       </View>
-      {/**I modified this here to make the buttons in the form of a row */}
       <View className="flex-row">
         <OnboardingButton
           width={'45%'}
@@ -203,8 +258,6 @@ const OnboardingScreen2: React.FC = () => {
           buttonText={'Proceed'}
         />
       </View>
-    </View>
-  );
-};
-
-export default OnboardingScreen2;
+    </View >
+      */
+}
