@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
@@ -37,57 +37,104 @@ const OnboardingScreen2 = () => {
     { label: 17, value: 'Undecided' },
   ];
 
-  const AllCollegeMajors = {
-    A: [
-      'Advertising and Public Relations',
+  const undegrad_grad_majors = {
+    // ** key : degree type selected, value : list of majors corresponding to the particular dergee type
+    Undecided: ['Not Available'],
+    'Bachelor of Arts (BA)': [
       'Anthropology',
-      'Architecture',
-      'Art',
-      'Art Education',
+      'Asian Studies',
+      'Latino American and Latino Studies',
+      'Black Studies',
+      'Jewish Studies',
+      'Studio Art',
       'Art History',
-      'Asian Studies Program',
-      'Atmospheric Sciences',
+      'Art Teacher, All Grades',
+      'Advertising and Public Relations',
+      'Journalism',
+      'Comparative Literature',
+      'Earth and Atmospheric Sceinces',
+      'Economics (Combined BAMA Program Available)',
+      'English',
+      'English Teacher, Grades 7-12',
+      'History (Combined BAMA program available)',
+      'Interdisciplinary Arts and Science (Combined BAMA Program Available)',
+      'International Studies',
+      'Management and Administration',
+      'Mathematics Teacher, Grades 7-12',
+      'Philosophy',
+      'Poltical Science',
+      'Popular Music Studies (Combined BAMA Program Available)',
+      'Psychology',
+      'Romance Languages : French, Italian, Spanish',
+      'Social Studies Teacher, Grades 7-12',
+      'Sociology (Combined BAMA Program Available)',
+      'Spanish Teacher, Grades 7-12',
+      'Theatre',
+      'Urban Studies and the Built Environment',
     ],
+  };
 
-    B: [
-      'Bernard and Anne Spitzer School of Architecture',
-      'BFA in Fim & Video',
-      'Billingual Education & TESOL Programs',
-      'Biochemistry',
-      'Biology',
-      'Biomedical Engineering',
-      'Black Studies Program',
-      'Branding + Integrated Communcation',
-      'Business',
-    ],
+  // TODO : To render this, we need to first determine the value use previously selected
+  // because we don't want to render everything, only the subset of majors
+  // based on alphabetical orders
+  /*
+  const AllCollegeMajors = [
+    {
+      "label": 'A', "majors": [
+        'Advertising and Public Relations',
+        'Anthropology',
+        'Architecture',
+        'Art',
+        'Art Education',
+        'Art History',
+        'Asian Studies Program',
+        'Atmospheric Sciences',
+      ]
+    },
 
-    C: [
-      'CCNY Gaming Pathways',
-      'Center for Worker Education',
-      'Chemical Engineering',
-      'Chemistry',
-      'Childhood Education - Graduate',
-      'Childhood Education - Undergraduate',
-      'Cinema Studies',
-      'Civil Engineering',
-      'Classical and Modern Languages & Literatures',
-      'Collin Powell School for Civic and Gloabl Leadership',
-      'Computer Engineering Program',
-      'Computer Science',
-      'Continuing and Professional Studies',
-      'Core Curriculum',
-      'CUNY School of Medicine',
-      'Cybersecurity',
-    ],
+    {
+      "label": 'B', "majors": [
+        'Bernard and Anne Spitzer School of Architecture',
+        'BFA in Fim & Video',
+        'Billingual Education & TESOL Programs',
+        'Biochemistry',
+        'Biology',
+        'Biomedical Engineering',
+        'Black Studies Program',
+        'Branding + Integrated Communcation',
+        'Business',
+      ]
+    },
 
-    D: [
+    {
+      "label": 'C', "majors": [
+        'CCNY Gaming Pathways',
+        'Center for Worker Education',
+        'Chemical Engineering',
+        'Chemistry',
+        'Childhood Education - Graduate',
+        'Childhood Education - Undergraduate',
+        'Cinema Studies',
+        'Civil Engineering',
+        'Classical and Modern Languages & Literatures',
+        'Collin Powell School for Civic and Gloabl Leadership',
+        'Computer Engineering Program',
+        'Computer Science',
+        'Continuing and Professional Studies',
+        'Core Curriculum',
+        'CUNY School of Medicine',
+        'Cybersecurity',
+      ]
+    },
+
+    {"label" : "D", "majors" : [
       'Data Science and Engineering',
       'Department of Mathematics',
       'Digital and Interdisciplinary Art Practice',
       'Division of Humanities & the Arts',
       'Division of Interdisciplinary Studies at the Center for Worker Education',
       'Division of Science',
-    ],
+    ]},
 
     E: [
       'Early Childhood Education - Graduate',
@@ -190,14 +237,32 @@ const OnboardingScreen2 = () => {
       'Trauma and Addiction Project',
     ],
     W: ["Women's Studies"],
-  };
+  ]; */
 
   const router = useRouter();
-  //const [selectedMajor, setSelectedMjaor] = useState<string | null>(null);
-  const [selectedDegree, setSelectedDegree] = useState<string | null>(null);
+  const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
+  const [selectedDegree, setSelectedDegree] = useState<string>('Undecided');
   const selectedClassType = 'C';
   //const availableMajors = AllCollegeMajors[selectedClassType] || [];
 
+  /**
+   * @working copy of the Picker component code
+   * <Text>What degree are you pursuing?</Text>
+
+      <Picker
+        className="text-black"
+        selectedValue={selectedDegree}
+        onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
+      >
+        {DegreeType.map((Degree, index) => (
+          <Picker.Item key={Degree.label} label={Degree.value} value={Degree.value} />
+        ))}
+      </Picker>
+   */
+
+  useEffect(() => {
+    console.log(`Current Selected Degree : ${selectedDegree}`);
+  }, [selectedDegree]);
   return (
     <View>
       <Text>What degree are you pursuing?</Text>
@@ -207,8 +272,19 @@ const OnboardingScreen2 = () => {
         selectedValue={selectedDegree}
         onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
       >
+        <Picker.Item value="Undecided" label="Undecided" />
         {DegreeType.map((Degree, index) => (
           <Picker.Item key={Degree.label} label={Degree.value} value={Degree.value} />
+        ))}
+      </Picker>
+      <Text>Please Select Your Major</Text>
+      <Picker
+        className="text-black"
+        selectedValue={selectedMajor}
+        onValueChange={(currentMajorSelected) => setSelectedMjaor(currentMajorSelected)}
+      >
+        {undegrad_grad_majors[selectedDegree].map((Major: string, index: number) => (
+          <Picker.Item key={index} label={Major} value={Major} />
         ))}
       </Picker>
     </View>
