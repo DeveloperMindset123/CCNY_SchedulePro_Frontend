@@ -5,8 +5,14 @@ import { getSignupStyles } from './getSignupStyles';
 import { SignupButton } from '../signupButton';
 //import { supabaseInstance } from '@/lib/database/supabase';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
-// ! useRef can be used to store the session cookie for logged in users
+/**
+ * @reminder useRef can be used to store the session cookie for logged in users
+ * @see https://www.ifelsething.com/post/get-value-react-native-text-input/
+ * @TODO Check if email already exists and warn user if it does, to get them to sign in instead
+ * @TODO see if the callback functions are neccessary within the handle sign up function
+ */
 export const TextInputComponent = () => {
   const { width, height } = getWindowDimensions();
   const currentStyles = getSignupStyles();
@@ -18,11 +24,8 @@ export const TextInputComponent = () => {
   const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
-  // @see https://www.ifelsething.com/post/get-value-react-native-text-input/
-  // proper input handling
   const handleEmailInput = (e: any) => {
     setEmailInput(e.nativeEvent.text);
   };
@@ -35,31 +38,82 @@ export const TextInputComponent = () => {
     setConfirmPasswordInput(e.nativeEvent.text);
   };
 
-  /*
-  const signUpWithEmail = async () => {
-    setLoading(true);
-    if (passwordInput === confirmPasswordInput) {
-      setPasswordMatch(true);
+  const apiPayload = {
+    email: emailInput,
+    password: passwordInput,
+  };
+
+  const passwordValidation = (str: string): boolean => {
+    const hasUpperCase = /[A-Z]/.test(str);
+    const hasLowerCase = /[a-z]/.test(str);
+    const hasNumber = /[0-9]/.test(str);
+    const hasSpecialCharacter = /[^a-zA-Z0-9]/.test(str);
+
+    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialCharacter;
+  };
+
+  const handleSignUp = async () => {
+    if (passwordInput !== confirmPasswordInput) {
+      const showErrorToast = () => {
+        setPasswordMatch(false);
+        Toast.show({
+          type: 'error',
+          text1: 'Passwords Do Not Match!',
+          text2: 'Please check to make sure your inputs are correct',
+        });
+      };
+      return showErrorToast();
+    } else if (
+      passwordInput.length === 0 ||
+      (passwordInput.length < 8 && !passwordValidation(passwordInput))
+    ) {
+      return Alert.alert(
+        'Password Must contain the following : Minimum length of 8, one upper case letter, one lower case letter and one special character.'
+      );
     } else {
-      setPasswordMatch(false);
-      return null;
+      const showSuccessToast = () => {
+        setPasswordMatch(true);
+        Toast.show({
+          type: 'success',
+          text1: 'Successful Signup',
+        });
+      };
+      showSuccessToast();
+      const sendDataToDatabase = () => {
+        fetch('http://localhost:4001/auth/register', {
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          body: JSON.stringify(apiPayload),
+        })
+          .then((res) => {
+            if (res.ok || res.status === 200) {
+              console.log('User Successfully Registered!');
+              console.log(`response status : ${res.status}`);
+              // only instance where user should be re-directed
+              return router.push('/onboarding1');
+            } else {
+              // check if the status code is 404
+              if (res.status === 404) {
+                // in this case, user should not be re-routerd
+                // this means the user is already registered
+                const showInfoMessage = () => {
+                  Toast.show({
+                    type: 'info',
+                    text1: 'This email is already registered, please login instead',
+                  });
+                };
+                return showInfoMessage();
+              }
+              console.log(res.json());
+              throw new Error(`The HTTP status of the response: ${res.status} (${res.statusText})`);
+            }
+          })
+          .then((json) => console.log(json))
+          .catch((err) => console.log(err));
+      };
+      sendDataToDatabase();
     }
-    const {
-      data: { session },
-      error,
-    } = await supabaseInstance.auth.signUp({
-      email: emailInput,
-      password: passwordInput,
-    });
-
-    console.log(session);
-    if (error) Alert.alert(error.message);
-    if (!session) Alert.alert('Please check your inbox for email verification');
-    setLoading(false);
-    router.push('/onboardingGetStarted');
-  }; */
-
-  //console.log(supabaseInstance.auth.getSession());
+  };
 
   const TextInputArray = [
     {
@@ -114,11 +168,12 @@ export const TextInputComponent = () => {
         />
       ))}
       <SignupButton
+        // TODO : route isn't being properly used
         width={dimensions.width}
         height={dimensions.height}
-        route="/onboardingGetStarted"
-        handleOnPress={() => router.push('/signup')}
-        //handleOnPress={() => signUpWithEmail()}
+        // TODO : originally working backend, but I don't want this logic to execute at the moment given taht I am working on frontend
+        //handleOnPress={() => handleSignUp()}
+        handleOnPress={() => router.push('/onboarding1')}
       />
     </View>
   );

@@ -5,6 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 // @see https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/connect-your-database-typescript-postgresql
 
+// TODO : Cleanup comments afterwards
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,6 +16,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// * @see https://www.prisma.io/docs/orm/reference/prisma-schema-reference --> for what the different values represent
+// ! @see https://www.prisma.io/docs/orm/reference/prisma-schema-reference#id --> explains id
 model User {
   id                String          @id @unique @default(uuid())
   email             String          @unique
@@ -34,4 +37,20 @@ model RefreshTokens {
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model UserRegistrationDetails {
+  // TODO : Logic to randomly generate this value
+  userID         Int     @id @unique @db.Integer
+  // String type to support alphanumeric values
+  username       String  @unique
+  // this will be the identifier to link us to the User database, allowing us to know which registered user's information this is associated with
+  emailDuplicate String  @unique
+  major          String
+  // ? to indicate that DOB should be optional
+  DOB            String?
+  CollegeYear    Int
+  pronouns       String?
+  Hobbies        String?
+  Gender         String
 }
