@@ -38,7 +38,7 @@ const OnboardingScreen3: React.FC = () => {
 
   return (
     <View className="bg-black flex-1">
-      <Text className="text-white text-xl mx-auto context-center mt-5 font-serif">
+      <Text className="text-white text-xl mx-auto context-center mt-5 font-sans">
         Last Step 🥳! Please fill out the forms below
       </Text>
       <View className="flex-row p-5 mx-auto context-center">
@@ -68,10 +68,12 @@ const OnboardingScreen3: React.FC = () => {
           autoCorrect={false}
         />
       </View>
-      <View className="flex-col">
+      <View className="flex-col my-8">
+        <Text className="text-[#999] my-4 pl-5 text-lg font-sans">Please Select Your Year</Text>
         <Slider
           // Does not support tailwind
           style={{
+            height: height * 0.1,
             width: width * 0.9,
             alignContent: 'center',
             marginHorizontal: 'auto',
