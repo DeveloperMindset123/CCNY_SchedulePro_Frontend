@@ -1,0 +1,3 @@
+{
+  "mongoURI": "mongodb+srv://root:root@professor.o3a3h.mongodb.net/?retryWrites=true&w=majority&appName=professor"
+}
