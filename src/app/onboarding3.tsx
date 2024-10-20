@@ -1,14 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  TextInput,
-  Keyboard,
-  Text,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Button,
-} from 'react-native';
+import { View, TextInput, Keyboard, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
@@ -37,7 +28,6 @@ const OnboardingScreen3: React.FC = () => {
   // set this to the current date
   // TODO : the mode state may be redundant, as it will be a static value
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [mode, setMode] = useState<string | any>('date');
   // TODO : wrap the textInput components around a map component as before as well
   const firstNamePlaceholder = useRef('First Name...');
   const lastNamePlaceholder = useRef('Last Name...');
@@ -56,7 +46,6 @@ const OnboardingScreen3: React.FC = () => {
   const onChange = (event: any, selectedDate: Date | any) => {
     const currentDate = selectedDate || dateOfBirth;
     setDateOfBirth(currentDate);
-    console.log(`Current Selected Date : ${dateOfBirth}`);
   };
 
   useEffect(() => {
@@ -161,6 +150,7 @@ const OnboardingScreen3: React.FC = () => {
           buttonText={'Go Back'}
         />
         <OnboardingButton
+          // TODO : Keep a consisting spacing for the buttons involved
           width={'40%'}
           height={50}
           route="/onboarding2"
