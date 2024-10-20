@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, TextInput, Keyboard, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
@@ -17,11 +17,10 @@ import * as ReactNatieHapticsFeedback from 'expo-haptics';
  * @Pronouns --> can use a dropdown for this
  */
 const OnboardingScreen3: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [firstName, setFirstName] = useState<string>('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [lastName, setLastName] = useState<string>('');
-  // TODO : This might be somewhat redundant, for learning new hooks, because this is just excessive use of hooks at the end of the day that leads to performance degradation
+  // ** set default value to 8 since that's the initial value
+  const [studentYear, setStudentYear] = useState<number>(8);
   // TODO : wrap the textInput components around a map component as before as well
   const firstNamePlaceholder = useRef('First Name...');
   const lastNamePlaceholder = useRef('Last Name...');
@@ -38,13 +37,16 @@ const OnboardingScreen3: React.FC = () => {
 
   return (
     <View className="bg-black flex-1">
-      <Text className="text-white text-xl mx-auto context-center mt-5 font-sans">
+      <Text className="text-white text-xl mx-auto content-center mt-5 font-sans">
         Last Step 🥳! Please fill out the forms below
       </Text>
-      <View className="flex-row p-5 mx-auto context-center">
+      <Text className="text-[#999] text-lg font-sans ml-16 mt-4">
+        Please Enter Your First and Last Name
+      </Text>
+      <View className="flex-row px-5 py-3 mx-auto context-center">
         <TextInput
           style={inputBoxDimensions}
-          className="bg-[#2f2f2f] text-white h-[40px] m-[12px] border-spacing-1 text-md rounded-full px-6 mt-6"
+          className="bg-[#2f2f2f] text-white h-[40px] m-[12px] border-spacing-1 text-md rounded-full px-6"
           onChangeText={(currFirstName) => setFirstName(currFirstName)}
           //value={TextInputIter.value}
           autoCapitalize="words"
@@ -58,7 +60,7 @@ const OnboardingScreen3: React.FC = () => {
         />
         <TextInput
           style={inputBoxDimensions}
-          className="bg-[#2f2f2f] text-white h-[40px] m-[12px] border-spacing-1 text-md rounded-full px-6 mt-6"
+          className="bg-[#2f2f2f] text-white h-[40px] m-[12px] border-spacing-1 text-md rounded-full px-6"
           onChangeText={(currLastName) => setLastName(currLastName)}
           autoCapitalize="words"
           keyboardType="default"
@@ -68,13 +70,13 @@ const OnboardingScreen3: React.FC = () => {
           autoCorrect={false}
         />
       </View>
-      <View className="flex-col my-8">
-        <Text className="text-[#999] my-4 pl-5 text-lg font-sans">Please Select Your Year</Text>
+      <View className="flex-col mx-auto">
+        <Text className="text-[#999] my-1 mb-6 text-lg font-sans">Please Select Your Year</Text>
         <Slider
           // Does not support tailwind
           style={{
-            height: height * 0.1,
-            width: width * 0.9,
+            height: height * 0.3,
+            width: width * 0.7,
             alignContent: 'center',
             marginHorizontal: 'auto',
           }}
@@ -92,9 +94,10 @@ const OnboardingScreen3: React.FC = () => {
           bubbleMaxWidth={width * 0.9}
           step={Math.round(16)}
           heartbeat={true}
+          onSlidingComplete={(currSelectedNumber) => setStudentYear(currSelectedNumber)}
         />
       </View>
-      <View className="flex-row">
+      <View className="flex-row my-5">
         <OnboardingButton
           width={'45%'}
           height={50}
@@ -115,22 +118,3 @@ const OnboardingScreen3: React.FC = () => {
 };
 
 export default OnboardingScreen3;
-
-/**
- * @NOTE The following is a sample text input that I used for signup screen
- * <TextInput
-          key={TextInputIter.id}
-          style={TextInputIter.dimensions}
-          className={TextInputIter.tailwindStyling}
-          onChange={TextInputIter.onChangeFunction}
-          value={TextInputIter.value}
-          autoCapitalize="none"
-          keyboardType="default"
-          placeholder={TextInputIter.placeholderText}
-          onSubmitEditing={Keyboard.dismiss}
-          secureTextEntry={TextInputIter.isPassword}
-          blurOnSubmit={TextInputIter.blur}
-          placeholderTextColor="grey-500"
-          autoCorrect={false}
-        />
- */
