@@ -36,10 +36,10 @@ export const OnboardingButton = ({
         width: width,
         height: height,
       }}
-      className="bg-white w-full h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
+      className="bg-white h-12 justify-center rounded-full items-center mx-auto mt-2 active:bg-gray-100 active:opacity-30"
       onPress={handleOnPress}
     >
-      <Text>
+      <Text className="text-lg font-sans">
         {buttonText}
         {'\b'}
       </Text>

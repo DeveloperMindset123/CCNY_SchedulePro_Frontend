@@ -274,16 +274,16 @@ const OnboardingScreen2 = () => {
           ))}
         </Picker>
       </View>
-      <View className="flex-row mt-3">
+      <View className="flex-row mt-3 space-x-0 mx-3">
         <OnboardingButton
-          width={'45%'}
+          width={'40%'}
           height={50}
           route="/onboarding2"
           handleOnPress={() => router.back()}
           buttonText={'Go Back'}
         />
         <OnboardingButton
-          width={'45%'}
+          width={'40%'}
           height={50}
           route="/onboarding2"
           handleOnPress={() => router.push('/onboarding3')}
