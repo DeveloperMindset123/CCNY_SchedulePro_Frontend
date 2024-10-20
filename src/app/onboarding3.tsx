@@ -5,30 +5,36 @@ import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Dropdown } from 'react-native-element-dropdown';
+import AntDesign from '@expo/vector-icons/AntDesign';
 // @see https://www.npmjs.com/package/@react-native-community/datetimepicker/v/5.0.0
 // ** link to official documentation for react-native-community/datetimepicker
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 /**
- *
+ *   @TODO_1 : wrap the textInput components around a map component as before as well
+ * @TODO_2 :
  * @input1 First name --> basic input box should suffice
  * @input2 last Name --> basic input box should suffice
  * @NOTE First and last name should be in row-format
  * @CollegeYear Can use a slider for this
  * @DOB --> can use a calendar based view for this
  * @Pronouns --> can use a dropdown for this
+ * @see https://react.dev/learn/conditional-rendering --> to better understand how conditional rendering works based on react-documentation
  */
+
+// ! NOTE : gender/pronouns can be in a flex-row foraat
+// TODO : Remove excess comments after implementation is fully complete
+// use seperate icons for each of them
 const OnboardingScreen3: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  // ** set default value to 8 since that's the initial value
   const [studentYear, setStudentYear] = useState<number>(8);
-
-  // relevant useState values for dates
-  // set this to the current date
-  // TODO : the mode state may be redundant, as it will be a static value
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [currentPronounDropdownValue, setCurrentPronounDropdownValue] = useState(null);
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  // TODO : wrap the textInput components around a map component as before as well
+
   const firstNamePlaceholder = useRef('First Name...');
   const lastNamePlaceholder = useRef('Last Name...');
   const { width, height } = getWindowDimensions();
@@ -37,7 +43,6 @@ const OnboardingScreen3: React.FC = () => {
     height: height * 0.07,
   };
   const router = useRouter();
-  // we also need to take into account phD and masters student
   const progress = useSharedValue(8);
   const min = useSharedValue(0);
   const max = useSharedValue(16);
@@ -46,6 +51,49 @@ const OnboardingScreen3: React.FC = () => {
   const onChange = (event: any, selectedDate: Date | any) => {
     const currentDate = selectedDate || dateOfBirth;
     setDateOfBirth(currentDate);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const pronounDropDownData = [
+    { label: 'he/him', value: '1' },
+    { label: 'she/her', value: '2' },
+    { label: 'they/them', value: '3' },
+    { label: 'he/they', value: '4' },
+    { label: 'she/they', value: '5' },
+    { label: 'he/she/they', value: '6' },
+    { label: 'any/all pronouns', value: '7' },
+    // TODO : remove these comments during cleanup process
+    // TODO : if this is selected, render a new textInput for inserting custom input
+    // conditional rendering logic needs to be implemented
+    // @see https://react.dev/learn/conditional-rendering --> to better understand how conditional rendering works
+    // ? try using the && example instead of ?, it's another method of conditional rendering
+    { label: 'other/custom pronouns', value: '8' },
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const genderDropDownData = [
+    { label: 'male', value: '1', iconName: 'gender-male' },
+    { label: 'female', value: '2', iconName: 'gender-female' },
+    { label: 'non-binary', value: '3', iconName: 'gender-non-binary' },
+    { label: 'transgender', value: '4', iconName: 'transgender' },
+    { label: 'Prefer Not To Say', value: '5', iconname: 'genderless' },
+  ];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const renderItem = (item: any) => {
+    return (
+      <View className="p-4 flex-row justify-between items-center">
+        <Text>{item.label}</Text>
+        {item.value === currentPronounDropdownValue && (
+          <AntDesign
+            className="mr-2"
+            // originally black, but since the background of the app is dark
+            // going with a white color base instead
+            color="white"
+            name="checkcircle"
+          />
+        )}
+      </View>
+    );
   };
 
   useEffect(() => {

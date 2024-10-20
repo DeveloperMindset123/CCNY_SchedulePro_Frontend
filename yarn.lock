@@ -7317,6 +7317,13 @@ react-native-dotenv@^3.4.11:
   dependencies:
     dotenv "^16.4.5"
 
+react-native-element-dropdown@^2.12.2:
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/react-native-element-dropdown/-/react-native-element-dropdown-2.12.2.tgz#48d0c12b87591e2498c73bbde80e18374a4c262e"
+  integrity sha512-Tf8hfRuniYEXo+LGoVgIMoItKWuPLX6jbqlwAFgMbBhmWGTuV+g1OVOAx/ny16kgnwp+NhgJoWpxhVvr7HSmXA==
+  dependencies:
+    lodash "^4.17.21"
+
 react-native-gesture-handler@2.16.1:
   version "2.16.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.16.1.tgz#a2b6828134988632a87f5444a2cc2caa34f16748"
