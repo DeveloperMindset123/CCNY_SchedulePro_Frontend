@@ -15,6 +15,12 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerStyle: {
+          backgroundColor: 'black',
+        },
+        tabBarStyle: {
+          backgroundColor: 'black',
+        },
         tabBarActiveTintColor: iconColor,
       }}
     >
@@ -23,7 +29,7 @@ export default function TabLayout() {
         name="(index)"
         options={{
           title: 'Home',
-          tabBarIcon: () => <TabBarIcon name="code" pathnames={['/', '/feed']} />,
+          tabBarIcon: () => <TabBarIcon name="home" pathnames={['/', '/feed']} />,
           headerRight: HeaderRight,
         }}
       />
@@ -32,7 +38,7 @@ export default function TabLayout() {
         options={{
           title: 'Tab Two',
           headerShown: false,
-          tabBarIcon: () => <TabBarIcon name="code" pathnames={['/two']} />,
+          tabBarIcon: () => <TabBarIcon name="list" pathnames={['/two']} />,
         }}
       />
       <Tabs.Screen
@@ -43,7 +49,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="newSetting"
+        name="(newSetting)/newSetting"
         options={{
           title: 'newSetting',
           tabBarIcon: () => (

@@ -21,11 +21,11 @@ type ItemType = {
   imageUrl: string;
 };
 
-export default function Feed() {
+export default function ClassLists() {
   const viewableItems = useSharedValue<ViewToken[]>([]);
 
   return (
-    <View>
+    <View className="bg-black">
       <FlatList
         data={data}
         id=""
