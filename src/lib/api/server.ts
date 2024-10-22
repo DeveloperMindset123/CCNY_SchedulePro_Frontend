@@ -1,6 +1,7 @@
 import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
+import onboardingRouter from './onboarding/onboarding.routes';
 
 const app = express();
 // ** needed to add express.json()
@@ -10,6 +11,7 @@ const router = express.Router();
 router.use(express.json());
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
+router.use('/onboarding', onboardingRouter);
 //http://localhost:4001/auth/register --> example API call
 app.use(router);
 app.get('/test', (req, res) => {

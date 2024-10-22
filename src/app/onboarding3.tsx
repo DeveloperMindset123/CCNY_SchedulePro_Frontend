@@ -79,28 +79,39 @@ const OnboardingScreen3: React.FC = () => {
     );
   };
 
-  // TODO : setup api call and send when "proceed" is selected
-  useEffect(() => {
-    const collectedData = {
-      firstName: firstName,
-      lastName: lastName,
-      studentYear: studentYear,
-      DOB: dateOfBirth,
-      pronouns: currentPronounDropdownValue,
-      Gender: currentGenderDropdownValue,
-      // TODO : add more fields as needed
-      // TODO : this is the data that will be sent when API call is made
-      // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-      // above link will help better explain how the POSt method for APi works
-    };
-  }, [
-    firstName,
-    lastName,
-    studentYear,
-    dateOfBirth,
-    currentPronounDropdownValue,
-    currentGenderDropdownValue,
-  ]);
+  const collectedData = {
+    firstName: firstName,
+    lastName: lastName,
+    studentYear: studentYear,
+    DOB: dateOfBirth,
+    pronouns: currentPronounDropdownValue,
+    Gender: currentGenderDropdownValue,
+    // TODO : add more fields as needed
+    // TODO : this is the data that will be sent when API call is made
+    // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+    // above link will help better explain how the POSt method for APi works
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const sendOnboarding_screen3Data = () => {
+    fetch('http://localhost:4001/onboarding/onboarding3Data', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(collectedData),
+    }).then((res) => {
+      if (res.ok || res.status === 200) {
+        console.log('Data Sent Successfully');
+        console.log(`Response Status : ${res.status}`);
+        return router.push('/(root)/(tabs)/(index)/');
+      } else {
+        if (res.status === 400) {
+          console.log('There was an error sending your data');
+        }
+      }
+    });
+  };
 
   return (
     <View className="bg-black flex-1 p-10">
@@ -204,7 +215,8 @@ const OnboardingScreen3: React.FC = () => {
           searchPlaceholder="Search..."
           value={currentPronounDropdownValue}
           onChange={(item) => {
-            setCurrentPronounDropdownValue(item.value);
+            // ** changed from value to label
+            setCurrentPronounDropdownValue(item.label);
           }}
           renderLeftIcon={() => (
             <AntDesign
@@ -233,7 +245,7 @@ const OnboardingScreen3: React.FC = () => {
           searchPlaceholder="Search..."
           value={currentGenderDropdownValue}
           onChange={(item) => {
-            setCurrentGendeDropdownValue(item.value);
+            setCurrentGendeDropdownValue(item.label);
           }}
           renderLeftIcon={() => (
             <AntDesign
@@ -262,7 +274,8 @@ const OnboardingScreen3: React.FC = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => router.push('/(root)/(tabs)/(index)/')}
+          handleOnPress={() => sendOnboarding_screen3Data()}
+          //handleOnPress={() => router.push('/(root)/(tabs)/(index)/')}
           buttonText={'Proceed'}
         />
       </View>

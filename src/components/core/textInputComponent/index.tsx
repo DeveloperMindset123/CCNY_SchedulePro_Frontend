@@ -172,8 +172,8 @@ export const TextInputComponent = () => {
         width={dimensions.width}
         height={dimensions.height}
         // TODO : originally working backend, but I don't want this logic to execute at the moment given taht I am working on frontend
-        handleOnPress={() => handleSignUp()}
-        //handleOnPress={() => router.push('/onboarding1')}
+        //handleOnPress={() => handleSignUp()}
+        handleOnPress={() => router.push('/onboarding1')}
       />
     </View>
   );
