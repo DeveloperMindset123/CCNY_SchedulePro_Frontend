@@ -312,7 +312,10 @@ const OnboardingScreen2 = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => sendOnboarding_screen2Data()}
+          handleOnPress={
+            () => router.push('/onboarding3')
+            //sendOnboarding_screen2Data()
+          }
           buttonText={'Proceed'}
         />
       </View>
