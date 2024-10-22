@@ -1,15 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, Keyboard, Text } from 'react-native';
+import { View, TextInput, Keyboard, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { useSharedValue } from 'react-native-reanimated';
 import { Slider } from 'react-native-awesome-slider';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
-// @see https://www.npmjs.com/package/@react-native-community/datetimepicker/v/5.0.0
-// ** link to official documentation for react-native-community/datetimepicker
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 /**
@@ -22,17 +19,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
  * @DOB --> can use a calendar based view for this
  * @Pronouns --> can use a dropdown for this
  * @see https://react.dev/learn/conditional-rendering --> to better understand how conditional rendering works based on react-documentation
+ * @see https://www.npmjs.com/package/@react-native-community/datetimepicker/v/5.0.0 --> react-community-datetimepicker docs
  */
 
-// ! NOTE : gender/pronouns can be in a flex-row foraat
-// TODO : Remove excess comments after implementation is fully complete
-// use seperate icons for each of them
 const OnboardingScreen3: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [studentYear, setStudentYear] = useState<number>(8);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [currentPronounDropdownValue, setCurrentPronounDropdownValue] = useState(null);
+  const [currentPronounDropdownValue, setCurrentPronounDropdownValue] = useState<any>(null);
+  const [currentGenderDropdownValue, setCurrentGendeDropdownValue] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
 
   const firstNamePlaceholder = useRef('First Name...');
@@ -47,13 +42,11 @@ const OnboardingScreen3: React.FC = () => {
   const min = useSharedValue(0);
   const max = useSharedValue(16);
 
-  // ** This is the only function that's relevant
   const onChange = (event: any, selectedDate: Date | any) => {
     const currentDate = selectedDate || dateOfBirth;
     setDateOfBirth(currentDate);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const pronounDropDownData = [
     { label: 'he/him', value: '1' },
     { label: 'she/her', value: '2' },
@@ -62,63 +55,70 @@ const OnboardingScreen3: React.FC = () => {
     { label: 'she/they', value: '5' },
     { label: 'he/she/they', value: '6' },
     { label: 'any/all pronouns', value: '7' },
-    // TODO : remove these comments during cleanup process
-    // TODO : if this is selected, render a new textInput for inserting custom input
-    // conditional rendering logic needs to be implemented
-    // @see https://react.dev/learn/conditional-rendering --> to better understand how conditional rendering works
-    // ? try using the && example instead of ?, it's another method of conditional rendering
     { label: 'other/custom pronouns', value: '8' },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const genderDropDownData = [
-    { label: 'male', value: '1', iconName: 'gender-male' },
-    { label: 'female', value: '2', iconName: 'gender-female' },
-    { label: 'non-binary', value: '3', iconName: 'gender-non-binary' },
-    { label: 'transgender', value: '4', iconName: 'transgender' },
-    { label: 'Prefer Not To Say', value: '5', iconname: 'genderless' },
+    { label: 'male', value: '1' },
+    { label: 'female', value: '2' },
+    { label: 'non-binary', value: '3' },
+    { label: 'transgender', value: '4' },
+    { label: 'Prefer Not To Say', value: '5' },
   ];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const renderItem = (item: any) => {
     return (
-      <View className="p-4 flex-row justify-between items-center">
-        <Text>{item.label}</Text>
+      <View style={styles.item}>
+        <Text className="pl-8 font-serif" style={styles.textItem}>
+          {item.label}
+        </Text>
         {item.value === currentPronounDropdownValue && (
-          <AntDesign
-            className="mr-2"
-            // originally black, but since the background of the app is dark
-            // going with a white color base instead
-            color="white"
-            name="checkcircle"
-          />
+          <AntDesign style={styles.icon} color="black" name="checkcircle" />
         )}
       </View>
     );
   };
 
+  // TODO : setup api call and send when "proceed" is selected
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const collectedData = {
       firstName: firstName,
       lastName: lastName,
       studentYear: studentYear,
       DOB: dateOfBirth,
+      pronouns: currentPronounDropdownValue,
+      gender: currentGenderDropdownValue,
       // TODO : add more fields as needed
       // TODO : this is the data that will be sent when API call is made
-      // **@see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+      // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
       // above link will help better explain how the POSt method for APi works
     };
-  }, [firstName, lastName, studentYear, dateOfBirth]);
+  }, [
+    firstName,
+    lastName,
+    studentYear,
+    dateOfBirth,
+    currentPronounDropdownValue,
+    currentGenderDropdownValue,
+  ]);
 
   return (
-    <View className="bg-black flex-1">
+    <View className="bg-black flex-1 p-10">
+      <View className="flex-row justify-between items-center mb-2">
+        <View className="flex-1" />
+        <View className="flex-row items-center" />
+        <Text className="text-white text-base mr-8">3/3</Text>
+        <View className="mr-4 w-20 h-2 rounded-sm overflow-hidden">
+          <View className="w-full h-full bg-[#888]" />
+        </View>
+      </View>
       <Text className="text-white text-xl mx-auto content-center mt-5 font-sans">
         Last Step 🥳! Please fill out the forms below
       </Text>
-      <Text className="text-[#999] text-lg font-sans ml-16 mt-4">
+      <Text className="text-[#999] text-lg font-sans ml-4 mt-4">
         Please Enter Your First and Last Name
       </Text>
-      <View className="flex-row px-5 py-3 mx-auto context-center">
+      <View className="flex-row py-3 mx-auto context-center">
         <TextInput
           style={inputBoxDimensions}
           className="bg-[#2f2f2f] text-white h-[40px] m-[12px] border-spacing-1 text-md rounded-full px-6"
@@ -172,11 +172,11 @@ const OnboardingScreen3: React.FC = () => {
           onSlidingComplete={(currSelectedNumber) => setStudentYear(currSelectedNumber)}
         />
       </View>
-      <Text className="text-[#999] ml-16 text-lg font-sans mt-6">
+      <Text className="text-[#999] ml-4 text-lg font-sans mt-6">
         Please Provide Your Date of Birth
       </Text>
       {/**This view is exclusive for dateTimePicker only */}
-      <View className="text-start w-44 my-5 rounded-full ">
+      <View className="text-start justify-start -mx-2 w-36 my-3 rounded-full">
         <DateTimePicker
           className="rounded-full"
           testID="dateTimePicker"
@@ -189,6 +189,67 @@ const OnboardingScreen3: React.FC = () => {
           themeVariant="dark"
         />
       </View>
+      <View className="flex-col w-[350px]">
+        <Dropdown
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={pronounDropDownData}
+          search
+          maxHeight={180}
+          labelField="label"
+          placeholder="Select Your Pronouns..."
+          searchPlaceholder="Search..."
+          value={currentPronounDropdownValue}
+          onChange={(item) => {
+            setCurrentPronounDropdownValue(item.value);
+          }}
+          renderLeftIcon={() => (
+            <AntDesign
+              className="pr-4"
+              style={styles.icon}
+              color="black"
+              name="checkcircle"
+              size={20}
+            />
+          )}
+          renderItem={renderItem}
+          valueField="value"
+          dropdownPosition="bottom"
+        />
+        <Dropdown
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={genderDropDownData}
+          search
+          maxHeight={180}
+          labelField="label"
+          placeholder="Select Your Gender..."
+          searchPlaceholder="Search..."
+          value={currentGenderDropdownValue}
+          onChange={(item) => {
+            setCurrentGendeDropdownValue(item.value);
+          }}
+          renderLeftIcon={() => (
+            <AntDesign
+              className="pr-4"
+              style={styles.icon}
+              color="black"
+              name="checkcircle"
+              size={20}
+            />
+          )}
+          renderItem={renderItem}
+          valueField="value"
+          dropdownPosition="top"
+        />
+        <Text>Content 2</Text>
+      </View>
       <View className="flex-row space-x-0 mx-10">
         <OnboardingButton
           width={'40%'}
@@ -198,7 +259,6 @@ const OnboardingScreen3: React.FC = () => {
           buttonText={'Go Back'}
         />
         <OnboardingButton
-          // TODO : Keep a consisting spacing for the buttons involved
           width={'40%'}
           height={50}
           route="/onboarding2"
@@ -211,3 +271,50 @@ const OnboardingScreen3: React.FC = () => {
 };
 
 export default OnboardingScreen3;
+
+// Component only accepts vanilla CSS
+const styles = StyleSheet.create({
+  dropdown: {
+    margin: 16,
+    height: 50,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  icon: {
+    marginRight: 5,
+  },
+  item: {
+    padding: 17,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textItem: {
+    flex: 1,
+    fontSize: 16,
+    fontFamily: 'sans',
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+});

@@ -236,7 +236,7 @@ const OnboardingScreen2 = () => {
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
         <View className="w-20 h-2 rounded-sm overflow-hidden">
-          <View className="w-2/3 h-full bg-[#888]" />
+          <View className="w-1/2 h-full bg-[#888]" />
         </View>
       </View>
       <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
