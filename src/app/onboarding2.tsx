@@ -232,6 +232,27 @@ const OnboardingScreen2 = () => {
     major: selectedMajor,
   };
 
+  // API data
+  const sendOnboarding_screen2Data = () => {
+    fetch('http://localhost:4001/onboarding/onboarding2Data', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(degreeAndMajorFormData),
+    }).then((res) => {
+      if (res.ok || res.status === 200) {
+        console.log('Data Sent Successfully');
+        console.log(`Response Status : ${res.status}`);
+        return router.push('/onboarding3');
+      } else {
+        if (res.status === 404) {
+          console.log('There was an issue sending your data');
+        }
+      }
+    });
+  };
+
   // TODO : wrap this around view component from before
   // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
   return (
@@ -291,7 +312,7 @@ const OnboardingScreen2 = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => router.push('/onboarding3')}
+          handleOnPress={() => sendOnboarding_screen2Data()}
           buttonText={'Proceed'}
         />
       </View>
