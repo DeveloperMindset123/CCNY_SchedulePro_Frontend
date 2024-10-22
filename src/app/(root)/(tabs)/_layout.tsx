@@ -9,7 +9,7 @@ import { useState } from 'react';
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? 'white' : 'black';
-  const router = useRouter();
+  //const router = useRouter();
   const [currentColor, setColor] = useState('red');
 
   return (
@@ -29,6 +29,7 @@ export default function TabLayout() {
         name="(index)"
         options={{
           title: 'Home',
+          headerShown: true,
           tabBarIcon: () => <TabBarIcon name="home" pathnames={['/', '/feed']} />,
           headerRight: HeaderRight,
         }}
@@ -37,34 +38,25 @@ export default function TabLayout() {
         name="two"
         options={{
           title: 'Tab Two',
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: () => <TabBarIcon name="list" pathnames={['/two']} />,
         }}
       />
+
       <Tabs.Screen
-        name="settings"
+        name="(settings)"
         options={{
           title: 'Settings',
+          headerShown: true,
           tabBarIcon: () => <TabBarIcon name="cog" pathnames={['/settings']} />,
         }}
       />
       <Tabs.Screen
-        name="(newSetting)"
+        name="(newsetting)"
         options={{
-          title: 'newSetting',
+          title: 'Account',
           headerShown: true,
-          tabBarIcon: () => (
-            <Ionicons
-              name="key"
-              color={currentColor}
-              // TODO : Fix color Issue Not displaying As Intended
-              onPress={() => {
-                setColor('blue');
-                // take the user back
-                router.replace('/');
-              }}
-            />
-          ),
+          tabBarIcon: () => <TabBarIcon name="user" pathnames={['/newSettings', '/customFeed']} />,
         }}
       />
     </Tabs>
