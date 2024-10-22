@@ -46,6 +46,7 @@ model UserRegistrationDetails {
   username       String  @unique
   // this will be the identifier to link us to the User database, allowing us to know which registered user's information this is associated with
   emailDuplicate String  @unique
+  degreeType     String
   major          String
   // ? to indicate that DOB should be optional
   DOB            String?

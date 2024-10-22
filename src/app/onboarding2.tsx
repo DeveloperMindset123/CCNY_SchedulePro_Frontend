@@ -227,6 +227,32 @@ const OnboardingScreen2 = () => {
   const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
   const [selectedDegree, setSelectedDegree] = useState<string>('Undecided');
 
+  const degreeAndMajorFormData = {
+    degree: selectedDegree,
+    major: selectedMajor,
+  };
+
+  // API data
+  const sendOnboarding_screen2Data = () => {
+    fetch('http://localhost:4001/onboarding/onboarding2Data', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(degreeAndMajorFormData),
+    }).then((res) => {
+      if (res.ok || res.status === 200) {
+        console.log('Data Sent Successfully');
+        console.log(`Response Status : ${res.status}`);
+        return router.push('/onboarding3');
+      } else {
+        if (res.status === 404) {
+          console.log('There was an issue sending your data');
+        }
+      }
+    });
+  };
+
   // TODO : wrap this around view component from before
   // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
   return (
@@ -236,7 +262,7 @@ const OnboardingScreen2 = () => {
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
         <View className="w-20 h-2 rounded-sm overflow-hidden">
-          <View className="w-2/3 h-full bg-[#888]" />
+          <View className="w-1/2 h-full bg-[#888]" />
         </View>
       </View>
       <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
@@ -274,19 +300,19 @@ const OnboardingScreen2 = () => {
           ))}
         </Picker>
       </View>
-      <View className="flex-row mt-3">
+      <View className="flex-row mt-3 space-x-0 mx-3">
         <OnboardingButton
-          width={'45%'}
+          width={'40%'}
           height={50}
           route="/onboarding2"
           handleOnPress={() => router.back()}
           buttonText={'Go Back'}
         />
         <OnboardingButton
-          width={'45%'}
+          width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => router.push('/onboarding3')}
+          handleOnPress={() => sendOnboarding_screen2Data()}
           buttonText={'Proceed'}
         />
       </View>

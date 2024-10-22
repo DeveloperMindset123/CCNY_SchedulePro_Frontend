@@ -1,5 +1,5 @@
-import { MaterialTopTabs } from '@/layouts/material-top-tabs';
+import { MaterialTopTabsHome } from '@/layouts/material-top-tabs';
 
 export default function IndexTopTabsLayout() {
-  return <MaterialTopTabs />;
+  return <MaterialTopTabsHome tab1="Home" tab2="Class Lists" />;
 }

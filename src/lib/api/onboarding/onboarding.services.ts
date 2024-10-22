@@ -2,13 +2,13 @@
 import { db } from '@/lib/utils/db';
 import { Prisma } from '@prisma/client';
 
-// This will update information relevant to the user
 export const insertUserInformationDetails = (RegisteredUser: any) => {
   const UserDetail: Prisma.UserRegistrationDetailsCreateInput = {
     // Generates a random userID
     userID: Math.floor(Math.random() * 10000) + 1,
     username: RegisteredUser.username,
     emailDuplicate: RegisteredUser.email,
+    degreeType: RegisteredUser.degreeType,
     major: RegisteredUser.major,
     DOB: RegisteredUser.DOB,
     CollegeYear: RegisteredUser.CollegeYear,
