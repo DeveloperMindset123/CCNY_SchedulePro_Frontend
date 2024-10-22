@@ -21,7 +21,7 @@ type ItemType = {
   imageUrl: string;
 };
 
-export default function ClassLists() {
+export default function CustomFeed() {
   const viewableItems = useSharedValue<ViewToken[]>([]);
 
   return (
@@ -29,7 +29,7 @@ export default function ClassLists() {
       <FlatList
         data={data}
         id=""
-        contentContainerStyle={{ paddingTop: 10, paddingBottom: 25 }}
+        contentContainerStyle={{ paddingTop: 10, paddingBottom: 35 }}
         onViewableItemsChanged={({ viewableItems: vItems }) => {
           viewableItems.value = vItems;
         }}

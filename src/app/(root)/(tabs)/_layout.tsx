@@ -49,9 +49,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="(newSetting)/newSetting"
+        name="(newSetting)"
         options={{
           title: 'newSetting',
+          headerShown: true,
           tabBarIcon: () => (
             <Ionicons
               name="key"
