@@ -227,6 +227,11 @@ const OnboardingScreen2 = () => {
   const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
   const [selectedDegree, setSelectedDegree] = useState<string>('Undecided');
 
+  const degreeAndMajorFormData = {
+    degree: selectedDegree,
+    major: selectedMajor,
+  };
+
   // TODO : wrap this around view component from before
   // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
   return (

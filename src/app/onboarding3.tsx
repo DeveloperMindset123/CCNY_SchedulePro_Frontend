@@ -87,7 +87,7 @@ const OnboardingScreen3: React.FC = () => {
       studentYear: studentYear,
       DOB: dateOfBirth,
       pronouns: currentPronounDropdownValue,
-      gender: currentGenderDropdownValue,
+      Gender: currentGenderDropdownValue,
       // TODO : add more fields as needed
       // TODO : this is the data that will be sent when API call is made
       // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch

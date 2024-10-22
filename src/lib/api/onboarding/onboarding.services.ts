@@ -9,6 +9,7 @@ export const insertUserInformationDetails = (RegisteredUser: any) => {
     userID: Math.floor(Math.random() * 10000) + 1,
     username: RegisteredUser.username,
     emailDuplicate: RegisteredUser.email,
+    degreeType: RegisteredUser.degreeType,
     major: RegisteredUser.major,
     DOB: RegisteredUser.DOB,
     CollegeYear: RegisteredUser.CollegeYear,
