@@ -62,6 +62,25 @@ const OnboardingScreen1: React.FC = () => {
   const sharedStyles =
     'rounded-lg mx-10 my-8 items-center justify-center w-24 h-50 shadow-black shadow-xl';
 
+  const sendOboarding_screen1Data = () => {
+    fetch('http://localhost:4001/onboarding/onboarding1Data', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(currentCheckedValues),
+    }).then((res) => {
+      if (res.ok || res.status === 200) {
+        console.log('Successfully sent data to backend');
+        console.log(`Response status : ${res.status}`);
+        return router.push('/onboarding2');
+      } else {
+        if (res.status >= 400) {
+          console.log('Error sending data');
+        }
+      }
+    });
+  };
   const renderItem = ({ item }: { item: (typeof classTypesRow1)[0] }) => (
     <Pressable
       key={item.id}
