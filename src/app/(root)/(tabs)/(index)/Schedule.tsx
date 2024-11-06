@@ -2,23 +2,19 @@ import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 
-export default function MyAgenda() {
+export default function Schedule() {
   const [items, setItems] = useState({});
 
   const today = new Date().toISOString().split('T')[0];
 
-  const mondayWednesdayClasses = [
-    { name: 'Calculus I', time: '10:00 AM - 11:30 AM' },
-    { name: 'Physics', time: '12:00 PM - 1:45 PM' },
-    { name: 'Discrete Math', time: '2:00 PM - 3:15 PM' },
-  ];
-
   const tuesdayThursdayClasses = [
-    { name: 'Chemistry', time: '9:00 AM - 9:50 AM' },
-    { name: 'Linear Algebra', time: '11:00 AM - 12:45 PM' },
+    { name: 'Programming Language Paradigms', time: '3:30 PM - 4:45 PM' },
+    { name: 'Software Engineering', time: '2:00 PM - 3:15 PM' },
+    { name: 'Senior Project II', time: '9:30 AM - 10:45 AM' },
+    { name: 'Numerical Issues in Scientific Programming', time: '11:00 AM - 12:15 PM' }
   ];
 
-  const loadItems = (day: any) => {
+  const loadItems = (day) => {
     const newItems = { ...items };
 
     setTimeout(() => {
@@ -27,9 +23,7 @@ export default function MyAgenda() {
         const strDate = date.toISOString().split('T')[0];
         const dayOfWeek = date.getDay();
 
-        if (dayOfWeek === 1 || dayOfWeek === 3) {
-          newItems[strDate] = mondayWednesdayClasses;
-        } else if (dayOfWeek === 2 || dayOfWeek === 4) {
+        if (dayOfWeek === 2 || dayOfWeek === 4) {
           newItems[strDate] = tuesdayThursdayClasses;
         } else {
           newItems[strDate] = [{ name: 'No classes', time: '' }];
@@ -39,7 +33,7 @@ export default function MyAgenda() {
     }, 1000);
   };
 
-  const renderItem = (item: { name: string; time: string }) => {
+  const renderItem = (item) => {
     return (
       <View
         style={{

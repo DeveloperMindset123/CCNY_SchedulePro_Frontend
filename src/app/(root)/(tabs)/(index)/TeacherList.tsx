@@ -1,197 +1,105 @@
 import React from 'react';
-import { View, ViewToken } from 'react-native';
-import { Link } from 'expo-router';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  SharedValue,
-} from 'react-native-reanimated';
-import { FlatList } from 'react-native-gesture-handler';
-import { Text } from '@/components/core/text';
-import { useColorScheme } from 'nativewind';
-import { COLORS } from '@/theme/colors';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-type ItemType = {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  author: string;
-  imageUrl: string;
-};
+export default function TeachersList() {
+  const teachers = [
+    {
+      name: 'Douglas Troeger',
+      department: 'Computer Science',
+      office: '7/116 North Academic Center',
+      officeHours: 'Tue, Thu : 12:30 PM to 1:45 PM',
+      email: 'dtroeger@ccny.cuny.edu',
+    },
+    {
+      name: 'Jie Wei',
+      department: 'Computer Science',
+      office: '8/209A North Academic Center',
+      officeHours: 'Tue, Thu : 3:30 PM to 4:45 PM',
+      email: 'jwei@ccny.cuny.edu',
+    },
+    {
+      name: 'Erik K. Grimmelmann',
+      department: 'Computer Science',
+      office: '8202 L NAC',
+      officeHours: 'Tue, Thu : 12:00 PM to 1:15 PM',
+      email: 'egrimmelmann@ccny.cuny.edu',
+    },
+    {
+      name: 'Leonid Gurvits',
+      department: 'Computer Science',
+      office: '279 Shepard Hall',
+      officeHours: 'Tue, Thu : 12:30 PM to 1:45 PM',
+      email: 'lgurvits@ccny.cuny.edu',
+    },
+  ];
 
-export default function Feed() {
-  const viewableItems = useSharedValue<ViewToken[]>([]);
+  /*const viewTeacherDetails = (teacherInfo) => {
+    // full teacher details page here
+  };*/
 
   return (
-    <View>
-      <FlatList
-        data={data}
-        id=""
-        contentContainerStyle={{ paddingTop: 10, paddingBottom: 35 }}
-        onViewableItemsChanged={({ viewableItems: vItems }) => {
-          viewableItems.value = vItems;
-        }}
-        renderItem={({ item }) => {
-          return <ListItem item={item as unknown as ItemType} viewableItems={viewableItems} />;
-        }}
-      />
+    <View style={styles.container}>
+      <Text style={styles.header}>Your Professors</Text>
+      <ScrollView>
+        {teachers.map((teacher, index) => (
+          <View key={index} style={styles.card}>
+            <Text style={styles.name}>{teacher.name}</Text>
+            <Text style={styles.text}>Department: {teacher.department}</Text>
+            <Text style={styles.text}>Office: {teacher.office}</Text>
+            <Text style={styles.text}>Office Hours: {teacher.officeHours}</Text>
+            <Text style={styles.text}>Email: {teacher.email}</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => viewTeacherDetails(teacher)}
+            >
+              <Text style={styles.buttonText}>View Full Teacher Details</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
-type ListItemProps = {
-  viewableItems: SharedValue<ViewToken[]>;
-  item: ItemType;
-};
-
-const ListItem: React.FC<ListItemProps> = React.memo(({ item, viewableItems }) => {
-  const { colorScheme } = useColorScheme();
-  const bgColor = colorScheme === 'dark' ? COLORS.dark.card : COLORS.light.card;
-  const rStyle = useAnimatedStyle(() => {
-    const isVisible = Boolean(
-      viewableItems.value
-        .filter((viewableItem) => viewableItem.isViewable)
-        .find((viewableItem) => (viewableItem.item as ItemType).id === item.id)
-    );
-
-    return {
-      opacity: withTiming(isVisible ? 1 : 0),
-      transform: [
-        {
-          scale: withTiming(isVisible ? 1 : 0.6),
-        },
-      ],
-    };
-  }, [viewableItems]);
-
-  return (
-    <Animated.View
-      style={[
-        {
-          height: 120,
-          width: '96%',
-          backgroundColor: bgColor,
-          alignSelf: 'center',
-          borderRadius: 15,
-          marginTop: 20,
-        },
-        rStyle,
-      ]}
-    >
-      <Link
-        href={{
-          pathname: '/feed/[id]',
-          params: {
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            date: item.date,
-            author: item.author,
-            imageUrl: item.imageUrl,
-          },
-        }}
-      >
-        <View className="flex-1 flex flex-col justify-between px-3 py-2">
-          <View>
-            <Text variant="title2">{item.title}</Text>
-            <Text variant="callout">{item.description}</Text>
-          </View>
-          <View className="flex flex-row w-full justify-between">
-            <Text variant="footnote" className="italic">
-              {item.date}
-            </Text>
-            <Text variant="footnote" className="font-bold">
-              {item.author}
-            </Text>
-          </View>
-        </View>
-      </Link>
-    </Animated.View>
-  );
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f5',
+    padding: 20,
+  },
+  header: {
+    fontSize: 18,
+    color: '#899faf',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 5,
+  },
+  text: {
+    fontSize: 14,
+    color: '#737373',
+    marginBottom: 5,
+  },
+  button: {
+    backgroundColor: '#f3f4f5',
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 });
-
-/**Dummy Data generated by ChatGPT */
-const data: ItemType[] = [
-  {
-    id: 1,
-    title: 'Exploring the Mountains',
-    description: 'A journey through the rocky mountains.',
-    date: '2024-07-01',
-    author: 'John Doe',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 2,
-    title: 'City Life Adventures',
-    description: 'Discovering hidden gems in the city.',
-    date: '2024-07-02',
-    author: 'Jane Smith',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 3,
-    title: 'Beachside Relaxation',
-    description: 'The best beaches to unwind.',
-    date: '2024-07-03',
-    author: 'Emily White',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 4,
-    title: 'Culinary Delights',
-    description: 'Exploring exotic cuisines around the world.',
-    date: '2024-07-04',
-    author: 'Michael Brown',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 5,
-    title: 'Tech Innovations',
-    description: 'The latest trends in technology.',
-    date: '2024-07-05',
-    author: 'Sophia Green',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 6,
-    title: 'Art and Culture',
-    description: 'A dive into the world of art and culture.',
-    date: '2024-07-06',
-    author: 'David Johnson',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 7,
-    title: 'Wildlife Safari',
-    description: 'An adventure into the wild.',
-    date: '2024-07-07',
-    author: 'Emma Davis',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 8,
-    title: 'Historical Sites',
-    description: 'Exploring ancient historical sites.',
-    date: '2024-07-08',
-    author: 'James Wilson',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 9,
-    title: 'Fitness and Health',
-    description: 'Tips for a healthier lifestyle.',
-    date: '2024-07-09',
-    author: 'Olivia Martinez',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-  {
-    id: 10,
-    title: 'Travel Tips',
-    description: 'Essential tips for travelers.',
-    date: '2024-07-10',
-    author: 'Chris Lee',
-    imageUrl: 'https://picsum.photos/seed/696/3000/2000',
-  },
-];

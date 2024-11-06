@@ -1,108 +1,106 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-const availableClasses = [
-  {
-    id: 1,
-    title: 'Calculus 1',
-    section: 'A',
-    time: 'Mon/Wed 10:00 AM - 11:30 AM',
-  },
-  {
-    id: 2,
-    title: 'Physics ',
-    section: 'B',
-    time: 'Mon/Wed 12:00 PM - 1:45 PM',
-  },
-  {
-    id: 3,
-    title: 'Discrete Math',
-    section: 'C',
-    time: 'Mon/Wed 10:00 AM - 11:30 AM',
-  },
-  {
-    id: 4,
-    title: 'Chemistry ',
-    section: 'D',
-    time: 'Tue/Thu 9:00 AM - 9:50 AM',
-  },
-  {
-    id: 5,
-    title: 'Linear Algebra',
-    section: 'E',
-    time: 'Tue/Thu 11:00 AM - 12:45 PM',
-  },
-];
+export default function ClassList() {
+  const classes = [
+    {
+      title: 'CSC 33500 - Programming Language Paradigms',
+      degreeType: 'Computer Science',
+      schedule: 'Tue, Thu : 3:30 PM to 4:45 PM',
+      room: 'Marshak Science Building Rm 408',
+      professor: 'Douglas Troeger',
+    },
+    {
+      title: 'CSC 32200 - Software Engineering',
+      degreeType: 'Computer Science',
+      schedule: 'Tue, Thu : 2:00 PM to 3:15 PM',
+      room: 'Steinman Hall Rm 161',
+      professor: 'Jie Wei',
+    },
+    {
+      title: 'CSC 59867 - Senior Project II',
+      degreeType: 'Computer Science',
+      schedule: 'Tue, Thu : 9:30 AM to 10:45 AM',
+      room: 'North Academic Center Rm 6/307',
+      professor: 'Erik K. Grimmelmann',
+    },
+    {
+      title: 'CSC 30100 - Numerical Issues in Scientific Programming',
+      degreeType: 'Computer Science',
+      schedule: 'Tue, Thu : 11:00 AM to 12:15 PM',
+      room: 'North Academic Center Rm 5/110',
+      professor: 'Leonid Gurvits',
+    },
+  ];
 
-export default function ClassManager() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedClasses, setSelectedClasses] = useState<any[]>([]);
-
-  const filteredClasses = availableClasses.filter((classItem) =>
-    classItem.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  const addClass = (classItem: any) => {
-    if (selectedClasses.length >= 8) {
-      Alert.alert('Maximum classes reached', 'You can only select up to 8 classes.');
-      return;
-    }
-
-    if (selectedClasses.some((item) => item.id === classItem.id)) {
-      Alert.alert('Class already added', 'This class is already in your list.');
-      return;
-    }
-
-    setSelectedClasses((prev) => [...prev, classItem]);
-  };
-
-  const removeClass = (classId: number) => {
-    setSelectedClasses((prev) => prev.filter((item) => item.id !== classId));
-  };
+ /* const viewClassDetails = (classInfo) => {
+    // Implement navigation to class details page 
+    
+  };*/
 
   return (
-    <View>
-      <TextInput
-        placeholder="Search for classes"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={{ margin: 10, borderWidth: 1, padding: 10, borderRadius: 5 }}
-      />
-
-      {selectedClasses.length === 0 ? (
-        <Text style={{ textAlign: 'center', marginTop: 20 }}>
-          No classes have been added to your list.
-        </Text>
-      ) : (
-        <FlatList
-          data={selectedClasses}
-          renderItem={({ item }) => (
-            <View style={{ padding: 10, borderBottomWidth: 1 }}>
-              <Text>
-                {item.title} - {item.section}
-              </Text>
-              <Text>Time: {item.time}</Text>
-              <TouchableOpacity onPress={() => removeClass(item.id)}>
-                <Text style={{ color: 'red' }}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      )}
-
-      <FlatList
-        data={filteredClasses}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => addClass(item)}
-            style={{ padding: 20, borderBottomWidth: 1 }}
-          >
-            <Text>{item.title}</Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        style={{ maxHeight: 800 }}
-      />
+    <View style={styles.container}>
+      <Text style={styles.header}>Your Classes</Text>
+      <ScrollView>
+        {classes.map((classInfo, index) => (
+          <View key={index} style={styles.card}>
+            <Text style={styles.title}>{classInfo.title}</Text>
+            <Text style={styles.text}>Degree Type: {classInfo.degreeType}</Text>
+            <Text style={styles.text}>Schedule Time: {classInfo.schedule}</Text>
+            <Text style={styles.text}>Room: {classInfo.room}</Text>
+            <Text style={styles.text}>Professor: {classInfo.professor}</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => viewClassDetails(classInfo)}
+            >
+              <Text style={styles.buttonText}>View Full Class Details</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f5',
+    padding: 20,
+  },
+  header: {
+    fontSize: 18,
+    color: '#899faf',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 5,
+  },
+  text: {
+    fontSize: 14,
+    color: '#737373',
+    marginBottom: 5,
+  },
+  button: {
+    backgroundColor: '#f3f4f5',
+    borderRadius: 20,
+    paddingVertical: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+});
