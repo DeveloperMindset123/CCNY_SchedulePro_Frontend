@@ -2,15 +2,15 @@ import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { TabBarIcon } from '@/components/core/icon';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+// import Ionicons from '@expo/vector-icons/Ionicons';
+// import { useRouter } from 'expo-router';
+// import { useState } from 'react';
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? 'white' : 'black';
   //const router = useRouter();
-  const [currentColor, setColor] = useState('red');
+  //const [currentColor, setColor] = useState('red');
 
   return (
     <Tabs

@@ -3,7 +3,6 @@ import { View, TextInput, Keyboard, Alert } from 'react-native';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
 import { getSignupStyles } from './getSignupStyles';
 import { SignupButton } from '../signupButton';
-//import { supabaseInstance } from '@/lib/database/supabase';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 
@@ -24,6 +23,7 @@ export const TextInputComponent = () => {
   const [emailInput, setEmailInput] = useState<any>();
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [passwordMatch, setPasswordMatch] = useState<boolean>(false);
 
   const handleEmailInput = (e: any) => {
@@ -52,6 +52,8 @@ export const TextInputComponent = () => {
     return hasUpperCase && hasLowerCase && hasNumber && hasSpecialCharacter;
   };
 
+  // TODO : fix this
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSignUp = async () => {
     if (passwordInput !== confirmPasswordInput) {
       const showErrorToast = () => {
