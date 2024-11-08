@@ -8,8 +8,8 @@ import { ThemeToggle } from '@/components/core/toggle';
 // Providers
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import Toast from 'react-native-toast-message';
 
-// TODO : fonts not loading
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
  * https://www.npmjs.com/package/react-native-keyboard-controller
@@ -84,7 +84,6 @@ function RootLayoutNav() {
         style={colorScheme === 'dark' ? 'light' : 'dark'}
         key={`root-status-bar-${colorScheme === 'dark' ? 'light' : 'dark'}`}
       />
-
       <ThemeProvider value={NAV_THEME[colorScheme]}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack
@@ -102,7 +101,6 @@ function RootLayoutNav() {
               },
             }}
           >
-            {/**TODO : Remove later the test page */}
             <Stack.Screen
               name="index"
               options={{ title: 'Welcome', headerShown: true, headerBackVisible: false }}
@@ -126,7 +124,21 @@ function RootLayoutNav() {
               }}
             />
             <Stack.Screen
-              name="onboardingGetStarted"
+              name="onboarding1"
+              options={{
+                title: '',
+                headerShown: true,
+              }}
+            />
+            <Stack.Screen
+              name="onboarding2"
+              options={{
+                title: '',
+                headerShown: true,
+              }}
+            />
+            <Stack.Screen
+              name="onboarding3"
               options={{
                 title: '',
                 headerShown: true,
@@ -146,6 +158,7 @@ function RootLayoutNav() {
           </Stack>
         </GestureHandlerRootView>
       </ThemeProvider>
+      <Toast />
     </>
   );
 }

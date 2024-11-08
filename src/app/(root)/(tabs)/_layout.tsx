@@ -2,19 +2,25 @@ import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { TabBarIcon } from '@/components/core/icon';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+// import Ionicons from '@expo/vector-icons/Ionicons';
+// import { useRouter } from 'expo-router';
+// import { useState } from 'react';
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? 'white' : 'black';
-  const router = useRouter();
-  const [currentColor, setColor] = useState('red');
+  //const router = useRouter();
+  //const [currentColor, setColor] = useState('red');
 
   return (
     <Tabs
       screenOptions={{
+        headerStyle: {
+          backgroundColor: 'black',
+        },
+        tabBarStyle: {
+          backgroundColor: 'black',
+        },
         tabBarActiveTintColor: iconColor,
       }}
     >
@@ -23,7 +29,8 @@ export default function TabLayout() {
         name="(index)"
         options={{
           title: 'Home',
-          tabBarIcon: () => <TabBarIcon name="code" pathnames={['/', '/feed']} />,
+          headerShown: true,
+          tabBarIcon: () => <TabBarIcon name="home" pathnames={['/', '/feed']} />,
           headerRight: HeaderRight,
         }}
       />
@@ -31,33 +38,25 @@ export default function TabLayout() {
         name="two"
         options={{
           title: 'Tab Two',
-          headerShown: false,
-          tabBarIcon: () => <TabBarIcon name="code" pathnames={['/two']} />,
+          headerShown: true,
+          tabBarIcon: () => <TabBarIcon name="list" pathnames={['/two']} />,
         }}
       />
+
       <Tabs.Screen
-        name="settings"
+        name="(settings)"
         options={{
           title: 'Settings',
+          headerShown: true,
           tabBarIcon: () => <TabBarIcon name="cog" pathnames={['/settings']} />,
         }}
       />
       <Tabs.Screen
-        name="newSetting"
+        name="(newSetting)"
         options={{
-          title: 'newSetting',
-          tabBarIcon: () => (
-            <Ionicons
-              name="key"
-              color={currentColor}
-              // TODO : Fix color Issue Not displaying As Intended
-              onPress={() => {
-                setColor('blue');
-                // take the user back
-                router.replace('/');
-              }}
-            />
-          ),
+          title: 'Account',
+          headerShown: true,
+          tabBarIcon: () => <TabBarIcon name="user" pathnames={['/newSettings', '/customFeed']} />,
         }}
       />
     </Tabs>

@@ -5,11 +5,12 @@ const { hairlineWidth, platformSelect } = require('nativewind/theme');
 module.exports = {
   // NOTE: Update this to include the paths to all of your component files.
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
-  presets: [require("nativewind/preset")],
+  presets: [require('nativewind/preset')],
   darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        onboardingBackgroundColor: '#555',
         border: withOpacity('border'),
         input: withOpacity('input'),
         ring: withOpacity('ring'),
@@ -50,7 +51,7 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};
 
 function withOpacity(variableName) {
   return ({ opacityValue }) => {

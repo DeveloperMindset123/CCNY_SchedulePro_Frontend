@@ -1,19 +1,23 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "display": "Expo",
-  
     "compilerOptions": {
-      "allowJs": true,
+      // ** Modified Init
+      "strict": true,
+      "forceConsistentCasingInFileNames": true,
+      "module" : "NodeNext",
+      // ** Modifed End
+      "allowJs": false,
       "esModuleInterop": true,
       "jsx": "react-native",
       "lib": ["DOM", "ESNext"],
-      "moduleResolution": "node",
+      "moduleResolution": "NodeNext",
       "noEmit": true,
       "resolveJsonModule": true,
       "skipLibCheck": true,
-      "target": "ESNext"
+      "target": "ESNext",
+      "allowImportingTsExtensions": true
     },
-  
+
     "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
   }
-  

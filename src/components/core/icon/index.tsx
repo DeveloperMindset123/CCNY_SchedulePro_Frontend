@@ -23,8 +23,8 @@ import { usePathname } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { TAB_THEME } from '@/theme';
 
-/** 
- * 
+/**
+ *
  * @see https://lucide.dev/guide/packages/lucide-react-native
  * WARNING
     The example below imports all ES Modules, so exercise caution when using it. Importing all icons will significantly increase the build size of the application, negatively affecting its performance. This is especially important to keep in mind when using bundlers like Webpack, Rollup, or Vite.
