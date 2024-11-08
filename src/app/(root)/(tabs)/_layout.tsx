@@ -52,7 +52,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="(newsetting)"
+        name="(newSetting)"
         options={{
           title: 'Account',
           headerShown: true,

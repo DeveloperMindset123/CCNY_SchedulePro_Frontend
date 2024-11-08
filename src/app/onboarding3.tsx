@@ -274,8 +274,8 @@ const OnboardingScreen3: React.FC = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => sendOnboarding_screen3Data()}
-          //handleOnPress={() => router.push('/(root)/(tabs)/(index)/')}
+          //handleOnPress={() => sendOnboarding_screen3Data()}
+          handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
           buttonText={'Proceed'}
         />
       </View>
