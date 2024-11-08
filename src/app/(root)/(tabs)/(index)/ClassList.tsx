@@ -1,7 +1,7 @@
-import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 export default function ClassList() {
+  // TODO : Convert to API endpoint that will be calling on data
   const classes = [
     {
       title: 'CSC 33500 - Programming Language Paradigms',
@@ -33,10 +33,10 @@ export default function ClassList() {
     },
   ];
 
- /* const viewClassDetails = (classInfo) => {
-    // Implement navigation to class details page 
-    
-  };*/
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const viewClassDetails = (classInfo: any) => {
+    throw new Error('Not Yet Implemented');
+  };
 
   return (
     <View style={styles.container}>
@@ -51,7 +51,7 @@ export default function ClassList() {
             <Text style={styles.text}>Professor: {classInfo.professor}</Text>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => viewClassDetails(classInfo)}
+              //onPress={() => viewClassDetails(classInfo)}
             >
               <Text style={styles.buttonText}>View Full Class Details</Text>
             </TouchableOpacity>
