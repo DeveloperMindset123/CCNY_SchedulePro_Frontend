@@ -2,8 +2,8 @@ import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
 import onboardingRouter from './onboarding/onboarding.routes';
-import { getSpecificProfessorData } from '../utils/RMPScraper';
-import { gatherRMPSummary } from '../utils/RMPScraper';
+import { createMap, gatherSummaryByDepartment } from '../utils/RMPScraper';
+//import { gatherRMPSummary } from '../utils/RMPScraper';
 
 const app = express();
 // ** needed to add express.json()
@@ -22,6 +22,6 @@ app.get('/test', (req, res) => {
 });
 
 app.listen('4001', async () => {
-  await gatherRMPSummary();
+  await gatherSummaryByDepartment(createMap(), 'american studies');
   console.log(`Listening to port 4001`);
 });

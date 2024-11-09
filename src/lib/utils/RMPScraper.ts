@@ -35,7 +35,7 @@ export const createMap = () => {
   // this is how we dynamically set interface types in typeScript
   //@see https://stackoverflow.com/questions/55831886/typescript-an-index-signature-parameter-must-be-a-string-or-number-when-try
 
-  interface output {
+  interface department_professor_object_type {
     /**
      * @department is the placeholder for the key of the object, we use [] to specify that this is mutable
      * @string[] is used to specify array of strings
@@ -43,7 +43,7 @@ export const createMap = () => {
     [department: string]: string[];
   }
 
-  const department_professor_object: output = {
+  const department_professor_object: department_professor_object_type = {
     Administration: [
       'Shant Shahrigian',
       'Tony Liss',
@@ -415,7 +415,10 @@ export const createMap = () => {
   // iterate throguh the list using a for loop
   for (let i = 0; i < department_list.length; i++) {
     department_professor_map.set(
-      department_list[i],
+      // ensure that all the keys are set to lower case
+      // this will reduce the issue regarding case sensetive issues arising
+      // TODO : see how to remove trailing commas and whitespaces if possible as well
+      department_list[i].toLowerCase(),
       department_professor_object[department_list[i]]
     );
   }
@@ -443,29 +446,60 @@ export const getSpecificProfessorData = async (professorName: string) => {
     const getProfessorRating = await rmp.getProfessorRatingAtSchoolId(professorName, schoolId);
     const searchRes = searchResults !== undefined ? searchResults : 'unknown';
     console.log(`Summary of ${professorName} : ${JSON.stringify(getProfessorRating)}`);
-    //console.log(searchRes);
 
     return [searchRes, getProfessorRating];
   }
 };
 
 // @param inputMap: Map<string, string[]>
-export const gatherRMPSummary = async () => {
-  const resultMap = createMap();
-  const result: any = [];
-  resultMap.forEach((value: string[], key: string) => {
-    for (let iterator = 0; iterator < value.length; iterator++) {
-      const professorSummary = getSpecificProfessorData(value[iterator]);
-      result.push(professorSummary);
+// problem is that we cannot call on this function on
+// instead of iterating thorugh all the data values at once
+// we will instead iterate throguh individual values instead
+// the hashmap will use constant time complexity to check if the particular department exists or not
+// if so, then return the list of teachers associated with it
+// @see https://stackoverflow.com/questions/44956867/how-to-check-if-javascript-map-has-an-object-key
+export const gatherSummaryByDepartment = async (
+  inputMap: Map<string, string[]>,
+  department: string
+) => {
+  const departmentResult: any = [];
+  const doesKeyExist: boolean = inputMap.has(department);
+  if (doesKeyExist) {
+    const teacherListByDepartment = inputMap.get(department);
+    if (teacherListByDepartment !== undefined) {
+      for (let iterator = 0; iterator < teacherListByDepartment.length; iterator++) {
+        const professorSummary = getSpecificProfessorData(teacherListByDepartment[iterator]);
+        console.log(`Current Summary of Professor : ${JSON.stringify(professorSummary)}`);
+        departmentResult.push(professorSummary);
+      }
     }
-  });
-  console.log(`Current resulting array is : ${JSON.stringify(result)}`);
+  }
+  console.log(`Current Department Summary : ${JSON.stringify(departmentResult)}`);
+  /*
+  * previous code
+  inputMap.forEach((value: string[], key: string) => {
+    for (let iterator = 0; iterator < value.length; iterator++) {
+      setTimeout(() => {
+        console.log('Waiting Before calling Again....');
+      }, 5000);
+      const professorSummary = getSpecificProfessorData(value[iterator]);
+      console.log(`Current professor : ${value[iterator]}`);
+      console.log(`Current Summary : ${JSON.stringify(professorSummary)}`);
+      departmentResult.push(professorSummary);
+    }
+  }); */
+
+  return departmentResult;
+};
+
+export const completeProfessorSummary = async () => {
+  throw new Error('not yet implemented');
 };
 
 /**
  * Logic that I am trying to implement here is the following:
- * step 1 : Hardcode the list of departments
- * step 2 : itereate throguh the departments
+ * step 1 : Hardcode the list of departments --> partially complete
+ * step 2 : itereate throguh the departments --> partially complete
  * and add the corresponding professors within each of the particular depeartments within a hashmap
  * step 3 : iterate throguh the hashamp
  * step 4 : call on the getSepcificProfessorData
