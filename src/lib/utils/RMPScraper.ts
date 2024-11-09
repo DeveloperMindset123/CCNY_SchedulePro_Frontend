@@ -4,7 +4,7 @@
 
 // TODO : Integreate nur's machine learning scraped data later as something to be more scalable.
 import * as rmp from 'ratemyprofessor-api';
-
+import { department_professor_object_type } from './data/constants';
 // Given the scope of this project, the ideal thing would be to simply use the text file nur has and store the values via a hashmap
 
 // we then parse the hashmap and then store the data as a cache
@@ -14,7 +14,22 @@ import * as rmp from 'ratemyprofessor-api';
 
 // in terms of flow, we will retrieve the name of the professor from the previous mode, and then plug in that information into this function, and execute it for each of the flatlist values we need
 
-export const createMap = () => {
+export const arrayShuffler = (inputArray: string[]) => {
+  for (let iterator = inputArray.length - 1; iterator > 0; iterator--) {
+    // determine a random index to serve as the shuffler
+    const secondIterator = Math.floor(Math.random() * (iterator + 1));
+    // perform a simple in-place swap
+    [inputArray[iterator], inputArray[secondIterator]] = [
+      inputArray[secondIterator],
+      inputArray[iterator],
+    ];
+    // TODO : Remove later
+    console.log(`Shuffled Array : ${inputArray}`);
+    return inputArray;
+  }
+};
+
+export const createMap = (inputArray: string[], inputObject: department_professor_object_type) => {
   // TODO : Modify based on what's listed on RMP
   // list of professors per division
   // NOTE : Names of professors are case sensetive
@@ -23,10 +38,9 @@ export const createMap = () => {
   // we will have this as in inner function for now
   // INTENT : randomize the ordering of the department thorugh which we search and render
   // unfortunately, for now, the hashmap will need to be re-constructed every time the re-rendering occurs
+  // NOTE : the shuffling logic should take place when the map is created, so that the keys within the map matches
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const randomizeDepartment = (_OriginalDepartment: string[]) => {
-    throw new Error('Not yet implemented');
-  };
+  const shuffledArray: string[] | undefined = arrayShuffler(inputArray);
 
   // NOTE : the reason this is hardcoded right now is because we have no method of actually collecting data on them
   // once the setup for collecting data on particular professors is setup, we won't need this, however, the hashamp will still be helpful
@@ -35,394 +49,22 @@ export const createMap = () => {
   // this is how we dynamically set interface types in typeScript
   //@see https://stackoverflow.com/questions/55831886/typescript-an-index-signature-parameter-must-be-a-string-or-number-when-try
 
-  interface department_professor_object_type {
-    /**
-     * @department is the placeholder for the key of the object, we use [] to specify that this is mutable
-     * @string[] is used to specify array of strings
-     */
-    [department: string]: string[];
-  }
-
-  const department_professor_object: department_professor_object_type = {
-    Administration: [
-      'Shant Shahrigian',
-      'Tony Liss',
-      'James(jim) Davis',
-      'Kara Pernicano',
-      'Sameeullah Sher',
-      'Paul Occhigrosso',
-      'Zeev Dagan',
-      'Warren Orange',
-      'Gregory Williams',
-      'Ashiwel Undieh',
-      'Tara Nachtigall',
-    ],
-    Advisor: [
-      'Valerie Poulolo',
-      'Arnaldo Melendez',
-      'Lavie Margolin',
-      'Dawn Marczak',
-      'Alice Shepard',
-      'Belinda Smith',
-      'Debra Kennedy',
-      'Nkem Nkem Stanley-Mbamlu',
-      'Marie Nazon',
-    ],
-    'African-American Studies': [
-      'Claude Brathwaite',
-      'Cheryl Sterling',
-      'Zaheer Ali',
-      'Heather Denyer',
-      'Herb Boyd',
-      'Timothy Mangin',
-      'Rebecca Wellington',
-      'Michelle Thompson',
-      'Gregory Baggett',
-      'Tanzeem Ajmiri',
-      'Paula Austin',
-      'Jeniffer Onyedum',
-      'Robert Gibbons',
-      'Farnia Noel',
-      'Micheal Gillepsie',
-      'Georgina Falu',
-      'Tyrene Wright',
-      'Abdul-Qasir Islam',
-    ],
-    'American Studies': [
-      'Kareen Williams',
-      'timothy Nicholson',
-      'Christopher Burrell',
-      'Judy Hilkey',
-      'Cody Nager',
-      'Hajoe Moderegger',
-    ],
-    Anthropology: [
-      'Bernando Chiachia M',
-      'Arthur Spears',
-      'Lindsay Parme',
-      'Cecillia Salvi',
-      'Mohammed Junaid',
-      'Simanique Moody',
-      'Melissa Maldonando-Salcedo',
-      'Kate Riley',
-      'Samuel Byrd',
-      'Kamal Soleimani',
-      'Stanley Thangaraj',
-      'Alice Baldwin Jones',
-      'Omnia Kalili',
-      'Monica Ortiz-Suloway',
-      'Jose Vazquez',
-      'Miriam Entin',
-      'Asha Samad-Matias',
-      'Carol Laderman',
-      'Melissa Zavala',
-      'William(bill) Askins',
-      'Andrea Ariza Garcia',
-      'Rafael Munia',
-      'Dane Ruffin',
-      'Lopez Joan Lopez',
-      'J Yarwood',
-      'Charles Rolph',
-      'D. Wall',
-      'Maggie Whitten',
-      'John Calagione',
-      'Stuart Wright',
-      'Shanelle Matthews',
-      'Marcela Restrepo',
-      'Robert Siebert',
-      'Adam Mikhail',
-      'Katherine Stefatos',
-      'Julie Lozano',
-      'Micheal Elster',
-      'Luis Nieto',
-      'Diane Sank',
-      'Stuart Rockefeller',
-      'Bruce Burnside',
-      'Matthew Reilly',
-      'Scott Schwartz',
-      'Theodor Maghrak',
-      'Charles Dolph',
-      'Branka Djuknic',
-      'Leah Mollin-Kling',
-      'Rocio Gil Martinez De Escobar',
-      'Miriam Fried',
-      'Mohammed Junaid',
-      'James Tolleson',
-    ],
-    Arabic: [
-      'Shareah Teleghani',
-      'Jeremy Randall',
-      'Rhoda Ismail',
-      'Karim Elhaies',
-      'Iman Issa',
-      'Mohammed Tkachmita',
-      'Mariam Elhaies',
-    ],
-    Architecture: [
-      'M.T. Chang',
-      'Jerrilyn Dodds',
-      'Marta Gutman',
-      'Lee Weintraub',
-      'Ali Hocek',
-      'W.Garrison McNeil',
-      'Alberto Foyo',
-      'Jeremy Edmiston',
-      'Peter Gisolfi',
-      'Julia Salcedo',
-      'Jane Kim',
-      'John Yurchyk',
-      'Kenneth Petrocca',
-      'Howard Duffy',
-      'Alfonso Oliva',
-      'Joshua Jow',
-      'Dexter Ciprian',
-      'Abdullah Khawarzad',
-      'Burt Goncalves',
-      'Frank Melendez',
-      'Cesare Birignani',
-      'Phillip Lee',
-      'Oleksandra Topolnytska',
-      'James Khamsi',
-      'Micheal King',
-      'Pablo Iglesias',
-      'Gonzalo Lopez',
-      'Kyle Dugdale',
-      'Damon Bolhassani',
-      'Brad Horn',
-      'Gordon Gebert',
-      'Sean Weiss',
-      'Athanasios Haritos',
-      'Robert Twombly',
-      'Eliana Dotan',
-      'Christian Volkmann',
-      'Timothy Collins',
-      'Johanna Dickson',
-      'Jessica Larson',
-      'Suzanne Strum',
-      'Olivia Vien',
-      'Maria Bermudez',
-      'Bradley Horn',
-      'Fabian Llonch',
-      'Nandini Bagchee',
-      'Antonio Di Oronzo',
-      'Ivan Rosa',
-      'Dominick Pilla',
-      'Lance Brown',
-      'Cassim Shephard',
-      'Irma Ostroff',
-      'Ahy Aydogan',
-      'June Williamson',
-      'Jason Kim',
-      'Demir Purisic',
-      'Paul Ruppert',
-      'John Cunningham',
-      'Tyler Survant',
-      'David Hotson',
-      'Jeffrey Roberson',
-      'Kaitlin Faherty',
-      'Jeremy Edmiston',
-      'Christian Martos',
-      'Brandt Graves',
-      'Jerome Haferd',
-      'Fran Leadon',
-      'Maria Berman',
-      'David Judelson',
-      'Alan Feigenberg',
-      'Denis Hoffman-Brandtt',
-      'Antonio Furgiuelle',
-      'Andrew Zago',
-      'Eduardo Alfonso',
-      'Hillary Brown',
-      'John Murray',
-      'Erik Forman',
-      'VIREN BRAHMBHATT',
-      'Beth Carliner',
-      'Mohammad Bolhassani',
-      'Alan Cation',
-      'Ruo Jia',
-    ],
-    //Art: [''],
-    //'Art History': [''],
-    //'Asian Studies': [''],
-    // Astronomy: [''],
-    // Biology: [''],
-    // Biomedical: [''],
-    // 'Biomedical Engineering': [''],
-    // Business: [''],
-    // 'Chemical Engineering': [''],
-    // Chemistry: [''],
-    // Chinese: [''],
-    // 'Civil Engineering': [''],
-    // Classics: [''],
-    // Communication: [''],
-    // 'Computer Science': [''],
-    // Design: [''],
-    // 'Earth Science': [''],
-    // Economics: [''],
-    // Education: [''],
-    // 'Electrical Engineering': [''],
-    // Engineering: [''],
-    // English: [''],
-    // 'English As A Second Language': [''],
-    // Environment: [''],
-    // 'Ethnic Studies': [''],
-    // Film: [''],
-    // Finance: [''],
-    // 'Fine Arts': [''],
-    // 'Foreign Languages & Literature': [''],
-    // French: [''],
-    // 'Freshman Year Experience': [''],
-    // Geography: [''],
-    // Geology: [''],
-    // German: [''],
-    // 'Graphic Arts': [''],
-    // 'Health Science': [''],
-    // Hindustani: [''],
-    // History: [''],
-    // Honors: [''],
-    // Hospitality: [''],
-    // Humanities: [''],
-    // 'Internation Service': [''],
-    // 'International Studies': [''],
-    // Italian: [''],
-    // Japanese: [''],
-    // 'Judaic Studies': [''],
-    // Languages: [''],
-    // Latin: [''],
-    // 'Latin American Studies': [''],
-    // Law: [''],
-    // 'Liberal Studies': [''],
-    // Libraries: [''],
-    // 'Library & Information Science': [''],
-    // Literature: [''],
-    // Management: [''],
-    // Marketing: [''],
-    // Mathematics: [''],
-    // 'Mechanical Engineering': [''],
-    // 'Media Arts': [''],
-    // Medicine: [''],
-    // Music: [''],
-    // Nursing: [''],
-    // Philosophy: [''],
-    // Physics: [''],
-    // 'Political Science': [''],
-    // Portugese: [''],
-    // Psychology: [''],
-    // 'Public Policy': [''],
-    // Science: [''],
-    // 'Social Science': [''],
-    // Sociology: [''],
-    // Spanish: [''],
-    // Speech: [''],
-    // Theater: [''],
-    // 'Urban Design & Development': [''],
-    // 'Urban Landscape': [''],
-    // "Women's Studies": [''],
-    // 'World Civilizations': [''],
-    // 'World Humanities': [],
-  };
-  const department_list: string[] = [
-    'Administration',
-    'Advisor',
-    'African-American Studies',
-    'American Studies',
-    'Anthropology',
-    'Arabic',
-    'Architecture',
-    // 'Art',
-    // 'Art History',
-    // 'Asian Studies',
-    // 'Astronomy',
-    // 'Biology',
-    // 'Biomedical',
-    // 'Biomedical Engineering',
-    // 'Business',
-    // 'Chemical Engineering',
-    // 'Chemistry',
-    // 'Chinese',
-    // 'Civil Engineering',
-    // 'Classics',
-    // 'Communication',
-    // 'Computer Science',
-    // 'Design',
-    // 'Earth Science',
-    // 'Economics',
-    // 'Education',
-    // 'Electrical Engineering',
-    // 'Engineering',
-    // 'English',
-    // 'English As A Second Language',
-    // 'Environment',
-    // 'Ethnic Studies',
-    // 'Film',
-    // 'Finance',
-    // 'Fine Arts',
-    // 'Foreign Languages & Literature',
-    // 'French',
-    // 'Freshman Year Experience',
-    // 'Geography',
-    // 'Geology',
-    // 'German',
-    // 'Graphic Arts',
-    // 'Health Science',
-    // 'Hindustani',
-    // 'History',
-    // 'Honors',
-    // 'Hospitality',
-    // 'Humanities',
-    // 'Internation Service',
-    // 'International Studies',
-    // 'Italian',
-    // 'Japanese',
-    // 'Judaic Studies',
-    // 'Languages',
-    // 'Latin',
-    // 'Latin American Studies',
-    // 'Law',
-    // 'Liberal Studies',
-    // 'Libraries',
-    // 'Library & Information Science',
-    // 'Literature',
-    // 'Management',
-    // 'Marketing',
-    // 'Mathematics',
-    // 'Mechanical Engineering',
-    // 'Media Arts',
-    // 'Medicine',
-    // 'Music',
-    // 'Nursing',
-    // 'Philosophy',
-    // 'Physics',
-    // 'Political Science',
-    // 'Portugese',
-    // 'Psychology',
-    // 'Public Policy',
-    // 'Science',
-    // 'Social Science',
-    // 'Sociology',
-    // 'Spanish',
-    // 'Speech',
-    // 'Theater',
-    // 'Urban Design & Development',
-    // 'Urban Landscape',
-    // "Women's Studies",
-    // 'World Civilizations',
-    // 'World Humanities',
-  ];
-
   const department_professor_map = new Map<string, string[]>();
 
   // iterate throguh the list using a for loop
-  for (let i = 0; i < department_list.length; i++) {
-    department_professor_map.set(
-      // ensure that all the keys are set to lower case
-      // this will reduce the issue regarding case sensetive issues arising
-      // TODO : see how to remove trailing commas and whitespaces if possible as well
-      department_list[i].toLowerCase(),
-      department_professor_object[department_list[i]]
-    );
+  if (shuffledArray !== undefined && inputObject !== undefined) {
+    for (let i = 0; i < inputArray.length; i++) {
+      department_professor_map.set(
+        // ensure that all the keys are set to lower case
+        // this will reduce the issue regarding case sensetive issues arising
+        // TODO : see how to remove trailing commas and whitespaces if possible as well --> we can achieve this using another functon as well
+        shuffledArray[i].toLowerCase(),
+        inputObject[inputArray[i]]
+      );
+    }
   }
-  console.log(department_professor_map);
+  // TODO : remove console.log statement later
+  //console.log(JSON.stringify(department_professor_map));
   return department_professor_map;
 };
 
@@ -441,14 +83,27 @@ export const getSpecificProfessorData = async (professorName: string) => {
     // basic test to check if I can retrieve the information about professor
     // this will provide a list of rating for a particular professor
 
-    const searchResults = await rmp.searchProfessorsAtSchoolId(professorName, schoolId);
-
     const getProfessorRating = await rmp.getProfessorRatingAtSchoolId(professorName, schoolId);
-    const searchRes = searchResults !== undefined ? searchResults : 'unknown';
+    //const searchRes = searchResults !== undefined ? searchResults : 'unknown';
     console.log(`Summary of ${professorName} : ${JSON.stringify(getProfessorRating)}`);
 
-    return [searchRes, getProfessorRating];
+    return getProfessorRating;
   }
+};
+
+export const getSchoolId = async (nameOfSchool: string) => {
+  const school = await rmp.searchSchool(nameOfSchool);
+  if (school) {
+    return school[0].node.id.toString();
+  }
+  return 'undefined';
+};
+export const searchByProfessor = async (professorName: string, nameOfSchool: string) => {
+  const searchResults = await rmp.searchProfessorsAtSchoolId(
+    professorName,
+    await getSchoolId(nameOfSchool)
+  ); //--> provides a list of professors, can be used for searching logic potentially during later stages of development
+  return searchResults;
 };
 
 // @param inputMap: Map<string, string[]>
@@ -459,6 +114,7 @@ export const getSpecificProfessorData = async (professorName: string) => {
 // if so, then return the list of teachers associated with it
 // @see https://stackoverflow.com/questions/44956867/how-to-check-if-javascript-map-has-an-object-key
 export const gatherSummaryByDepartment = async (
+  // note, we are passing in the map that is created using createMap
   inputMap: Map<string, string[]>,
   department: string
 ) => {
@@ -468,32 +124,37 @@ export const gatherSummaryByDepartment = async (
     const teacherListByDepartment = inputMap.get(department);
     if (teacherListByDepartment !== undefined) {
       for (let iterator = 0; iterator < teacherListByDepartment.length; iterator++) {
-        const professorSummary = getSpecificProfessorData(teacherListByDepartment[iterator]);
-        console.log(`Current Summary of Professor : ${JSON.stringify(professorSummary)}`);
+        const professorSummary = await getSpecificProfessorData(teacherListByDepartment[iterator]);
         departmentResult.push(professorSummary);
       }
     }
   }
-  console.log(`Current Department Summary : ${JSON.stringify(departmentResult)}`);
-  /*
-  * previous code
-  inputMap.forEach((value: string[], key: string) => {
-    for (let iterator = 0; iterator < value.length; iterator++) {
-      setTimeout(() => {
-        console.log('Waiting Before calling Again....');
-      }, 5000);
-      const professorSummary = getSpecificProfessorData(value[iterator]);
-      console.log(`Current professor : ${value[iterator]}`);
-      console.log(`Current Summary : ${JSON.stringify(professorSummary)}`);
-      departmentResult.push(professorSummary);
-    }
-  }); */
-
   return departmentResult;
 };
 
-export const completeProfessorSummary = async () => {
-  throw new Error('not yet implemented');
+// INTENT : This function will parse thorugh the list of departments
+// and call on the gatherSummaryByDepartment() for each iteraetion
+// the result will be an array
+
+export const completeProfessorSummary = async (mapData: Map<string, string[]>) => {
+  // TODO : see how this can be improved, test and check to make sure everything is working as intended.
+  /**
+   * Algorithm
+   * @step1 Iterate throguh the hashamp created using createMap() --> pass in the appropriate parameters
+   * @step2 the main function that will be called each iteration is gatherSummaryByDepartment(mapData, someDepartment)
+   * @ste3 the resulting department result will then be saved in an 2D array in itself
+   */
+
+  const finalResult: any = [];
+
+  // NOTE : this would theoretically be O(N * K) in terms of time complexity
+  mapData.forEach((value: string[], key: string) => {
+    for (let i = 0; i < value.length; i++) {
+      finalResult.push(gatherSummaryByDepartment(mapData, key));
+    }
+  });
+
+  return finalResult;
 };
 
 /**
