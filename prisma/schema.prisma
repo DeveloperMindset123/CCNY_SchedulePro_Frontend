@@ -55,3 +55,14 @@ model UserRegistrationDetails {
   Hobbies        String?
   Gender         String
 }
+
+model RateMyProfessorData {
+  id         String @id @unique @default(uuid()) //this will randomly generate an unique id
+  firstName  String
+  lastName   String
+  numRatings String
+  rating     Float
+  department String
+  // this will ensure that the data value is of JSON datatype
+  comments   Json[]
+}

@@ -58,8 +58,11 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
-package-lock.json
-yarn.lock
+# @see https://www.atlassian.com/git/tutorials/saving-changes/gitignore#git-ignore-patterns
+
+**/package-lock.json
+**yarn.lock
 pnpm.lock
 .hintrc
 .node-version
+**/myenv
