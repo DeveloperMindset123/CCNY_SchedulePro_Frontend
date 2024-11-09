@@ -2,6 +2,7 @@
 import { db } from '../../utils/db';
 import * as cryptoTS from 'crypto-ts';
 
+// TODO : Fix encryptToken and decryptToken, use them for password encryption and decryption --> refer to the docs
 export function encryptToken(token: any) {
   const cipherText = cryptoTS.AES.encrypt(
     JSON.stringify(token),

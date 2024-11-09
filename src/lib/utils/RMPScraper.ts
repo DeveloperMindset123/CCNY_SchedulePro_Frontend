@@ -135,6 +135,7 @@ export const gatherSummaryByDepartment = async (
 // INTENT : This function will parse thorugh the list of departments
 // and call on the gatherSummaryByDepartment() for each iteraetion
 // the result will be an array
+// NOTE : the correct parameter completeProfessorSummary is supposed to take is the departmentResult
 export const completeProfessorSummary = async (mapData: Map<string, string[]>) => {
   // TODO : see how this can be improved, test and check to make sure everything is working as intended.
   /**
@@ -144,7 +145,6 @@ export const completeProfessorSummary = async (mapData: Map<string, string[]>) =
    * @step3 the resulting department result will then be saved in an 2D array in itself
    */
   const finalResult: string[][] = [];
-  const loopCounter = 1;
   // NOTE : this would theoretically be O(N * K) in terms of time complexity
   for (const [department, teacherList] of mapData) {
     const dataGathered: string[] = await gatherSummaryByDepartment(mapData, department);
@@ -157,6 +157,18 @@ export const completeProfessorSummary = async (mapData: Map<string, string[]>) =
   return finalResult;
 };
 
+export const sendToDatabase = (data: string[][]) => {
+  /**
+   * @step1 : call on the completeProfessorSummary() function with the appropraite parameters
+   * @step2 : iterate through the 2D array
+   * @step3 : access the keys of the objects for their corresponding values
+   * @step4 : send the values to the postgres database following the schema created
+   * @step5 : execute and check if the data has been successfully sent or not
+   */
+  // link explaining how data can be pushed
+  // @see https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction#3-importing-prisma-client
+  throw new Error('Not Yet Implemented');
+};
 /**
  * Logic that I am trying to implement here is the following:
  * step 1 : Hardcode the list of departments --> partially complete
