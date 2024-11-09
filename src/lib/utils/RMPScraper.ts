@@ -85,7 +85,7 @@ export const getSpecificProfessorData = async (professorName: string) => {
 
     const getProfessorRating = await rmp.getProfessorRatingAtSchoolId(professorName, schoolId);
     //const searchRes = searchResults !== undefined ? searchResults : 'unknown';
-    console.log(`Summary of ${professorName} : ${JSON.stringify(getProfessorRating)}`);
+    //console.log(`Summary of ${professorName} : ${JSON.stringify(getProfessorRating)}`);
 
     return getProfessorRating;
   }
@@ -135,25 +135,25 @@ export const gatherSummaryByDepartment = async (
 // INTENT : This function will parse thorugh the list of departments
 // and call on the gatherSummaryByDepartment() for each iteraetion
 // the result will be an array
-
 export const completeProfessorSummary = async (mapData: Map<string, string[]>) => {
   // TODO : see how this can be improved, test and check to make sure everything is working as intended.
   /**
    * Algorithm
    * @step1 Iterate throguh the hashamp created using createMap() --> pass in the appropriate parameters
    * @step2 the main function that will be called each iteration is gatherSummaryByDepartment(mapData, someDepartment)
-   * @ste3 the resulting department result will then be saved in an 2D array in itself
+   * @step3 the resulting department result will then be saved in an 2D array in itself
    */
-
-  const finalResult: any = [];
-
+  const finalResult: string[][] = [];
+  const loopCounter = 1;
   // NOTE : this would theoretically be O(N * K) in terms of time complexity
-  mapData.forEach((value: string[], key: string) => {
-    for (let i = 0; i < value.length; i++) {
-      finalResult.push(gatherSummaryByDepartment(mapData, key));
-    }
-  });
-
+  for (const [department, teacherList] of mapData) {
+    const dataGathered: string[] = await gatherSummaryByDepartment(mapData, department);
+    console.log(`Current Department : ${department}`);
+    //console.log(`Gathered Data is : ${dataGathered}`);
+    finalResult.push(dataGathered);
+  }
+  console.log(JSON.stringify(finalResult));
+  // returns 2D array
   return finalResult;
 };
 
