@@ -74,11 +74,8 @@ Ensure that npm's version is up to date (**NOTE** : Your not limited to npm only
    
 
 ### Screenshots (of current project)
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
-<img src="" width="250"/>
+<img src="README_Images/CCNYSchedulePro10.png" width="250"/> | <img src="README_Images/CCNYSchedulePro9.png" width="250"/>
+<img src="README_Images/CCNYSchedulePro8.png" width="250"/> | <img src="README_Images/CCNYSchedulePro7.png" width="250"/>
+<img src="README_Images/CCNYSchedulePro6.png" width="250"/> | <img src="README_Images/CCNYSchedulePro5.png" width="250"/>
+<img src="README_Images/CCNY_SchedulePro4.png" width="250"/> | <img src="README_Images/CCNYSchedulePro3.png" width="250"/>
+<img src="README_Images/CCNYSchedulePro2.png" width="250"/>
