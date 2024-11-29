@@ -41,14 +41,13 @@ If you would like to locally rn the project, please follow the instructions belo
 
 ### Prerequisites
 Ensure that npm's version is up to date (**NOTE** : Your not limited to npm only (**Recommended** : Yarn))
-* npm 
+1. npm 
   ```sh
   npm install npm@latest -g 
   ```
 
   ### Installation
 
-1. Setup your bot and retrieve it's token following the guide and add the server to a server for testing [Setup Instructions](https://discordjs.guide/preparations/setting-up-a-bot-application.html)
 2. Clone the repo
    ```sh
    git clone https://github.com/DeveloperMindset123/CCNY_SchedulePro.git
