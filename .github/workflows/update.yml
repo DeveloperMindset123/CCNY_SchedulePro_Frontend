@@ -23,7 +23,7 @@ jobs:
           token: n5mAjBGWGe3H20wx9Vcp7AN20L1U80WIDVes0Aao
 
       - name: Install Dependancies
-        run: yarn Install
+        run: yarn install
 
       - name: Publish Update
         run: eas update --auto
