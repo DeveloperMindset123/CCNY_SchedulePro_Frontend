@@ -2,6 +2,10 @@ import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
 import onboardingRouter from './onboarding/onboarding.routes';
+//import { createMap, gatherSummaryByDepartment } from '../utils/RMPScraper';
+//import { gatherRMPSummary } from '../utils/RMPScraper';
+import { department_list, department_professor_object } from '../utils/data/constants';
+import { completeProfessorSummary, createMap } from '../utils/RMPScraper';
 
 const app = express();
 // ** needed to add express.json()
@@ -19,6 +23,11 @@ app.get('/test', (req, res) => {
   res.send('Hello from A!').status(200);
 });
 
-app.listen('4001', () => {
+app.listen('4001', async () => {
+  // TODO : call on the final function here
+  //await gatherSummaryByDepartment(inputMap, 'american studies'); --> this function gets called in the scraper itself
+  const inputMap = await createMap(department_list, department_professor_object);
+  const result: string[][] = await completeProfessorSummary(inputMap);
+  console.log(`Result is ${JSON.stringify(result)}`); // tested and worked
   console.log(`Listening to port 4001`);
 });

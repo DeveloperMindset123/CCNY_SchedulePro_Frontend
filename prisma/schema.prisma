@@ -55,3 +55,21 @@ model UserRegistrationDetails {
   Hobbies        String?
   Gender         String
 }
+
+// this model will be used to store the summary format of the data
+model RateMyProfessorDataSummary {
+  id            String @id @unique @default(uuid()) //this will randomly generate an unique id
+  professorName String
+  numRatings    String
+  rating        Float
+  department    String
+}
+
+// this model will be used to store the data about the professor and the comments relevant to the particular professor
+model RateMyProfessorCompleteData {
+  id             String @id @unique @default(uuid())
+  professor_name String
+  rating         Float
+  department     String
+  comments       Json[]
+}
