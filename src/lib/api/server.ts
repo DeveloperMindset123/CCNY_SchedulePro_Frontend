@@ -5,7 +5,8 @@ import onboardingRouter from './onboarding/onboarding.routes';
 //import { createMap, gatherSummaryByDepartment } from '../utils/RMPScraper';
 //import { gatherRMPSummary } from '../utils/RMPScraper';
 import { department_list, department_professor_object } from '../utils/data/constants';
-import { completeProfessorSummary, createMap } from '../utils/RMPScraper';
+import { completeProfessorSummary, createMap, sendToDatabase } from '../utils/RMPScraper';
+import fs from 'fs';
 
 const app = express();
 // ** needed to add express.json()
@@ -23,11 +24,24 @@ app.get('/test', (req, res) => {
   res.send('Hello from A!').status(200);
 });
 
-app.listen('4001', async () => {
+// this is temporary, just to get a better understanding of what the stored data looks like
+const saveToJson = async () => {
   // TODO : call on the final function here
   //await gatherSummaryByDepartment(inputMap, 'american studies'); --> this function gets called in the scraper itself
   const inputMap = await createMap(department_list, department_professor_object);
   const result: string[][] = await completeProfessorSummary(inputMap);
-  console.log(`Result is ${JSON.stringify(result)}`); // tested and worked
-  console.log(`Listening to port 4001`);
+  const test = sendToDatabase(result);
+  console.log(`Current JSON Data : ${test}`);
+  // test using the newly created function
+  const result_json = JSON.stringify(result);
+  fs.writeFile('results.json', result_json, (err) => {
+    if (err) {
+      console.error('Error writting to file : ', err);
+    } else {
+      console.log('successfull!');
+    }
+  });
+};
+app.listen('4001', async () => {
+  await saveToJson();
 });
