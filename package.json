@@ -109,7 +109,7 @@
   "overrides": {
     "react-refresh": "~0.14.0"
   },
-  "name": "CCNY_Schedule_Pro",
+  "name": "ccny-schedule-pro",
   "version": "1.0.0",
   "private": false,
   "description": "An advanced scheduling app catered towards CCNY Students",
