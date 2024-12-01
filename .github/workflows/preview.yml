@@ -18,6 +18,8 @@ jobs:
           node-version: 18.x
           cache: yarn
 
+      - name: expo Login
+        uses: expo login -u dasa60196@gmail.com -p ZWz9glhg1Hj0o9yRhO7HBC3gkKLLIRiQ59dLCxo2aURTux92py
       - name: Setup EAS
         uses: expo/expo-github-action@v8
         with:
