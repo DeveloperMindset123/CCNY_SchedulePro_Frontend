@@ -58,12 +58,11 @@ model UserRegistrationDetails {
 
 // this model will be used to store the summary format of the data
 model RateMyProfessorDataSummary {
-  id         String @id @unique @default(uuid()) //this will randomly generate an unique id
-  firstName  String
-  lastName   String
-  numRatings String
-  rating     Float
-  department String
+  id            String @id @unique @default(uuid()) //this will randomly generate an unique id
+  professorName String
+  numRatings    String
+  rating        Float
+  department    String
 }
 
 // this model will be used to store the data about the professor and the comments relevant to the particular professor

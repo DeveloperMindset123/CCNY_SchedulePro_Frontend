@@ -5,6 +5,7 @@
 // TODO : Integreate nur's machine learning scraped data later as something to be more scalable.
 import * as rmp from 'ratemyprofessor-api';
 import { department_professor_object_type } from './data/constants';
+import { db } from './db';
 // Given the scope of this project, the ideal thing would be to simply use the text file nur has and store the values via a hashmap
 
 // we then parse the hashmap and then store the data as a cache
@@ -36,7 +37,7 @@ export const createMap = (inputArray: string[], inputObject: department_professo
   // we will use this within the teacher's list itself
 
   // we will have this as in inner function for now
-  // INTENT : randomize the ordering of the department thorugh which we search and render
+  // INTENT : randomize the ordering of the department through which we search and render
   // unfortunately, for now, the hashmap will need to be re-constructed every time the re-rendering occurs
   // NOTE : the shuffling logic should take place when the map is created, so that the keys within the map matches
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,29 +64,17 @@ export const createMap = (inputArray: string[], inputObject: department_professo
       );
     }
   }
-  // TODO : remove console.log statement later
-  //console.log(JSON.stringify(department_professor_map));
+
   return department_professor_map;
 };
 
+// TODO : Later on, if this project is expanded for other collges, we can simply have a parameter that will be updated based on the form input
 export const getSpecificProfessorData = async (professorName: string) => {
-  // this value will remain static for now
   const school = await rmp.searchSchool('City College of New York');
 
   if (school !== undefined) {
     const schoolId = school[0].node.id;
-    // Attempting to break down the json data so that they can be saved as I iterate over them and send them to the database
-    //console.log(JSON.stringify(school[0].node));
-    //console.log(Object.keys(JSON.stringify(school[0].node)));
-    // to search for professors
-    //console.log(schoolId);
-
-    // basic test to check if I can retrieve the information about professor
-    // this will provide a list of rating for a particular professor
-
     const getProfessorRating = await rmp.getProfessorRatingAtSchoolId(professorName, schoolId);
-    //const searchRes = searchResults !== undefined ? searchResults : 'unknown';
-    //console.log(`Summary of ${professorName} : ${JSON.stringify(getProfessorRating)}`);
 
     return getProfessorRating;
   }
@@ -106,13 +95,15 @@ export const searchByProfessor = async (professorName: string, nameOfSchool: str
   return searchResults;
 };
 
-// @param inputMap: Map<string, string[]>
-// problem is that we cannot call on this function on
-// instead of iterating thorugh all the data values at once
-// we will instead iterate throguh individual values instead
-// the hashmap will use constant time complexity to check if the particular department exists or not
-// if so, then return the list of teachers associated with it
-// @see https://stackoverflow.com/questions/44956867/how-to-check-if-javascript-map-has-an-object-key
+/**
+ *  @param inputMap: Map<string, string[]>
+ *  @detail1 problem is that we cannot call on this function on
+ * @detail2 instead of iterating thorugh all the data values at once
+ * @detail3 we will instead iterate throguh individual values instead
+ * @detail4 the hashmap will use constant time complexity to check if the particular department exists or not
+ * @detail5 if so, then return the list of teachers associated with it
+ * @see https://stackoverflow.com/questions/44956867/how-to-check-if-javascript-map-has-an-object-key
+ */
 export const gatherSummaryByDepartment = async (
   // note, we are passing in the map that is created using createMap
   inputMap: Map<string, string[]>,
@@ -132,10 +123,13 @@ export const gatherSummaryByDepartment = async (
   return departmentResult;
 };
 
-// INTENT : This function will parse thorugh the list of departments
-// and call on the gatherSummaryByDepartment() for each iteraetion
-// the result will be an array
-// NOTE : the correct parameter completeProfessorSummary is supposed to take is the departmentResult
+/**
+ * @INTENT : This function will parse thorugh the list of departments
+ * @function gatherSummaryByDepartment() for each iteraetion
+ * @returns an array
+ * @NOTE : the correct parameter completeProfessorSummary is supposed to take is the departmentResult
+ */
+
 export const completeProfessorSummary = async (mapData: Map<string, string[]>) => {
   // TODO : see how this can be improved, test and check to make sure everything is working as intended.
   /**
@@ -152,12 +146,13 @@ export const completeProfessorSummary = async (mapData: Map<string, string[]>) =
     //console.log(`Gathered Data is : ${dataGathered}`);
     finalResult.push(dataGathered);
   }
+  // TODO : Remove this after
   console.log(JSON.stringify(finalResult));
   // returns 2D array
   return finalResult;
 };
 
-export const sendToDatabase = (data: string[][]) => {
+export const sendToDatabase = async (data: string[][]) => {
   /**
    * @step1 : call on the completeProfessorSummary() function with the appropraite parameters
    * @step2 : iterate through the 2D array
@@ -167,7 +162,14 @@ export const sendToDatabase = (data: string[][]) => {
    */
   // link explaining how data can be pushed
   // @see https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction#3-importing-prisma-client
-  throw new Error('Not Yet Implemented');
+
+  // NOTE : we are working with list of objects in this case
+  for (let iterator = 0; iterator < data.length; iterator++) {
+    /*
+    const newProfessorSummary = await db.RateMyProfessorDataSummary.create({
+
+    }) */
+  }
 };
 /**
  * Logic that I am trying to implement here is the following:

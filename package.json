@@ -12,7 +12,12 @@
     "build ios": "eas build --platform ios",
     "build android": "eas build --platform android",
     "build": "eas build --platform all",
-    "build and view log": "eas build:list"
+    "build and view log": "eas build:list",
+    "prisma_push": "npx prisma db push",
+    "prisma_pull": "npx prisma db pull",
+    "prisma_validate": "npx prisma validate",
+    "prisma_version": "npx prisma version",
+    "prisma_debug": "npx prisma debug"
   },
   "dependencies": {
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
@@ -22,7 +27,7 @@
     "@expo/prebuild-config": "~7.0.0",
     "@expo/vector-icons": "14.0.3",
     "@hookform/resolvers": "^3.2.0",
-    "@prisma/client": "5.20.0",
+    "@prisma/client": "^5.22.0",
     "@react-native-async-storage/async-storage": "2.0.0",
     "@react-native-community/datetimepicker": "8.0.1",
     "@react-native-picker/picker": "2.7.5",
@@ -91,7 +96,7 @@
     "@typescript-eslint/parser": "^6.13.1",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "prisma": "^5.20.0",
+    "prisma": "^5.22.0",
     "react-native-dotenv": "^3.4.11",
     "tailwindcss": "3.3.2",
     "ts-node-dev": "^2.0.0",
