@@ -3,34 +3,34 @@ on: push
 
 jobs:
   update:
-   name: EAS update
-   runs-on: ubuntu-latest
-   steps:
-    - name: Check for EXPO_TOKEN
-      run: |
+    name: EAS update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for EXPO_TOKEN
+        run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
             echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
             exit 1
           fi
 
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version : 18.x
-        cache: yarn
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: yarn
 
-    - name: Setup EAS 
-      uses: expo/expo-github-actions@v8
-      with: 
-        eas-version: latest
-        token: ${{ secrets.EXPO_TOKEN }}
+      - name: Expo Github Actions
+        uses: expo/expo-github-action@8.2.1
 
-    - name: Install Dependancies
-      run: yarn Install
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
-    - name: Publish Update 
-      run: eas update --auto
-      
+      - name: Install Dependancies
+        run: yarn Install
+
+      - name: Publish Update
+        run: eas update --auto
