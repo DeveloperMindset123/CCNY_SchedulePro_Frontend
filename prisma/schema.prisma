@@ -1,75 +1,73 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-// @see https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/connect-your-database-typescript-postgresql
-
-// TODO : Cleanup comments afterwards
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  // this is where the databse connection tkaes place
   url      = env("DATABASE_URL")
 }
 
-// * @see https://www.prisma.io/docs/orm/reference/prisma-schema-reference --> for what the different values represent
-// ! @see https://www.prisma.io/docs/orm/reference/prisma-schema-reference#id --> explains id
 model User {
   id                String          @id @unique @default(uuid())
   email             String          @unique
   password          String
-  // ** Horrible security practice btw, but just for the sake of making things work atm, implement solution before pushing to production
-  plainTextPassword String?
-  refreshTokens     RefreshTokens[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+  plainTextPassword String?
+  refreshTokens     RefreshTokens[]
 }
 
 model RefreshTokens {
   id          String   @id @unique @default(uuid())
   hashedToken String
   userId      String
-  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserRegistrationDetails {
-  // TODO : Logic to randomly generate this value
-  userID         Int     @id @unique @db.Integer
-  // String type to support alphanumeric values
+  userID         Int     @id @unique
   username       String  @unique
-  // this will be the identifier to link us to the User database, allowing us to know which registered user's information this is associated with
-  emailDuplicate String  @unique
-  degreeType     String
   major          String
-  // ? to indicate that DOB should be optional
   DOB            String?
   CollegeYear    Int
   pronouns       String?
   Hobbies        String?
   Gender         String
+  emailDuplicate String  @unique
+  degreeType     String
 }
 
-// this model will be used to store the summary format of the data
-model RateMyProfessorDataSummary {
-  id            String @id @unique @default(uuid()) //this will randomly generate an unique id
-  professorName String
-  numRatings    String
-  rating        Float
-  department    String
-}
-
-// this model will be used to store the data about the professor and the comments relevant to the particular professor
-model RateMyProfessorCompleteData {
-  id             String @id @unique @default(uuid())
-  professor_name String
-  rating         Float
+model RateMyProfessorData {
+  id             String @id @unique @default(uuid()) // primary key
   department     String
-  comments       Json[]
+  professorName  String
+  avgDifficulty  Float
+  avgRatings     Float
+  wouldTakeAgain String
+  numRatings     Int
+  // store the comments in the comment section here
+  //@see https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/one-to-one-relations
+  //RateMyProfessorCompleteData RateMyProfessorCompleteData?
+
+  // one professor may have multiple comments associated with them
+  RateMyProfessorComments RateMyProfessorComments[]
+}
+
+// TODO : foreign relaton model isn't fully working atm
+// will simply push the data directly
+model RateMyProfessorComments {
+  professor_name    String
+  department        String
+  comments          String[]
+  foreign_linker_id String //foreign key --> @unique to ensure it follows the one-to-one relation we have setup
+  // for now, we will connect them manually instead
+  generated_id      String               @id @unique @default(uuid())
+  // fields takes in the list of foregin key
+  // references takes in the key from the other table we are referencing
+  // store as JSON data instead
+  sentimentData     Json[]
+  professorSummary  RateMyProfessorData? @relation(fields: [foreign_linker_id], references: [id])
 }

@@ -4,49 +4,38 @@
 
 // TODO : Integreate nur's machine learning scraped data later as something to be more scalable.
 import * as rmp from 'ratemyprofessor-api';
-import { department_professor_object_type } from './data/constants';
+import { department_professor_object_type } from './data/constants'; // interface for professor object
 import { db } from './db';
-// Given the scope of this project, the ideal thing would be to simply use the text file nur has and store the values via a hashmap
+import comments from 'comments.json';
 
 // we then parse the hashmap and then store the data as a cache
-
 // This is intended to provide a summary for the data from rate my professor.
 // we want to be able to dynamically retrieve the data for the professor
-
 // in terms of flow, we will retrieve the name of the professor from the previous mode, and then plug in that information into this function, and execute it for each of the flatlist values we need
 
+// randomize data for list of professors
 export const arrayShuffler = (inputArray: string[]) => {
   for (let iterator = inputArray.length - 1; iterator > 0; iterator--) {
-    // determine a random index to serve as the shuffler
     const secondIterator = Math.floor(Math.random() * (iterator + 1));
-    // perform a simple in-place swap
     [inputArray[iterator], inputArray[secondIterator]] = [
       inputArray[secondIterator],
       inputArray[iterator],
     ];
-    // TODO : Remove later
-    console.log(`Shuffled Array : ${inputArray}`);
     return inputArray;
   }
 };
 
 export const createMap = (inputArray: string[], inputObject: department_professor_object_type) => {
-  // TODO : Modify based on what's listed on RMP
   // list of professors per division
-  // NOTE : Names of professors are case sensetive
   // we will use this within the teacher's list itself
-
   // we will have this as in inner function for now
   // INTENT : randomize the ordering of the department through which we search and render
   // unfortunately, for now, the hashmap will need to be re-constructed every time the re-rendering occurs
   // NOTE : the shuffling logic should take place when the map is created, so that the keys within the map matches
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const shuffledArray: string[] | undefined = arrayShuffler(inputArray);
 
-  // NOTE : the reason this is hardcoded right now is because we have no method of actually collecting data on them
+  const shuffledArray: string[] | undefined = arrayShuffler(inputArray);
   // once the setup for collecting data on particular professors is setup, we won't need this, however, the hashamp will still be helpful
   // these datas should be globally accessible as well
-  // TODO : make these data globally accessible and migrate them somehwere else
   // this is how we dynamically set interface types in typeScript
   //@see https://stackoverflow.com/questions/55831886/typescript-an-index-signature-parameter-must-be-a-string-or-number-when-try
 
@@ -58,7 +47,6 @@ export const createMap = (inputArray: string[], inputObject: department_professo
       department_professor_map.set(
         // ensure that all the keys are set to lower case
         // this will reduce the issue regarding case sensetive issues arising
-        // TODO : see how to remove trailing commas and whitespaces if possible as well --> we can achieve this using another functon as well
         shuffledArray[i].toLowerCase(),
         inputObject[inputArray[i]]
       );
@@ -68,8 +56,8 @@ export const createMap = (inputArray: string[], inputObject: department_professo
   return department_professor_map;
 };
 
-// TODO : Later on, if this project is expanded for other collges, we can simply have a parameter that will be updated based on the form input
 export const getSpecificProfessorData = async (professorName: string) => {
+  // school name will remain unchnaged
   const school = await rmp.searchSchool('City College of New York');
 
   if (school !== undefined) {
@@ -80,6 +68,7 @@ export const getSpecificProfessorData = async (professorName: string) => {
   }
 };
 
+// not very useful of a function
 export const getSchoolId = async (nameOfSchool: string) => {
   const school = await rmp.searchSchool(nameOfSchool);
   if (school) {
@@ -87,6 +76,8 @@ export const getSchoolId = async (nameOfSchool: string) => {
   }
   return 'undefined';
 };
+
+// not very useful of a function
 export const searchByProfessor = async (professorName: string, nameOfSchool: string) => {
   const searchResults = await rmp.searchProfessorsAtSchoolId(
     professorName,
@@ -109,7 +100,9 @@ export const gatherSummaryByDepartment = async (
   inputMap: Map<string, string[]>,
   department: string
 ) => {
+  // variable where data is being stored in array format
   const departmentResult: any = [];
+  // search to check if department exist
   const doesKeyExist: boolean = inputMap.has(department);
   if (doesKeyExist) {
     const teacherListByDepartment = inputMap.get(department);
@@ -164,13 +157,90 @@ export const sendToDatabase = async (data: string[][]) => {
   // @see https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction#3-importing-prisma-client
 
   // NOTE : we are working with list of objects in this case
-  for (let iterator = 0; iterator < data.length; iterator++) {
-    /*
-    const newProfessorSummary = await db.RateMyProfessorDataSummary.create({
+  // first array contains the array containing professors regarding a particular department
 
-    }) */
+  // list of keys are --> avgRating,avgDifficulty,wouldTakeAgainPercent,numRatings,formattedName,department,link
+
+  for (const row of data) {
+    // item in this case is the json object
+    for (const item of row) {
+      const currentItem: any = item;
+      const professors_data = await db.rateMyProfessorDataSummary.create({
+        data: {
+          professorName: currentItem.formattedName,
+          avgRatings: parseFloat(currentItem.avgRating),
+          avgDifficulty: parseFloat(currentItem.avgDifficulty),
+          numRatings: parseInt(currentItem.numRatings),
+          wouldTakeAgain: currentItem.wouldTakeAgainPercent + '%',
+          department: currentItem.department,
+        },
+      });
+    }
   }
 };
+
+// find unique doesn't work because
+export const searchDatabase = async (professorName: string, departmentName: string) => {
+  // search database by name of professor
+  // as a test run
+  // this test run works
+  const result = await db.rateMyProfessorDataSummary.findFirst({
+    where: {
+      professorName: professorName,
+      department: departmentName,
+    },
+  });
+
+  console.log(result?.id);
+  return result?.id;
+};
+
+export const sendSummaryAndCommentsToDatabase = async () => {
+  // this will directly load the json file
+  // parse the json file
+  // retrieve the name
+  // comments
+  // rating
+  // department
+  // the linking value
+  // comments represents an array of Json Object
+  // we can ignore this error since it's working at the moment
+  // at printing out the id
+
+  // define an inner function to store the comments per professor in the form of an array
+  // the remaining information will be stored as an outer loop
+  // comments is in the form of array of strings
+  comments.forEach(async (comment) => {
+    // reset the data record here
+    const store_comments: string[] = [];
+    comment.comments.forEach((individual_comment) => {
+      //console.log(`Individual comments : ${JSON.stringify(individual_comment.text)}`);
+      store_comments.push(individual_comment.text);
+    });
+
+    // TODO : create the data record here
+    // this should work once all the data has been pushed to database
+    const foreignKeyData = searchDatabase(comment.professor_name, comment.department);
+    console.log(`Foregin key data id : ${foreignKeyData}`);
+    const
+    const professor_comments_data = await db.rateMyProfessorCompleteData.create({
+      data: {
+        professor_name: comment.professor_name,
+        rating: parseFloat(comment.rating),
+        department: comment.department,
+        comments: store_comments,
+        foreign_linker_id: foreignKeyData?.id,
+      },
+    });
+  });
+  console.log(`Data Saved Successfully!`);
+};
+
+//   // console.log(`stored comments are : ${store_comments[26295]}`);
+//   // console.log('End of function execution');
+// };
+
+// define a function to map the RMPSummary id with the
 /**
  * Logic that I am trying to implement here is the following:
  * step 1 : Hardcode the list of departments --> partially complete
