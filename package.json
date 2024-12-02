@@ -58,6 +58,7 @@
     "expo-updates": "0.25.25",
     "expo-web-browser": "~13.0.3",
     "express": "^4.21.0",
+    "fs-extra": "^11.2.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react-native": "^0.359.0",
     "nativewind": "^4.0.22",
