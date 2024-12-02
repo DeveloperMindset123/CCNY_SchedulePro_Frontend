@@ -1,12 +1,14 @@
+import scraped_comments from 'scraped_comments.json'; // needs
 import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
 import onboardingRouter from './onboarding/onboarding.routes';
 //import { createMap, gatherSummaryByDepartment } from '../utils/RMPScraper';
 //import { gatherRMPSummary } from '../utils/RMPScraper';
-import { department_list, department_professor_object } from '../utils/data/constants';
-import { completeProfessorSummary, createMap, sendToDatabase } from '../utils/RMPScraper';
-import fs from 'fs';
+// import { department_list, department_professor_object } from '../utils/data/constants';
+import { sendRMPDataToDataBase, sendRMPSummarySentiment } from '../utils/RMPData';
+
+// import fs from 'fs';
 
 const app = express();
 // ** needed to add express.json()
@@ -25,23 +27,27 @@ app.get('/test', (req, res) => {
 });
 
 // this is temporary, just to get a better understanding of what the stored data looks like
-const saveToJson = async () => {
-  // TODO : call on the final function here
-  //await gatherSummaryByDepartment(inputMap, 'american studies'); --> this function gets called in the scraper itself
-  const inputMap = await createMap(department_list, department_professor_object);
-  const result: string[][] = await completeProfessorSummary(inputMap);
-  const test = sendToDatabase(result);
-  console.log(`Current JSON Data : ${test}`);
-  // test using the newly created function
-  const result_json = JSON.stringify(result);
-  fs.writeFile('results.json', result_json, (err) => {
-    if (err) {
-      console.error('Error writting to file : ', err);
-    } else {
-      console.log('successfull!');
-    }
-  });
-};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// const saveToJson = async () => {
+//   // TODO : call on the final function here
+//   //await gatherSummaryByDepartment(inputMap, 'american studies'); --> this function gets called in the scraper itself
+//   const inputMap = await createMap(department_list, department_professor_object);
+//   const result: string[][] = await completeProfessorSummary(inputMap);
+//   const test = sendToDatabase(result);
+//   console.log(`Current JSON Data : ${test}`);
+//   // test using the newly created function
+//   const result_json = JSON.stringify(result);
+//   fs.writeFile('results.json', result_json, (err) => {
+//     if (err) {
+//       console.error('Error writting to file : ', err);
+//     } else {
+//       console.log('successfull!');
+//     }
+//   });
+// };
 app.listen('4001', async () => {
-  await saveToJson();
+  //await sendSummaryAndCommentsToDatabase();
+  // await searchDatabase('Micheal Grove', 'English');
+  // await sendRMPDataToDataBase(scraped_comments);
+  await sendRMPSummarySentiment(scraped_comments);
 });

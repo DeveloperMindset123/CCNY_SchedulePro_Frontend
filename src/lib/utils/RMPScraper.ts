@@ -6,6 +6,7 @@
 import * as rmp from 'ratemyprofessor-api';
 import { department_professor_object_type } from './data/constants'; // interface for professor object
 import { db } from './db';
+import comments from 'comments.json';
 
 // we then parse the hashmap and then store the data as a cache
 // This is intended to provide a summary for the data from rate my professor.
@@ -159,22 +160,87 @@ export const sendToDatabase = async (data: string[][]) => {
   // first array contains the array containing professors regarding a particular department
 
   // list of keys are --> avgRating,avgDifficulty,wouldTakeAgainPercent,numRatings,formattedName,department,link
+
   for (const row of data) {
     // item in this case is the json object
     for (const item of row) {
+      const currentItem: any = item;
       const professors_data = await db.rateMyProfessorDataSummary.create({
         data: {
-          professorName: item.formattedName,
-          avgRatings: parseFloat(item.avgRating),
-          avgDifficulty: parseFloat(item.avgDifficulty),
-          numRatings: parseInt(item.numRatings),
-          wouldTakeAgain: item.wouldTakeAgainPercent + '%',
-          department: item.department,
+          professorName: currentItem.formattedName,
+          avgRatings: parseFloat(currentItem.avgRating),
+          avgDifficulty: parseFloat(currentItem.avgDifficulty),
+          numRatings: parseInt(currentItem.numRatings),
+          wouldTakeAgain: currentItem.wouldTakeAgainPercent + '%',
+          department: currentItem.department,
         },
       });
     }
   }
 };
+
+// find unique doesn't work because
+export const searchDatabase = async (professorName: string, departmentName: string) => {
+  // search database by name of professor
+  // as a test run
+  // this test run works
+  const result = await db.rateMyProfessorDataSummary.findFirst({
+    where: {
+      professorName: professorName,
+      department: departmentName,
+    },
+  });
+
+  console.log(result?.id);
+  return result?.id;
+};
+
+export const sendSummaryAndCommentsToDatabase = async () => {
+  // this will directly load the json file
+  // parse the json file
+  // retrieve the name
+  // comments
+  // rating
+  // department
+  // the linking value
+  // comments represents an array of Json Object
+  // we can ignore this error since it's working at the moment
+  // at printing out the id
+
+  // define an inner function to store the comments per professor in the form of an array
+  // the remaining information will be stored as an outer loop
+  // comments is in the form of array of strings
+  comments.forEach(async (comment) => {
+    // reset the data record here
+    const store_comments: string[] = [];
+    comment.comments.forEach((individual_comment) => {
+      //console.log(`Individual comments : ${JSON.stringify(individual_comment.text)}`);
+      store_comments.push(individual_comment.text);
+    });
+
+    // TODO : create the data record here
+    // this should work once all the data has been pushed to database
+    const foreignKeyData = searchDatabase(comment.professor_name, comment.department);
+    console.log(`Foregin key data id : ${foreignKeyData}`);
+    const
+    const professor_comments_data = await db.rateMyProfessorCompleteData.create({
+      data: {
+        professor_name: comment.professor_name,
+        rating: parseFloat(comment.rating),
+        department: comment.department,
+        comments: store_comments,
+        foreign_linker_id: foreignKeyData?.id,
+      },
+    });
+  });
+  console.log(`Data Saved Successfully!`);
+};
+
+//   // console.log(`stored comments are : ${store_comments[26295]}`);
+//   // console.log('End of function execution');
+// };
+
+// define a function to map the RMPSummary id with the
 /**
  * Logic that I am trying to implement here is the following:
  * step 1 : Hardcode the list of departments --> partially complete
