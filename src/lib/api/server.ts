@@ -1,12 +1,13 @@
-import scraped_comments from 'scraped_comments.json'; // needs
+// import scraped_comments from 'scraped_comments.json'; // needs
 import authRouter from './auth/auth.routes';
 import express from 'express';
 import userRouter from './users/users.routes';
 import onboardingRouter from './onboarding/onboarding.routes';
+import databaseRouter from './database/database.routes';
 //import { createMap, gatherSummaryByDepartment } from '../utils/RMPScraper';
 //import { gatherRMPSummary } from '../utils/RMPScraper';
 // import { department_list, department_professor_object } from '../utils/data/constants';
-import { sendRMPDataToDataBase, sendRMPSummarySentiment } from '../utils/RMPData';
+// import { sendRMPDataToDataBase, sendRMPSummarySentiment } from '../utils/RMPData';
 
 // import fs from 'fs';
 
@@ -16,11 +17,17 @@ app.use(express.json());
 //@see https://medium.com/@pierrephilip/better-route-registration-with-express-js-740c0f342c10
 const router = express.Router();
 router.use(express.json());
-router.use('/auth', authRouter);
+
+// attach the routes to router
+router.use('/auth', authRouter); // /auth/<routeName> --> example usage
 router.use('/users', userRouter);
 router.use('/onboarding', onboardingRouter);
+router.use('/data', databaseRouter);
 //http://localhost:4001/auth/register --> example API call
+
+// attach the router to app
 app.use(router);
+// TODO : Remove
 app.get('/test', (req, res) => {
   console.log('hello world');
   res.send('Hello from A!').status(200);
@@ -49,5 +56,5 @@ app.listen('4001', async () => {
   //await sendSummaryAndCommentsToDatabase();
   // await searchDatabase('Micheal Grove', 'English');
   // await sendRMPDataToDataBase(scraped_comments);
-  await sendRMPSummarySentiment(scraped_comments);
+  // await sendRMPSummarySentiment(scraped_comments);
 });
