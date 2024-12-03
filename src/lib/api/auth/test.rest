@@ -1,9 +1,14 @@
 
-POST http://localhost:4001/auth/login
-content-type: application/json
-
-{
-  "email" : "test5134@gmail.com",
-  "password" : "test5134"
-}
+// a test to understand how data can be sent via query parameters
+// use this as tempalate for future
+GET http://localhost:4000/data/comments/ayan/cs?name=ayan&department=cs
 // use this to test api routes, installation the VSCode extension first
+
+// use this to get information regarding the RMP summary data
+GET http://localhost:4000/data/getRMPSummary
+
+GET http://localhost:4000/data/getRMPData
+
+POST http://localhost:4000/data/sendRMPSummary
+POST http://localhost:4000/data/sendRMPData
+
