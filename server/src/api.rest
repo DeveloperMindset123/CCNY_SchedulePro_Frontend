@@ -1,0 +1,25 @@
+GET http://localhost:8000/chat/users/6
+
+//
+# struct Message {
+#     // @see https://api.rocket.rs/master/rocket/form/validate/fn.len
+#     //
+#     // this is a type of form validator
+#     #[field(validate = len(1..20))]
+#     // chat rooms should be uniquely generated and distinguishable
+#     // should be different per user
+#     pub room: String,
+#     // we need a method to distinguish users
+#     #[field(validate = len(1..50))]
+#     pub user_email: String,
+#     // define the id of the reciever
+#     // that should be attached to the message struct
+#     // the reciever address will be attached to the message
+#     // the sender will also be attached to the address
+#     // to help distinguish
+#     // a sequence number can also be used to keep track of the current number of message that has been sent
+#     pub sender : String,
+#     pub reciever : String,
+#     pub sequenceNumber : u32,
+#     pub message: String,
+# }

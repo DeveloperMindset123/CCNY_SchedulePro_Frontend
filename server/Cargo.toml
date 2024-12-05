@@ -5,4 +5,6 @@ edition = "2021"
 
 [dependencies]
 # library for end-to-end messaging
-rocket = "0.5.1"
+# the JSON feature is not automatically included when it comes to Rust
+rocket = { version = "0.5.1", features = ["json"] }
+rand = "0.8.4"
