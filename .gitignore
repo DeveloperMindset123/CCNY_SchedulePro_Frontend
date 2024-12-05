@@ -69,3 +69,7 @@ pnpm.lock
 .hintrc
 .node-version
 **/myenv
+
+
+server/Cargo.lock
+server/target
