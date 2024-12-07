@@ -4,42 +4,21 @@ extern crate rocket;
 use rocket::form::Form;
 use std::option::Option;
 use rocket::form::FromForm;
-use rocket::serde::json::{Json, Value};
+use rocket::serde::json::Value;
+use rocket::serde::{Deserialize, Serialize, json::Json};
 use rocket::fs::{relative, FileServer};
 use rocket::response::stream::{Event, EventStream};
-use rocket::serde::{Deserialize, Serialize, json};
+// use rocket::serde::{Deserialize, Serialize, json};
 use rocket::tokio::sync::broadcast::{channel, error::RecvError, Sender};
 use rocket::{Shutdown, State};
 use rocket::tokio::select;
+// use rocket::request::Form;
 // @see https://www.youtube.com/watch?v=Alyr-JN2pdQ&t=214s --> refernece video
 // library to make server side API calls using reqwest
 use reqwest::Client;
 
-/// @see https://api.rocket.rs/v0.4/rocket/attr.post --> explains in-depth how routing logic works
-///
-/// Note the following in rust
-///
-/// &str : use for immutable strings, since reference strings CANNOT be modified
-///
-/// String : use for mutable strings, since owned strings CAN be modified
-///
-/// @Shutdown : manually closes down the server (according to the docs, in a "graceful manner")
-///
-/// Potential implemenation logic
-/// one api endpoint for sending
-/// The room number needs to be generated on the frontend side
-/// while packet is being constructed
-/// the list of currently open channels needs to be stored in a hashset
-///
-///
-/// and we need to search and check if the newly generated room number already exists within the hashset, if so, we need to generate a new room number. (@see https://api.rocket.rs/v0.5/rocket_ws/struct.WebSocket#method.channel --> explains how potential websocket can be implemented)
-///
-/// the source and destination should be connected via socket ports --> websocket portion of rocket will handle this
-///
-/// we will need to register the sockets via the room two distinct users are occupying
-/// we will need to setup websocket based communication.
-///
-/// derive provides basic behavior for traits
+mod utils;
+
 #[derive(Debug, Clone, FromForm, Serialize, Deserialize)]
 #[cfg_attr(test, derive(PartialEq, UriDisplayQuery))]
 #[serde(crate = "rocket::serde")]
@@ -55,12 +34,37 @@ struct Message {
     pub message: String,
 }
 
-/// this is just an example code
-/// Go to http://localhost:8000, and this message will be displayed
-/// TODO : Remove later once basic functionality has been implemented
-#[get("/")]
-fn hello() -> &'static str {
-    "This is the basic API route"
+#[derive(Deserialize, Debug)]
+#[serde(crate = "rocket::serde")]
+struct Task<'r> {
+    desciption : &'r str,
+    complete: bool
+}
+// handler function name
+// MUST match the name of the api route
+
+/// note the following is how the API call needs to be made
+/// POST http://localhost:8000/chat/todo
+/// Content-Type:application/json
+//  pass in payload
+/// { "desciption" : "Some random description", "complete" : true }
+/// we need to wrap the struct around Json so that it can take in
+#[post("/todo", data = "<task>")]
+fn new(task : Json<Task<'_>>) {
+  // outputs the following when I print it out:
+
+// creates a wrapper around the struct that is Json type
+//   Json(
+//     Task {
+//         desciption: "Some random description",
+//         complete: true,
+//     },
+// )
+    println!("{:#?}", &task);
+    utils::get_datatype(&task);
+    // let unwrap_data = json::to_string(&task).unwrap();
+    // println!("{:?}", unwrap_data);
+
 }
 
 #[get("/dynamic_endpoint/<placeholder1>/<placeholder2>?<msg>&<msg2>")]
@@ -99,30 +103,6 @@ async fn events(reciever : &str, queue : &State<Sender<Message>>, mut end : Shut
 // #[derive()] is used to attach specific implementation of traits in rust (default definition, can be modified as needed)
 // Debug : allows us to print this struct out via console
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(crate="rocket::serde")]
-struct User {
-    id : u8,
-    name : String,
-}
-
-// pass in the struct as the data
-// first test with basic api endpoint
-// because the goal is to return json data
-// the return datatype needs to be wrapped around Json(data)
-// example code to show how data can be returned in json format
-#[get("/users")]
-fn user() -> Json<User> {
-  let data = User {
-    id : 4,
-    name : "Ayan".to_string()
-  };
-
-  let string = json::to_string(&data).unwrap();
-  let data : User = json::from_str(&string).unwrap();
-  println!("{:?}", data);
-  Json(data)
-}
 
 
 // NOTE : we may need to wrap this around a JSON instead of Form
@@ -168,7 +148,7 @@ fn rocket() -> _ {
     // regarding each of the functions corresponding to the routes
     // "/chat" specifies the base url
     // in this case, that would be http://localhost:8000/chat/message_send for example --> this post method will contain the JSON data as the payload.
-    rocket::build().manage(channel::<Message>(1024).0).mount("/chat", routes![post, events, shutdown, hello, user])
+    rocket::build().manage(channel::<Message>(1024).0).mount("/chat", routes![post, events, shutdown, new])
 }
 
 

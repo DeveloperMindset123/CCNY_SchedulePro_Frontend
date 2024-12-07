@@ -1,4 +1,9 @@
-GET http://localhost:8000/chat/users
+POST http://localhost:8000/chat/todo
+Content-Type:application/json
+
+{
+  "desciption" : "Some random description", "complete" : true
+}
 
 //
 # struct Message {
