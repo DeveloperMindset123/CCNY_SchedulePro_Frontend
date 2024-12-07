@@ -1,4 +1,4 @@
-GET http://localhost:8000/chat/users/6
+GET http://localhost:8000/chat/users
 
 //
 # struct Message {

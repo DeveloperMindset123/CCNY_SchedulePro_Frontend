@@ -2,14 +2,18 @@
 extern crate rocket;
 /// https://api.rocket.rs/v0.5/rocket/form/struct.Form
 use rocket::form::Form;
+use std::option::Option;
 use rocket::form::FromForm;
-use rocket::serde::json::Json;
+use rocket::serde::json::{Json, Value};
 use rocket::fs::{relative, FileServer};
 use rocket::response::stream::{Event, EventStream};
-use rocket::serde::{Deserialize, Serialize};
+use rocket::serde::{Deserialize, Serialize, json};
 use rocket::tokio::sync::broadcast::{channel, error::RecvError, Sender};
 use rocket::{Shutdown, State};
 use rocket::tokio::select;
+// @see https://www.youtube.com/watch?v=Alyr-JN2pdQ&t=214s --> refernece video
+// library to make server side API calls using reqwest
+use reqwest::Client;
 
 /// @see https://api.rocket.rs/v0.4/rocket/attr.post --> explains in-depth how routing logic works
 ///
@@ -34,36 +38,17 @@ use rocket::tokio::select;
 ///
 /// we will need to register the sockets via the room two distinct users are occupying
 /// we will need to setup websocket based communication.
-/// example of how a "get" router will be defined
-/// define the structure of the message
+///
+/// derive provides basic behavior for traits
 #[derive(Debug, Clone, FromForm, Serialize, Deserialize)]
 #[cfg_attr(test, derive(PartialEq, UriDisplayQuery))]
 #[serde(crate = "rocket::serde")]
-
-/// NOTE
-/// when we broadcast the message
-/// we will look for the subscriber whose room value matches the current broadcast
-/// the room will be attached via a hashmap
-/// the hashmap will contain the key as the room number
-/// and the value as the (sender, reciever) in the form of tuples
-/// when initiating conversation
 struct Message {
     // @see https://api.rocket.rs/master/rocket/form/validate/fn.len
-    //
-    // this is a type of form validator
     #[field(validate = len(1..20))]
-    // chat rooms should be uniquely generated and distinguishable
-    // should be different per user
     pub room: String,
-    // we need a method to distinguish users
     #[field(validate = len(1..50))]
     pub user_email: String,
-    // define the id of the reciever
-    // that should be attached to the message struct
-    // the reciever address will be attached to the message
-    // the sender will also be attached to the address
-    // to help distinguish
-    // a sequence number can also be used to keep track of the current number of message that has been sent
     pub sender : String,
     pub reciever : String,
     pub sequenceNumber : u32,
@@ -78,69 +63,27 @@ fn hello() -> &'static str {
     "This is the basic API route"
 }
 
-/// @see https://api.rocket.rs/v0.5/rocket/struct.Shutdown
-/// Call on this endpoint at the end of each message execution
-///
-/// NOTE : if you want to define api endpoints with queries, note the following syntax below
-/// The syntax also shows how dynamic api placeholder values can be made
-/// "/some_api_endpoint/<dynamicVal1>/<dynamicVal2>?<queryParam1>&<queryParam2>"
-///
-/// For additional reference, see the following link below:
-/// @see https://www.youtube.com/watch?v=2vxvSMkm5Lg&t=433s
-///
-
-// example showing how dynamic api endpoint can be implement
-// also shows how to make query params either required or optional
-// for general reference
-// use &str if no string manipulations needs to be done
-// otherwise use String
-// in this case, msg is required query parameter
-// msg2 is an optional query parameter
-// thus we wrap it around Option wrapper
 #[get("/dynamic_endpoint/<placeholder1>/<placeholder2>?<msg>&<msg2>")]
 fn handle_dynamic_routes(placeholder1: &str, placeholder2: &str, msg: &str, msg2: Option<&str>) {
     // not sure what to implement here at this point
-    println!("{}", placeholder1);
+    // if a parameter is marked as optional using Option
+    // then you must wrap the datatype around using Option<datatype_name>
+    println!("{}, {}, {}, {:?}", placeholder1, placeholder2, msg, Some(msg2));
 }
 
-/// manually shuts down the server side
 #[get("/shudown")]
 fn shutdown(shutdown: Shutdown) -> &'static str {
     shutdown.notify();
     "Shutting down..."
 }
 
-
-/// define the API endpoint for event broadcasting to the particular reciever
-/// the API endpoint will be dynamic
-/// events returns an infinite stream of events
 #[get("/events/<reciever>")]
 async fn events(reciever : &str, queue : &State<Sender<Message>>, mut end : Shutdown) -> EventStream![] {
-    // this will attach a subscriptor
-    // think of broadcast channel as a network
-    // and network is interconnected devices linked together
-    // whereas the subscriptor are the devices within a network
-    // subscriptor wait to recieve messages that has been broadcasted by a certain device
-    // the device broadcast the message and the device(s) that are reigstered as a subscriptor
     let mut rx = queue.subscribe();
     EventStream! {
         loop {
-            // the select! macro in Rust's tokio library allows you to wait on multiple asynchronous operations simultaneously
-
-            // proceeding with the first one that becomes ready
-
-            // allows for us to handle "multiple futures concurrently"
-
-            // what do we mean by "multiple futures concurrently" --> In rust, "futures" are a way to represent values that may not be available yet
             let msg = select! {
-
-                // match in rust is simlar to
-                // switch statement
-                // and instead of case
-                // match contains "arms"
-                // and supports wider range of concepts
                 msg = rx.recv() => match msg {
-                  // in the event that
                     Ok(msg) => msg,
                     Err(RecvError::Closed) => break,
                     Err(RecvError::Lagged(_)) => continue,
@@ -148,39 +91,38 @@ async fn events(reciever : &str, queue : &State<Sender<Message>>, mut end : Shut
                 _ = &mut end => break,
             };
 
-            // returns the message in JSON format
             println!("Message sent successfully!");
             yield Event::json(&msg);
         }
     }
 }
+// #[derive()] is used to attach specific implementation of traits in rust (default definition, can be modified as needed)
+// Debug : allows us to print this struct out via console
 
-// below is a test route to check if the endpoints are working as intended
-#[derive(FromForm)]
-struct User<'r> {
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(crate="rocket::serde")]
+struct User {
     id : u8,
-    name: &'r str,
-    // metadata: Json<Metadata>
+    name : String,
 }
 
-// TESTED and worked
-// implcit type definition to reduce likelihood of errors
-#[get("/users/<id>")]
-fn user(id: u8) {
-  // @see https://stackoverflow.com/questions/63477161/how-can-i-return-json-from-a-rust-rocket-http-endpoint
+// pass in the struct as the data
+// first test with basic api endpoint
+// because the goal is to return json data
+// the return datatype needs to be wrapped around Json(data)
+// example code to show how data can be returned in json format
+#[get("/users")]
+fn user() -> Json<User> {
+  let data = User {
+    id : 4,
+    name : "Ayan".to_string()
+  };
 
-  // following syntax below explains how we can pass data based on structs we have previously defined
-  // performs in-place modification
-  Json(User {
-    id : id,
-    name : "Ayan"
-  });
-  // println!("{:#?}", userData);
-  // return "Success";
+  let string = json::to_string(&data).unwrap();
+  let data : User = json::from_str(&string).unwrap();
+  println!("{:?}", data);
+  Json(data)
 }
-// recieve a message from a form submission and broadcast it to any recievers
-// TODO : broadcast or send directly by first determining the two users within a particular chatroom?
-// the T = Message, where T is a generic type placeholder
 
 
 // NOTE : we may need to wrap this around a JSON instead of Form
@@ -227,4 +169,20 @@ fn rocket() -> _ {
     // "/chat" specifies the base url
     // in this case, that would be http://localhost:8000/chat/message_send for example --> this post method will contain the JSON data as the payload.
     rocket::build().manage(channel::<Message>(1024).0).mount("/chat", routes![post, events, shutdown, hello, user])
+}
+
+
+// define the function we can use to make our api calls
+// 2 parameters accepted
+async fn make_api_calls(client : &Client, apiEndpoint : &str) -> Result<Value, reqwest::Error> {
+  // we can format the url using the format!() macro
+  // the return type will either be successful (Value) or result in an error that will be "containerized"
+  let endpoint_url = format!("http://localhost:8000/{apiEndpoint}");
+  let response = client.get(&endpoint_url).send().await?;
+
+  // convert the response into json data format
+  let result_value = response.json::<Value>().await?;
+  // explicit return
+  Ok(result_value)
+
 }

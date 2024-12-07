@@ -8,3 +8,6 @@ edition = "2021"
 # the JSON feature is not automatically included when it comes to Rust
 rocket = { version = "0.5.1", features = ["json"] }
 rand = "0.8.4"
+# reqwest will be used to make server side API call
+# ensure that the feature is set to ["json"] as well
+reqwest = { version = "0.12", features = ["json"] }
