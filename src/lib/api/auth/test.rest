@@ -7,9 +7,9 @@
 // use this to get information regarding the RMP summary data
 
 GET http://localhost:4000/data/getRMPData
-# GET http://localhost:4000/data/getRMPSummary
+GET http://localhost:4000/data/getRMPSummary
 
 
-# POST http://localhost:4000/data/sendRMPSummary
-# POST http://localhost:4000/data/sendRMPData
+POST http://localhost:4000/data/sendRMPData
+POST http://localhost:4000/data/sendRMPSummary
 

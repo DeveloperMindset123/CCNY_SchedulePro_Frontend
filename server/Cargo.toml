@@ -3,11 +3,14 @@ name = "server"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+
 # library for end-to-end messaging
 # the JSON feature is not automatically included when it comes to Rust
-rocket = { version = "0.5.1", features = ["json"] }
-rand = "0.8.4"
 # reqwest will be used to make server side API call
 # ensure that the feature is set to ["json"] as well
+
+[dependencies]
+rocket = { version = "0.5.1", features = ["json"] }
+rand = "0.8.4"
 reqwest = { version = "0.12", features = ["json"] }
+pretty_assertions = "1.4.1"

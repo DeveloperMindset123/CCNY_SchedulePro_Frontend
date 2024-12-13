@@ -55,12 +55,47 @@ fn user() -> Json<User> {
     // and we don't plan on making any kind of modification to them
     utils::get_datatype(&data); // returns server::User
 
-    let string = json::to_string(&data).unwrap();
-    let my_data: User = json::from_str(&string).unwrap();
+    let string = json::to_string(&data).unwrap(); // similar to JSON.stringify() in js/ts : returns a json string format data
+    let my_data: User = json::from_str(&string).unwrap(); // similar to JSON.parse() in js/ts : converts to actual json object
 
     utils::get_datatype(&string); // returns alloc::string::String (owned string type is what the struct is converted to)
     utils::get_datatype(&my_data); // returns server::User
     println!("{:?}", my_data);
     utils::get_datatype(&Json(&my_data)); // returns rocket::serde::json::Json<&server::User> --> creates a wrapper around the struct
     Json(my_data)
+}
+
+/// example code showing how to pass in json based payload data
+#[derive(Deserialize, Debug)]
+#[serde(crate = "rocket::serde")]
+struct Task<'r> {
+    desciption: &'r str,
+    complete: bool,
+}
+// handler function name
+// MUST match the name of the api route
+
+/// note the following is how the API call needs to be made
+/// POST http://localhost:8000/chat/todo
+/// Content-Type:application/json
+
+/// { "desciption" : "Some random description", "complete" : true }
+/// we need to wrap the struct around Json so that it can take in json data as payload, will be inferred as
+/// example code showing how to pass in json data to a route in rust
+/// Reference link : https://github.com/rwf2/Rocket/blob/v0.5/examples/serialization/src/json.rs
+#[post("/todo", data = "<task>")]
+fn new(task: Json<Task<'_>>) {
+    // outputs the following when I print it out:
+
+    // creates a wrapper around the struct that is Json type
+    //   Json(
+    //     Task {
+    //         desciption: "Some random description",
+    //         complete: true,
+    //     },
+    // )
+    println!("{:#?}", &task);
+    utils::get_datatype(&task);
+    // let unwrap_data = json::to_string(&task).unwrap();
+    // println!("{:?}", unwrap_data);
 }

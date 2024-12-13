@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // url      = "postgresql://ayandas:Emptycomic991!@localhost:5432/CCNY_Schedule_Pro_Backup?schema=public"
 }
 
 model User {
