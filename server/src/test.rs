@@ -91,15 +91,15 @@ use std::ops::Range;
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
-
+use crate::rocket::tokio::io::AsyncReadExt;
 use rocket::http::{ContentType, Status};
 use rocket::http::uri::fmt::{UriDisplay, Query};
 use rocket::local::asynchronous::{Client, LocalResponse};
-
 use rocket::tokio::{sync, join};
 use rocket::tokio::io::{BufReader, AsyncBufReadExt};
 use rocket::serde::json;
 use pretty_assertions::{assert_eq, assert_ne};
+use rocket::serde::json::Json;
 
 use super::*;
 
@@ -184,12 +184,16 @@ async fn messages() {
     assert_eq!(test_messages, received_messages);
 }
 
+/// to check if api calls are successful
+/// simply check is the response.status() and Statis::Ok matches one another
 #[async_test]
 async fn test_shutdown() {
   let client = Client::tracked(rocket()).await.unwrap();
+  let mut s = String::new();
   let response = client.get(uri!(shutdown_custom)).dispatch().await;
-  println!("Response : {:?}", response);
-  // assert_eq!((client.rocket().shutdown().notify()), response);
+
+  utils::get_datatype(&response);
+  assert_eq!(response.status(), Status::Ok);
 }
 // #[async_test]
 // async fn bad_messages() {
