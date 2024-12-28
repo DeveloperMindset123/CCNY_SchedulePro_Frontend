@@ -1,3 +1,5 @@
+// @see https://docs.flyer.chat/react-native/chat-ui/basic-usage --> library for chat UI
+
 import { View, Text, TouchableOpacity, Image, Animated, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import React, { useRef, useEffect, useState } from 'react';
