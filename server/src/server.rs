@@ -7,7 +7,7 @@ use std::collections::{HashMap, HashSet};
 
 /// Not to be confused with the Message struct defined
 ///
-/// Message will be in the form of a string
+/// Message will be in the form of a string since Message is an enum and all it's variant takes in string as a parameter
 /// message that is being passed between 2 or more users
 ///
 /// rtype : response type (my assumption)

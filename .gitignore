@@ -62,7 +62,7 @@ yarn-error.*
 expo-env.d.ts
 # @end expo-cli
 # @see https://www.atlassian.com/git/tutorials/saving-changes/gitignore#git-ignore-patterns
-
+package-lock.json
 **/package-lock.json
 **yarn.lock
 pnpm.lock
@@ -76,5 +76,4 @@ server/target
 
 
 # Added by cargo
-
 /target

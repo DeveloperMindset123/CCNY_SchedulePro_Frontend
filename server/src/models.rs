@@ -19,4 +19,12 @@ pub fn get_all_rooms() {
 }
 
 /// TODO : implement this
-struct NewConversation;
+struct NewConversation {
+  user_id : String,
+  room_id : String,
+  message : String   // originally, the vector of strings is constructed into a single string using the join statement, refer to session.rs to see the implementation logic
+};
+
+pub fn insert_new_conversation(connection_url, conversataion_data : NewConversation) {
+  unimplemented!("Not yet implemented!");
+}

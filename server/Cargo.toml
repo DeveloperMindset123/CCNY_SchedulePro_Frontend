@@ -16,8 +16,10 @@ reqwest = { version = "0.12", features = ["json"] }
 pretty_assertions = "1.4.1"
 actix-files = "0.6.6"
 actix-web = "4"
-actix-web-actors = "4.3.1"                                      # NOTE : deprecation warning
-serde = "1.0.217"
+actix-web-actors = "4.3.1" # NOTE : deprecation warning
+serde = { version = "1.0.217", features = [
+  "derive",
+] } # needed to use the to_string method? (if not, remove it)
 serde_json = "1.0"
 diesel = { version = "2.2.6", features = ["postgres", "r2d2"] }
 actix-cors = "0.7.0"
