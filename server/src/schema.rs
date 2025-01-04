@@ -17,6 +17,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    rooms (id) {
+        id -> Int4,
+        name -> Varchar,
+        last_message -> Nullable<Text>,
+        participant_ids -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         name -> Text,
@@ -36,5 +47,6 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     _prisma_migrations,
+    rooms,
     users,
 );
