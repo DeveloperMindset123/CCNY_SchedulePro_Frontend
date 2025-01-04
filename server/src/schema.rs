@@ -17,6 +17,32 @@ diesel::table! {
 }
 
 diesel::table! {
+    conversations (id) {
+        id -> Int4,
+        room_id -> Text,
+        user_id -> Text,
+        message_content -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    rate_my_professor_data (id) {
+        id -> Int4,
+        department -> Varchar,
+        avg_difficulty -> Numeric,
+        avg_ratings -> Numeric,
+        would_take_again -> Bool,
+        num_ratings -> Nullable<Int4>,
+        comments -> Nullable<Array<Nullable<Text>>>,
+        sentiments_data -> Nullable<Array<Nullable<Json>>>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     rooms (id) {
         id -> Int4,
         name -> Varchar,
@@ -47,6 +73,8 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     _prisma_migrations,
+    conversations,
+    rate_my_professor_data,
     rooms,
     users,
 );
