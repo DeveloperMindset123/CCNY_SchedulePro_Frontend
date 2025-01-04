@@ -21,26 +21,22 @@ use crate::db;
 use crate::server;
 use crate::session;
 
-// mod types;   // not sure if this is neccessary
-use crate::types;
-
-// pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-// pub type Response_Handler = types::Response_Handler;
-
 /// NOTE : this file is corresponding to React rather than react-native
 /// NOTE : NamedFile::open_async file that is being passed in doesn't exist
 /// this may cause error
 /// intended for the purpose of adding a route for embedding the home page to the root URL
 pub async fn index() -> impl Responder {
-  NamedFile::open_async("./static/index.html").await.unwrap();
+  NamedFile::open_async("./static/index.html").await.unwrap()
 }
+
+pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub async fn chat_server(
   req : HttpRequest,
   stream : web::Payload,
-  pool : web::Data<DbPool>,
+  pool : web::Data<PostgresPool>,
   srv : web::Data<Addr<server::ChatServer>>
-) -> types::Response_Handler {
+) -> Result<HttpResponse, Error> {
   ws::start(
     session::WsChatSession {
       id : 0,
@@ -57,7 +53,7 @@ pub async fn chat_server(
 
 // TODO : Implement a route named /users/login
 #[post("/users/login")]
-pub async fn login_user(form : web::Json<models::RegisteredUser>) -> types::Response_Handler {
+pub async fn login_user(form : web::Json<models::RegisteredUser>) -> Result<HttpResponse, Error> {
   // javascript equivalent of Throew New Error("not yet implemented");
   unimplemented!("Not yet implemented");
 
@@ -66,13 +62,13 @@ pub async fn login_user(form : web::Json<models::RegisteredUser>) -> types::Resp
 /// route for authentication/user registration
 #[post("/users/create")]
 pub async fn create_user(
-  pool : web::Data<DbPool>,
+  pool : web::Data<PostgresPool>,
 
   // this is where the request body is coming from
   // refer to models.rs to see the schema implementation of NewUser
   // NewUser should be a serializable,deserializable struct to be passed in as payload
   form : web::Json<models::NewUser>
-) -> types::Response_Handler {
+) -> Result<HttpResponse, Error> {
   let user = web::block(move || {
     let mut conn = pool.get()?;
 
@@ -90,13 +86,13 @@ Ok(HttpResponse::Ok().json(user))   // successful request will return the JSON f
 /// function to retrieve information about an user given their id
 #[get("/users/{user_id}")]
 pub async fn get_user_by_id(
-  // web::Data<DbPool> : Application data wrapper and extractor that extracts data within DbPool
-  pool : web::Data<DbPool>,
+  // web::Data<PostgresPool> : Application data wrapper and extractor that extracts data within PostgresPool
+  pool : web::Data<PostgresPool>,
 
   // web::Path<Uuid> : Extracts Uuid from a path using serde
   // web::block : executes blocking function (something to do with threads sequence of execution)
   id : web::Path<Uuid>
-) -> types::Response_Handler {
+) -> Result<HttpResponse, Error> {
   let user_id = id.to_owned();
 
   // transfers ownership. captures closure environment
@@ -130,9 +126,9 @@ pub async fn get_user_by_id(
 /// TODO : update the .services method within main.rs
 #[get("/users/email/{email_address}")]
 pub async fn get_user_by_email(
-  pool : web::Data<DbPool>,
+  pool : web::Data<PostgresPool>,
   email : web::Path<String>,
-) -> types::Response_Handler {
+) -> Result<HttpResponse, Error> {
   let user_email = email.to_owned();    // originally email.to_string()
 
   // captures a closure's environment by value
@@ -142,7 +138,7 @@ pub async fn get_user_by_email(
     let mut conn = pool.get()?;
 
     // TODO : remove later --> primarily for debugging purposes
-    println!("The current conn is {:?}", conn);
+    // println!("The current conn is {:?}", conn);  # Debug attribute not implemented
     db::find_user_by_email(&mut conn, user_email);    // takes in 2 params : the database connection, and the user_email for implementing the filtering logic
   }).await?.map_err(actix_web::error::ErrorInternalServerError)?;
 
@@ -162,14 +158,16 @@ pub async fn get_user_by_email(
   }
 
 }
+
+// TODO : fix this
 /// function that attempts to retrieve conversation history
 /// given a particular room/user id (not entirely sure)
 /// actix_web::error::ErrorInternalServerError : helper function to wrap the errors and instead generating "INTERNAL_SERVER_ERROR" response instead
 #[get("/conversations/{uid}")]
 pub async fn get_conversation_by_id(
-  pool : web::Data<DbPool>,
+  pool : web::Data<PostgresPool>,
   uid : web::Path<Uuid>,
-) -> types::Response_Handler {
+) -> Result<HttpResponse, Error> {
   let room_id = uid.to_owned();
 
   // define conversations as a closure
@@ -194,8 +192,8 @@ pub async fn get_conversation_by_id(
 
 #[get("/rooms")]
 pub async fn get_rooms(
-  pool : web::Data<DbPool>
-) -> types::Response_Handler {
+  pool : web::Data<PostgresPool>
+) -> Result<HttpResponse, Error> {
 
   // map_err : is used to transform one type of error to another
   let rooms = web::block(move || {
@@ -206,7 +204,7 @@ pub async fn get_rooms(
   .map_err(actix_web::error::ErrorInternalServerError)?;
 
   // conditional checking if currently rooms are available
-  if !room.is_empty() {
+  if !rooms.is_empty() {
     Ok(HttpResponse::Ok().json(rooms))
   } else {
     let res = HttpResponse::NotFound().body(

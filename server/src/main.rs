@@ -10,7 +10,7 @@ use actix_files::Files;
 use actix_web::{http, web, App, HttpServer};
 use diesel::{
     prelude::*,
-    r2d2::{self, ConnectionManager},
+    r2d2::{self, ConnectionManager, Pool},
 };
 use diesel::pg::PgConnection;   // neccessary to connect with postgres
 use std::env;   // module to load relevant environmental variables
@@ -36,10 +36,10 @@ pub async fn get_pool() -> PostgresPool {
 /// the original format is std::io::Result<T> where T is a placeholder for the return datatype
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-  let server = server::ChatServer::new().start;
+  let server = server::ChatServer::new().start();
   let server_addr = "127.0.0.1";
   let server_port = "8080";
-  let pool = get_pool().await
+  let pool = get_pool().await;
   let app = HttpServer::new(move || {
 
     // Cors::default() : creates a blank, restrictive builder, which can then be customized using the builder methods (such as allowed_origin, allow_any_origin, allow_any_method, etc.)
@@ -50,9 +50,10 @@ async fn main() -> std::io::Result<()> {
     // the routes can be found within routes.rs file
     // NOTE : routes::create_user should instead be re-written for authentication and registering user
     App::new().app_data(web::Data::new(server.clone())).app_data(web::Data::new(pool.clone())).wrap(cors).service("/ws", web::get().to(routes::chat_server)).service(routes::create_user).service(routes::get_user_by_id).service(routes::get_user_by_email).service(routes::get_conversation_by_id).service(routes::get_rooms).service(routes::login_user).service(Files::new("/", "/.static"))
-  }).workers(2).bind({server_addr, server_port})?.run();
+  }).workers(2).bind([server_addr, server_port])?.run();
   println!("Server running at http://{server_addr}:{server_port}/");
 
   // closure
-  app.await();
+  app().await;
 }
+

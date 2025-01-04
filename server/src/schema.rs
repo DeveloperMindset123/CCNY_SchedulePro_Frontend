@@ -1,22 +1,6 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    _prisma_migrations (id) {
-        #[max_length = 36]
-        id -> Varchar,
-        #[max_length = 64]
-        checksum -> Varchar,
-        finished_at -> Nullable<Timestamptz>,
-        #[max_length = 255]
-        migration_name -> Varchar,
-        logs -> Nullable<Text>,
-        rolled_back_at -> Nullable<Timestamptz>,
-        started_at -> Timestamptz,
-        applied_steps_count -> Int4,
-    }
-}
-
-diesel::table! {
     conversations (id) {
         id -> Int4,
         room_id -> Text,
@@ -24,6 +8,15 @@ diesel::table! {
         message_content -> Text,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    messaging_user (id) {
+        id -> Int4,
+        username -> Text,
+        email -> Text,
+        created_at -> Timestamp,
     }
 }
 
@@ -56,24 +49,24 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Int4,
-        name -> Text,
-        email -> Nullable<Text>,
-        password -> Nullable<Varchar>,
-        gender -> Nullable<Varchar>,
-        date_of_birth -> Nullable<Date>,
-        pronouns -> Nullable<Varchar>,
-        major -> Nullable<Varchar>,
+        user_name -> Text,
+        email -> Text,
+        user_password -> Varchar,
+        gender -> Varchar,
+        date_of_birth -> Date,
+        pronouns -> Varchar,
+        major -> Varchar,
         hobbies -> Nullable<Array<Nullable<Text>>>,
-        college_year -> Nullable<Int4>,
-        degree_type -> Nullable<Varchar>,
+        college_year -> Int4,
+        degree_type -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
-    _prisma_migrations,
     conversations,
+    messaging_user,
     rate_my_professor_data,
     rooms,
     users,

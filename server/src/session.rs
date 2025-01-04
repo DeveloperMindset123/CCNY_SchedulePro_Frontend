@@ -21,24 +21,22 @@ use diesel::{
 use crate::db;
 use crate::models::NewConversation;
 use crate::server;
-use crate::types;
+use crate::session::ChatType::DISCONNECT;
 
-/// the websocket connection can be modified here
-const HEARTBEAT : Duration = Duration::from_secs(5);    // 5 seconds
-const CLIENT_TIMEOUT : Duration = Duration::from_secs(10);  // 10 seconds
+const HEARTBEAT : Duration = Duration::from_secs(5);
+const CLIENT_TIMEOUT : Duration = Duration::from_secs(10);
 
-// type already exists within types::PostgresPool
-// type dbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+type dbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 /// WsChatSession : makes a custom implementation of the actix_web_actor
-#[derive(debug)]  // ensures the struct can be printed out for debugging purposes
+#[derive(Debug)]  // ensures the struct can be printed out for debugging purposes
 pub struct WsChatSession {
   pub id : usize,
   pub hb : Instant,
   pub room : String,
   pub name : Option<String>,  // name can be String or None
   pub addr : Addr<server::ChatServer>,
-  pub db_pool : web::Data<types::PostgresPool>,
+  pub db_pool : web::Data<PostgresPool>,
 }
 
 /// eq checks for complete equivalency
@@ -66,7 +64,7 @@ struct ChatMessage {
 /// refer to the rust playground to see worked out examples of how the actor trait
 /// from actix::prelude::Actor works
 impl Actor for WsChatSession {
-  type Context = ws::WebSocketContext<Self>;
+  type Context = ws::WebsocketContext<Self>;
 
   // event 1 for keeping track of when this websocket starts
   fn started(&mut self, ctx : &mut Self::Context) {
@@ -243,14 +241,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
 // define the methods relevant to WsChatSession struct defined previously : polymorphism
 // hb is a method that can be accessed after the struct has been instantiated and bounded to a variable
 impl WsChatSession {
-  fn hb(&self, ctx : &mut ws::WebSocketContext<Self>) {
+  fn hb(&self, ctx : &mut ws::WebsocketContext<Self>) {
 
     // TODO : find out where act is coming from
     ctx.run_interval(HEARTBEAT, |act, ctx| {
       if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT  {
 
         // disconnect if client timeout limit is smaller than the time since the socket has been opened and no message has been recieved
-        act.addr.do_send(server::DISCONNECT {
+        act.addr.do_send(server::Disconnect {
           id : act.id
         });
         ctx.stop();
