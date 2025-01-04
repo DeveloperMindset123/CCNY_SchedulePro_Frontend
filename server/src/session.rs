@@ -90,8 +90,6 @@ impl Actor for WsChatSession {
   // event 2 for keeping track of when this websocket stops
   // Running is an enum variant that comes from ActorState, there's 4 different available : [Started, Running, Stopping, Stopped]
   fn stopping(&mut self, _ : &mut Self::Context) -> Running {
-
-
     // NOTE : server::Disconnect comes from server.rs, which is a struct encapsulated by #[derive(Message,Debug)]
     self.addr.do_send(server::Disconnect { id : self.id });
     Running::Stop
@@ -263,4 +261,3 @@ impl WsChatSession {
     });
   }
 }
-
