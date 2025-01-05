@@ -26,7 +26,7 @@ use crate::session::ChatType::DISCONNECT;
 const HEARTBEAT : Duration = Duration::from_secs(5);
 const CLIENT_TIMEOUT : Duration = Duration::from_secs(10);
 
-type dbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 /// WsChatSession : makes a custom implementation of the actix_web_actor
 #[derive(Debug)]  // ensures the struct can be printed out for debugging purposes

@@ -94,7 +94,7 @@ impl ChatServer {
         //
         // if so, send the message
         if let Some(sessions) = self.rooms.get(room) {
-            for id in session {
+            for id in sessions {
               // *id : references id
                 if *id != skip_id {
                     if let Some(addr) = self.sessions.get(id) {
@@ -157,7 +157,8 @@ impl Handler<Disconnect> for ChatServer {
 
         if self.sessions.remove(&msg.id).is_some() {
             for (name, sessions) in &mut self.rooms {
-                if self.sessions.remove(&msg.id) {
+                // println!("{:?}", &msg.id);
+                if self.sessions.remove(&msg.id).is_some() {
                     rooms.push(name.to_owned());
                 }
             }
@@ -233,6 +234,6 @@ impl Handler<Join> for ChatServer {
         self.rooms
             .entry(name.clone())
             .or_insert_with(HashSet::new)
-            .insert(id)
+            .insert(id);
     }
 }
