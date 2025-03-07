@@ -8,7 +8,7 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import { CloudUpload } from 'lucide-react-native';
-
+import { useRoute } from '@react-navigation/native';
 /**
  * @purpose TODO : Remove this line later --> purpose is to note down anything relevant to the file here
  * @see https://blog.logrocket.com/using-react-usestate-object/
@@ -20,6 +20,13 @@ import { CloudUpload } from 'lucide-react-native';
  * */
 
 const OnboardingScreen1: React.FC = () => {
+  const route = useRoute();
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
+  console.log(route.params.apiPayload.email);
+  console.log(route.params.apiPayload.password);
+
   const classTypesRow1 = [
     {
       id: 1,

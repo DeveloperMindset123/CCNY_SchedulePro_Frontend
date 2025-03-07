@@ -193,7 +193,9 @@ import {
   TouchableWithoutFeedback,
   Animated,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
+// TODO : implement logic for passing data inbetween screens (should be starting from the signup screen to the 3rd onboarding screen where all relevant user information will be collected)
 // custom hook to retrieve the height and width of the current device
 // function wrapper around useWindowDimension() hook that comes from react-native
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
@@ -217,6 +219,7 @@ export const TextInputComponent = () => {
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [passwordMatch, setPasswordMatch] = useState(false);
+  const navigation = useNavigation();
 
   const handleEmailInput = (text: any) => {
     setEmailInput(text);
@@ -230,13 +233,14 @@ export const TextInputComponent = () => {
     setConfirmPasswordInput(text);
   };
 
-  // api data that needs to be included when logging in an user
+  // data that needs to be included for as part of retrieving information about a particular user
   const apiPayload = {
     email: emailInput,
     password: passwordInput,
   };
 
-  const passwordValidation = (str) => {
+  // Function to make sure that password meets all the relevant requirements
+  const passwordValidation = (str: string) => {
     const hasUpperCase = /[A-Z]/.test(str);
     const hasLowerCase = /[a-z]/.test(str);
     const hasNumber = /[0-9]/.test(str);
@@ -274,7 +278,10 @@ export const TextInputComponent = () => {
     });
 
     // For testing purposes
-    router.push('/onboarding1');
+    // router.push('/onboarding1');
+
+    // replaced with useNavigation hook instead
+    navigation.navigate('onboarding1', { apiPayload });
 
     // Uncomment for actual API implementation
     /*
