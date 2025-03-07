@@ -7,25 +7,22 @@ import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
-import { CloudUpload } from 'lucide-react-native';
+import { ChevronsDownUp, CloudUpload } from 'lucide-react-native';
 import { useRoute } from '@react-navigation/native';
-/**
- * @purpose TODO : Remove this line later --> purpose is to note down anything relevant to the file here
- * @see https://blog.logrocket.com/using-react-usestate-object/
- * @detail the above link explains how to use object within useState hooks
- * @Image requires a height and width value to render using style
- * @Detail cannot use tailwindcss here
- * @TODO : refer to the reistrationDetails schema to determine the type of information to retrieve on the onboarding screen, may need to remove the skip button because the informaiton is mandatory
- * @TODO Needs to be fixed for smaller phone screen, right now it only seems to match for iphone 15
- * */
+import { comparePassword } from '@/utils/passwordHash';
+import { compare } from 'bcrypt-ts';
 
 const OnboardingScreen1: React.FC = () => {
   const route = useRoute();
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  console.log(route.params.apiPayload.email);
-  console.log(route.params.apiPayload.password);
+  // TODO : remove these console.log statements (they we used for testing)
+  if (comparePassword('Fullcomic991!', route.params.apiPayload.password) == true) {
+    console.log('THE PASSWORDS MATCH');
+  } else {
+    console.log("THE PASSWORDS DON'T MATCH");
+  }
 
   const classTypesRow1 = [
     {

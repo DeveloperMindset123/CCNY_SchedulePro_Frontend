@@ -208,15 +208,17 @@ import Toast from 'react-native-toast-message';
 
 // Signup button component
 import { SignupButton } from '../signupButton';
+// import { hashPassword } from '@/utils/passwordHash';
+import { hashPassword } from '@/utils/passwordHash';
 
 export const TextInputComponent = () => {
   // returns 4 values in total in the form of an object
   // this syntax can help retrieve the first 2 properties of the object
   const { width, height } = getWindowDimensions();
-
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [passwordMatch, setPasswordMatch] = useState(false);
   const navigation = useNavigation();
@@ -233,10 +235,11 @@ export const TextInputComponent = () => {
     setConfirmPasswordInput(text);
   };
 
+  // const test_password_match = async;
   // data that needs to be included for as part of retrieving information about a particular user
   const apiPayload = {
     email: emailInput,
-    password: passwordInput,
+    password: hashPassword(passwordInput),
   };
 
   // Function to make sure that password meets all the relevant requirements
