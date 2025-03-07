@@ -13,10 +13,11 @@
     "build android": "eas build --platform android",
     "build": "eas build --platform all",
     "build and view log": "eas build:list",
+    "prisma_migrate": "npx prisma migrate dev",
     "prisma_push": "npx prisma db push",
     "prisma_pull": "npx prisma db pull",
     "prisma_validate": "npx prisma validate",
-    "prisma_version": "npx prisma version",
+    "–prisma_version": "npx prisma version",
     "prisma_debug": "npx prisma debug"
   },
   "dependencies": {
@@ -73,6 +74,7 @@
     "react-native-awesome-slider": "^2.5.3",
     "react-native-bouncy-checkbox": "^4.1.2",
     "react-native-calendars": "^1.1307.0",
+    "react-native-crypto": "^2.2.0",
     "react-native-element-dropdown": "^2.12.2",
     "react-native-gesture-handler": "2.16.1",
     "react-native-pager-view": "6.3.0",

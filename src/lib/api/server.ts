@@ -52,9 +52,10 @@ app.get('/test', (req, res) => {
 //     }
 //   });
 // };
-app.listen('4001', async () => {
+app.listen('4000', async () => {
   //await sendSummaryAndCommentsToDatabase();
   // await searchDatabase('Micheal Grove', 'English');
   // await sendRMPDataToDataBase(scraped_comments);
   // await sendRMPSummarySentiment(scraped_comments);
+  console.log('Server connected to PORT 4000');
 });

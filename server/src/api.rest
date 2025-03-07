@@ -1,0 +1,7 @@
+POST http://localhost:8000/chat/message_send
+Content-Type:application/json
+
+{
+  "desciption" : "Some random description", "complete" : true
+}
+
