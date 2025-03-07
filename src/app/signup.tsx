@@ -329,11 +329,12 @@ const Register = () => {
         contentContainerStyle={{ flex: 1 }}
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 70}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="handled" // NOTE : if this is set to "never", signup button fails to work
+          scrollEnabled={false} // statically set to false since if enable, it allows content to go outside of screen, bad user experience
         >
           <Animated.View
             style={[
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   compactContent: {
-    paddingTop: 20,
+    paddingTop: 10,
     justifyContent: 'flex-start',
   },
   titleText: {
