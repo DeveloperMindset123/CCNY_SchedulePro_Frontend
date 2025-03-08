@@ -4,6 +4,7 @@ import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
+import { useRoute } from '@react-navigation/native';
 
 const OnboardingScreen2 = () => {
   // ! Majors should not be hardcoded
@@ -232,47 +233,54 @@ const OnboardingScreen2 = () => {
     major: selectedMajor,
   };
 
+  const route = useRoute();
+  console.log(`query params : ${JSON.stringify(route.params.apiPayloadExtended)}`);
+
   // API data
-  const sendOnboarding_screen2Data = () => {
-    fetch('http://localhost:4001/onboarding/onboarding2Data', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify(degreeAndMajorFormData),
-    }).then((res) => {
-      if (res.ok || res.status === 200) {
-        console.log('Data Sent Successfully');
-        console.log(`Response Status : ${res.status}`);
-        return router.push('/onboarding3');
-      } else {
-        if (res.status === 404) {
-          console.log('There was an issue sending your data');
-        }
-      }
-    });
-  };
+  // Old code, api data should not be sent at this point of the code, only the shared data from the previous two screens alongside the new data that has been collected should be sent
+  // const sendOnboarding_screen2Data = () => {
+  //   fetch('http://localhost:4001/onboarding/onboarding2Data', {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     method: 'POST',
+  //     body: JSON.stringify(degreeAndMajorFormData),
+  //   }).then((res) => {
+  //     if (res.ok || res.status === 200) {
+  //       console.log('Data Sent Successfully');
+  //       console.log(`Response Status : ${res.status}`);
+  //       return router.push('/onboarding3');
+  //     } else {
+  //       if (res.status === 404) {
+  //         console.log('There was an issue sending your data');
+  //       }
+  //     }
+  //   });
+  // };
 
   // TODO : wrap this around view component from before
   // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
   return (
-    <View className="flex-1 bg-black p-10">
-      <View className="flex-row justify-between items-center mb-10">
+    // NOTE : changed p-10 -> px-10 since the positioning of the values needs to be the same
+    <View className="flex-1 bg-black px-10">
+      <View className="flex-row justify-between items-center mb-3">
         <View className="flex-1" />
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
         <View className="w-20 h-2 rounded-sm overflow-hidden">
+          {/** height full ensures that the gray is display for 1/2 of the bar */}
           <View className="w-1/2 h-full bg-[#888]" />
         </View>
       </View>
-      <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
+      <Text className="text-white text-lg mb-2">Which of these majors suit you best?</Text>
       <View className="rounded-2xl text-white">
-        <Text className="text-gray-400 text-sm text-left">
+        <Text className="text-gray-400 text-sm text-left mb-2">
           Please Select Your Degree Type and Major
         </Text>
         <Picker
           itemStyle={{
             color: 'white',
+            height: 130,
           }}
           selectedValue={selectedDegree}
           onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}

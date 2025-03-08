@@ -8,9 +8,9 @@ import { Slider } from 'react-native-awesome-slider';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { Select, SelectProvider } from '@mobile-reality/react-native-select-pro';
 /**
- *   @TODO_1 : wrap the textInput components around a map component as before as well
+ * @TODO_1 : wrap the textInput components around a map component as before as well
  * @TODO_2 :
  * @input1 First name --> basic input box should suffice
  * @input2 last Name --> basic input box should suffice
@@ -26,8 +26,10 @@ const OnboardingScreen3: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [studentYear, setStudentYear] = useState<number>(8);
-  const [currentPronounDropdownValue, setCurrentPronounDropdownValue] = useState<any>(null);
+  const [currentPronounDropdownValue, setCurrentPronounDropdownValue] = useState('');
+  const [currentPronounFocus, setCurrentPronounFocus] = useState(false); // experimental hook
   const [currentGenderDropdownValue, setCurrentGendeDropdownValue] = useState('');
+  const [currentGenderFocus, setCurrentGenderFocus] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
 
   const firstNamePlaceholder = useRef('First Name...');
@@ -48,22 +50,42 @@ const OnboardingScreen3: React.FC = () => {
   };
 
   const pronounDropDownData = [
-    { label: 'he/him', value: '1' },
-    { label: 'she/her', value: '2' },
-    { label: 'they/them', value: '3' },
-    { label: 'he/they', value: '4' },
-    { label: 'she/they', value: '5' },
-    { label: 'he/she/they', value: '6' },
-    { label: 'any/all pronouns', value: '7' },
-    { label: 'other/custom pronouns', value: '8' },
+    { label: 'he/him', value: '1', search: 'he/him' },
+    { label: 'she/her', value: '2', search: 'she/her' },
+    { label: 'they/them', value: '3', search: 'they/them' },
+    { label: 'he/they', value: '4', search: 'he/they' },
+    { label: 'she/they', value: '5', search: 'she/they' },
+    { label: 'he/she/they', value: '6', search: 'he/she/they' },
+    { label: 'any/all pronouns', value: '7', search: 'any/all pronouns' },
+    { label: 'other/custom pronouns', value: '8', search: 'other/custom pronouns' },
   ];
 
   const genderDropDownData = [
-    { label: 'male', value: '1' },
-    { label: 'female', value: '2' },
-    { label: 'non-binary', value: '3' },
-    { label: 'transgender', value: '4' },
-    { label: 'Prefer Not To Say', value: '5' },
+    { label: 'male', value: '1', search: 'male' },
+    { label: 'female', value: '2', search: 'female' },
+    { label: 'non-binary', value: '3', search: 'non-binary' },
+    { label: 'transgender', value: '4', search: 'transgender' },
+    { label: 'Prefer Not To Say', value: '5', search: 'Prefer Not To Say' },
+  ];
+
+  // experimental code to test a different dropdown menu
+  const data = [
+    {
+      label: 'Option 1',
+      value: 'option1',
+    },
+    {
+      label: 'Option 2',
+      value: 'option2',
+    },
+    {
+      label: 'Option 3',
+      value: 'option3',
+    },
+    {
+      label: 'Option 4',
+      value: 'option4',
+    },
   ];
 
   const renderItem = (item: any) => {
@@ -72,11 +94,25 @@ const OnboardingScreen3: React.FC = () => {
         <Text className="pl-8 font-serif" style={styles.textItem}>
           {item.label}
         </Text>
-        {item.value === currentPronounDropdownValue && (
+        {/**This is what is causing the potential error with the values not rendering as it should
+         *
+         * error was occuring here since the comparison check wasn't originally working due to mismatch of comparison that was being done
+         */}
+        {item.label === currentPronounDropdownValue && (
           <AntDesign style={styles.icon} color="black" name="checkcircle" />
         )}
       </View>
     );
+  };
+
+  // This code has been taken from the dropdown example
+  const renderLabel = () => {
+    if (currentPronounDropdownValue || currentPronounFocus) {
+      return (
+        <Text style={[styles.label, currentPronounFocus && { color: 'blue' }]}>Dropdown label</Text>
+      );
+    }
+    return null;
   };
 
   const collectedData = {
@@ -93,28 +129,34 @@ const OnboardingScreen3: React.FC = () => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const sendOnboarding_screen3Data = () => {
-    fetch('http://localhost:4001/onboarding/onboarding3Data', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify(collectedData),
-    }).then((res) => {
-      if (res.ok || res.status === 200) {
-        console.log('Data Sent Successfully');
-        console.log(`Response Status : ${res.status}`);
-        return router.push('/(root)/(tabs)/(index)/');
-      } else {
-        if (res.status === 400) {
-          console.log('There was an error sending your data');
-        }
-      }
-    });
-  };
+  // upon clicking proceed at this point, all the information collected from the user should be passed.
+  // const sendOnboarding_screen3Data = () => {
+  //   fetch('http://localhost:4001/onboarding/onboarding3Data', {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     method: 'POST',
+  //     body: JSON.stringify(collectedData),
+  //   }).then((res) => {
+  //     if (res.ok || res.status === 200) {
+  //       console.log('Data Sent Successfully');
+  //       console.log(`Response Status : ${res.status}`);
+  //       return router.push('/(root)/(tabs)/(index)/');
+  //     } else {
+  //       if (res.status === 400) {
+  //         console.log('There was an error sending your data');
+  //       }
+  //     }
+  //   });
+  // };
 
+  // test to check if the changes being made to the dropdown are being detected or not
+  console.log(currentPronounDropdownValue);
+  console.log(currentGenderDropdownValue);
+
+  // TODO : set the focus logic as well for the second dropdown (aka the gender dropdown)
   return (
-    <View className="bg-black flex-1 p-10">
+    <View className="bg-black flex-1 px-2">
       <View className="flex-row justify-between items-center mb-2">
         <View className="flex-1" />
         <View className="flex-row items-center" />
@@ -123,11 +165,9 @@ const OnboardingScreen3: React.FC = () => {
           <View className="w-full h-full bg-[#888]" />
         </View>
       </View>
-      <Text className="text-white text-xl mx-auto content-center mt-5 font-sans">
-        Last Step 🥳! Please fill out the forms below
-      </Text>
-      <Text className="text-[#999] text-lg font-sans ml-4 mt-4">
-        Please Enter Your First and Last Name
+      <Text className="text-white text-xl content-center mt-2 ml-4 font-sans">Last Step 🥳!</Text>
+      <Text className="text-[#999] text-lg font-sans ml-4 mt-0.5">
+        Please fill out the forms below
       </Text>
       <View className="flex-row py-3 mx-auto context-center">
         <TextInput
@@ -156,7 +196,7 @@ const OnboardingScreen3: React.FC = () => {
           autoCorrect={false}
         />
       </View>
-      <View className="flex-col mx-auto">
+      <View className="flex-col ml-4">
         <Text className="text-[#999] my-1 mb-6 text-lg font-sans">Please Select Your Year</Text>
         <Slider
           // Does not support tailwind
@@ -174,6 +214,8 @@ const OnboardingScreen3: React.FC = () => {
             bubbleBackgroundColor: 'black',
             heartbeatColor: '#999',
           }}
+          steps={1}
+          forceSnapToStep={true}
           progress={progress}
           minimumValue={min}
           maximumValue={max}
@@ -201,6 +243,9 @@ const OnboardingScreen3: React.FC = () => {
         />
       </View>
       <View className="flex-col w-[350px]">
+        {/* {renderLabel()}
+         * displays the name of the label itself, which isn't something I want at the moment.
+         */}
         <Dropdown
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
@@ -210,26 +255,35 @@ const OnboardingScreen3: React.FC = () => {
           data={pronounDropDownData}
           search
           maxHeight={180}
+          // labelField="label"
           labelField="label"
-          placeholder="Select Your Pronouns..."
+          valueField="value"
+          searchField="search"
+          onFocus={() => setCurrentPronounFocus(true)}
+          onBlur={() => setCurrentPronounFocus(false)}
+          // placeholder="Select Your Pronouns..."    // old placeholder, did not update the user selected choices correctly
+          placeholder={currentPronounFocus ? 'Select Your Pronouns' : currentPronounDropdownValue}
           searchPlaceholder="Search..."
           value={currentPronounDropdownValue}
-          onChange={(item) => {
-            // ** changed from value to label
+          onChange={(item: string | any) => {
+            // changed from value to label
             setCurrentPronounDropdownValue(item.label);
+            setCurrentPronounFocus(false);
           }}
           renderLeftIcon={() => (
             <AntDesign
               className="pr-4"
               style={styles.icon}
-              color="black"
+              color={currentPronounFocus ? 'blue' : 'black'}
               name="checkcircle"
               size={20}
             />
           )}
           renderItem={renderItem}
-          valueField="value"
           dropdownPosition="bottom"
+          // onChange={function (): void {
+          //   return;
+          // }}
         />
         <Dropdown
           style={styles.dropdown}
@@ -241,12 +295,19 @@ const OnboardingScreen3: React.FC = () => {
           search
           maxHeight={180}
           labelField="label"
-          placeholder="Select Your Gender..."
+          // placeholder="Select Your Gender..."    // old placeholder
+          placeholder={currentPronounFocus ? 'Select Your Pronouns' : currentGenderDropdownValue}
           searchPlaceholder="Search..."
           value={currentGenderDropdownValue}
-          onChange={(item) => {
+          onChange={(item: any) => {
             setCurrentGendeDropdownValue(item.label);
+            setCurrentGenderFocus(false);
           }}
+          onFocus={() => setCurrentGenderFocus(true)}
+          onBlur={() => setCurrentGenderFocus(false)}
+          // onChangeText={(item: any) => {
+          //   setCurrentGendeDropdownValue(item.label);
+          // }}
           renderLeftIcon={() => (
             <AntDesign
               className="pr-4"
@@ -260,6 +321,9 @@ const OnboardingScreen3: React.FC = () => {
           valueField="value"
           dropdownPosition="top"
         />
+        {/* <SelectProvider>
+          <Select options={data} />
+        </SelectProvider> */}
         <Text>Content 2</Text>
       </View>
       <View className="flex-row space-x-0 mx-10">
@@ -329,5 +393,16 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+
+  // TODO : remove (since it's experimental)
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
   },
 });
