@@ -207,7 +207,8 @@ import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 
 // Signup button component
-import { SignupButton } from '../signupButton';
+// import { SignupButton } from '../customButton';
+import { CustomButton } from '../customButton';
 // import { hashPassword } from '@/utils/passwordHash';
 import { hashPassword } from '@/utils/passwordHash';
 
@@ -359,7 +360,12 @@ export const TextInputComponent = () => {
           />
         ))}
         <View style={styles.buttonContainer}>
-          <SignupButton width={width * 0.9} height={height * 0.06} handleOnPress={handleSignUp} />
+          <CustomButton
+            width={width * 0.9}
+            height={height * 0.06}
+            handleOnPress={handleSignUp}
+            button_content="Sign Up"
+          />
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>
