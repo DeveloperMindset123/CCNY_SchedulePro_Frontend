@@ -4,15 +4,11 @@ import { View, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const OnboardingScreen2 = () => {
   // ! Majors should not be hardcoded
   // !NOTE : .map is a built in method for Arrays, not Objects
-  // TODO : logic for retrieveing from database when screen loads
-  // ? one potential appraoch, have the majors be arranged by the departments
-  // ** For now, majors will be stored in alphabetical order
-  // @see https://github.com/react-native-picker/picker
-  // explains how react-native-picker works
 
   const DegreeType = [
     // ** In this case, we have an array of objects
@@ -224,7 +220,7 @@ const OnboardingScreen2 = () => {
   };
 
   const router = useRouter();
-  const [selectedMajor, setSelectedMjaor] = useState<string>('Not Available');
+  const [selectedMajor, setSelectedMajor] = useState<string>('Not Available');
   const [selectedDegree, setSelectedDegree] = useState<string>('Undecided');
 
   const degreeAndMajorFormData = {
@@ -232,47 +228,72 @@ const OnboardingScreen2 = () => {
     major: selectedMajor,
   };
 
-  // API data
-  const sendOnboarding_screen2Data = () => {
-    fetch('http://localhost:4001/onboarding/onboarding2Data', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify(degreeAndMajorFormData),
-    }).then((res) => {
-      if (res.ok || res.status === 200) {
-        console.log('Data Sent Successfully');
-        console.log(`Response Status : ${res.status}`);
-        return router.push('/onboarding3');
-      } else {
-        if (res.status === 404) {
-          console.log('There was an issue sending your data');
-        }
-      }
-    });
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  // console.log(`query params : ${JSON.stringify(route.params.apiPayloadExtended)}`);
+
+  // create the payload consisting of new data
+  // spread operator to combine the 2 objects
+  const currentScreenData = {
+    ...route.params.apiPayloadExtended,
+    major: selectedMajor,
+    degree: selectedDegree,
   };
+
+  // this has been tested and worked as intended
+  // console.log(currentScreenData);
+
+  // API data
+  // Old code, api data should not be sent at this point of the code, only the shared data from the previous two screens alongside the new data that has been collected should be sent
+  // const sendOnboarding_screen2Data = () => {
+  //   fetch('http://localhost:4001/onboarding/onboarding2Data', {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     method: 'POST',
+  //     body: JSON.stringify(degreeAndMajorFormData),
+  //   }).then((res) => {
+  //     if (res.ok || res.status === 200) {
+  //       console.log('Data Sent Successfully');
+  //       console.log(`Response Status : ${res.status}`);
+  //       return router.push('/onboarding3');
+  //     } else {
+  //       if (res.status === 404) {
+  //         console.log('There was an issue sending your data');
+  //       }
+  //     }
+  //   });
+  // };
 
   // TODO : wrap this around view component from before
   // TODO : too many duplicate view code, place it in a component that can pass in children component using the children prop for removing redundant styling --> later priority.
+
+  // test to check if the current selected major is being "selected"
+  // the statements below are indeed ebing updated as intended
+  // console.log(`current selected major : ${selectedMajor}`);
+  // console.log(`current selected degree : ${selectedDegree}`);
   return (
-    <View className="flex-1 bg-black p-10">
-      <View className="flex-row justify-between items-center mb-10">
+    // NOTE : changed p-10 -> px-10 since the positioning of the values needs to be the same
+    <View className="flex-1 bg-black px-10">
+      <View className="flex-row justify-between items-center mb-3">
         <View className="flex-1" />
         <View className="flex-row items-center" />
         <Text className="text-white text-base mr-8">2/3</Text>
         <View className="w-20 h-2 rounded-sm overflow-hidden">
+          {/** height full ensures that the gray is display for 1/2 of the bar */}
           <View className="w-1/2 h-full bg-[#888]" />
         </View>
       </View>
-      <Text className="text-white text-lg mb-5">Which of these majors suit you best?</Text>
+      <Text className="text-white text-lg mb-2">Which of these majors suit you best?</Text>
       <View className="rounded-2xl text-white">
-        <Text className="text-gray-400 text-sm text-left">
+        <Text className="text-gray-400 text-sm text-left mb-2">
           Please Select Your Degree Type and Major
         </Text>
         <Picker
           itemStyle={{
             color: 'white',
+            height: 130,
           }}
           selectedValue={selectedDegree}
           onValueChange={(currentDegreeSelected) => setSelectedDegree(currentDegreeSelected)}
@@ -292,7 +313,7 @@ const OnboardingScreen2 = () => {
         <Picker
           className="text-white bg-white"
           selectedValue={selectedMajor}
-          onValueChange={(currentMajorSelected) => setSelectedMjaor(currentMajorSelected)}
+          onValueChange={(currentMajorSelected) => setSelectedMajor(currentMajorSelected)}
         >
           {/**Ignore this, not causing any issues */}
           {undegrad_grad_majors[selectedDegree].map((Major: string, index: number) => (
@@ -305,16 +326,24 @@ const OnboardingScreen2 = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={() => router.back()}
+          // handleOnPress={() => router.back()}        // old route navigation function
+          handleOnPress={() => navigation.goBack()} // react-navigation equivalent
           buttonText={'Go Back'}
         />
         <OnboardingButton
           width={'40%'}
           height={50}
           route="/onboarding2"
-          handleOnPress={
-            () => router.push('/onboarding3')
-            //sendOnboarding_screen2Data()
+          // old code for handling on press
+          // handleOnPress={
+          //   () => router.push('/onboarding3')
+          //   //sendOnboarding_screen2Data()
+          // }
+
+          handleOnPress={() =>
+            navigation.navigate('onboarding3', {
+              currentScreenData,
+            })
           }
           buttonText={'Proceed'}
         />

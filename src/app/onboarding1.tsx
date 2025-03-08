@@ -8,21 +8,25 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '@/components/core/button/onboarding-buttons';
 import { ChevronsDownUp, CloudUpload } from 'lucide-react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { comparePassword } from '@/utils/passwordHash';
 import { compare } from 'bcrypt-ts';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const OnboardingScreen1: React.FC = () => {
   const route = useRoute();
+  const navigation = useNavigation();
+
+  // TODO : experimental useState hooks (remove them later)
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
   // TODO : remove these console.log statements (they we used for testing)
-  if (comparePassword('Fullcomic991!', route.params.apiPayload.password) == true) {
-    console.log('THE PASSWORDS MATCH');
-  } else {
-    console.log("THE PASSWORDS DON'T MATCH");
-  }
+  // if (comparePassword('Fullcomic991!', route.params.apiPayload.password) == true) {
+  //   console.log('THE PASSWORDS MATCH');
+  // } else {
+  //   console.log("THE PASSWORDS DON'T MATCH");
+  // }
 
   const classTypesRow1 = [
     {
@@ -59,32 +63,32 @@ const OnboardingScreen1: React.FC = () => {
     STEM: false,
   });
 
+  // form a new object to pass the data to the next screen
+  const apiPayloadExtended = {
+    email: route.params.apiPayload.email,
+    password: route.params.apiPayload.password,
+    checkedValues: currentCheckedValues, // set to the state
+  };
+
+  // console.log(apiPayloadExtended);   // tested and worked as inteded
+
   const currentSelectedType = (id: number) => {
     setSelectedClassType((prev) => (prev == id ? null : id));
   };
 
+  /**
+   * A small reference from typescript playground to reference how spread operators work
+   * const someArray : string[] = ["string1", "string2"];
+   * const someOtherArray : string[] = ["string3", "string4", "string5"];
+
+   * const combinedArray : string[] = [...someArray, ...someOtherArray];
+   * console.log(combinedArray);
+   *
+   */
+
   const sharedStyles =
     'rounded-lg mx-10 my-8 items-center justify-center w-24 h-50 shadow-black shadow-xl';
 
-  const sendOboarding_screen1Data = () => {
-    fetch('http://localhost:4001/onboarding/onboarding1Data', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify(currentCheckedValues),
-    }).then((res) => {
-      if (res.ok || res.status === 200) {
-        console.log('Successfully sent data to backend');
-        console.log(`Response status : ${res.status}`);
-        return router.push('/onboarding2');
-      } else {
-        if (res.status >= 400) {
-          console.log('Error sending data');
-        }
-      }
-    });
-  };
   const renderItem = ({ item }: { item: (typeof classTypesRow1)[0] }) => (
     <Pressable
       key={item.id}
@@ -191,12 +195,14 @@ const OnboardingScreen1: React.FC = () => {
   );
 
   return (
-    // TODO : adjust the css values as needed
     // TODO : some of these view tags can be self-closing instead, after implementing everything, convert them to be self-closing tags
     // ** originally raw css, converted to tailwind
-    <View className="flex-1 bg-black p-12">
-      <View className="flex-row justify-between items-center mb-20">
-        {/** Might be excessively redundant, may need to be removed */}
+    // TODO : fix the responsivity.
+    <View className="flex-1 bg-black px-6">
+      <View className="flex-row justify-between items-center my-2">
+        {/** Might be excessively redundant, may need to be removed
+         * the flex-1 ensures that content is placed on the right hand side
+         */}
         <View className="flex-1" />
         <View className="flex-row items-center">
           <Text className="text-white text-base mr-8">1/3</Text>
@@ -217,7 +223,14 @@ const OnboardingScreen1: React.FC = () => {
         width={'45%'}
         height={50}
         route="/onboarding2"
-        handleOnPress={() => router.push('/onboarding2')}
+        // handleOnPress={() => router.push('/onboarding2')}    // old handleOnPress code
+        // NOTE : don't use the / since that can throw the navigation off
+        // ignore this error since data is indeed being recieved
+        handleOnPress={() =>
+          navigation.navigate('onboarding2', {
+            apiPayloadExtended,
+          })
+        }
         buttonText={'Proceed'}
       />
     </View>
