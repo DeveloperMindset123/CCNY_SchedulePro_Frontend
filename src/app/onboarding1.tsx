@@ -225,6 +225,7 @@ const OnboardingScreen1: React.FC = () => {
         route="/onboarding2"
         // handleOnPress={() => router.push('/onboarding2')}    // old handleOnPress code
         // NOTE : don't use the / since that can throw the navigation off
+        // ignore this error since data is indeed being recieved
         handleOnPress={() =>
           navigation.navigate('onboarding2', {
             apiPayloadExtended,

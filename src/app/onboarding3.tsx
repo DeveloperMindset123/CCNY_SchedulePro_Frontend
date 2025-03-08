@@ -8,7 +8,10 @@ import { Slider } from 'react-native-awesome-slider';
 import { Dropdown } from 'react-native-element-dropdown';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Select, SelectProvider } from '@mobile-reality/react-native-select-pro';
+import { useRoute } from '@react-navigation/native';
+
+// this is not being used, since it doesn't render the content as intended
+// import { Select, SelectProvider } from '@mobile-reality/react-native-select-pro';
 /**
  * @TODO_1 : wrap the textInput components around a map component as before as well
  * @TODO_2 :
@@ -23,6 +26,7 @@ import { Select, SelectProvider } from '@mobile-reality/react-native-select-pro'
  */
 
 const OnboardingScreen3: React.FC = () => {
+  // define all the relevant useState hooks
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [studentYear, setStudentYear] = useState<number>(8);
@@ -31,6 +35,12 @@ const OnboardingScreen3: React.FC = () => {
   const [currentGenderDropdownValue, setCurrentGendeDropdownValue] = useState('');
   const [currentGenderFocus, setCurrentGenderFocus] = useState(false);
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
+
+  // test to see if shared data can be retrieved
+  const route = useRoute();
+  console.log(
+    `printing out screen data from previous 3 screens : ${JSON.stringify(route.params.currentScreenData)}`
+  );
 
   const firstNamePlaceholder = useRef('First Name...');
   const lastNamePlaceholder = useRef('Last Name...');
@@ -67,27 +77,6 @@ const OnboardingScreen3: React.FC = () => {
     { label: 'transgender', value: '4', search: 'transgender' },
     { label: 'Prefer Not To Say', value: '5', search: 'Prefer Not To Say' },
   ];
-
-  // experimental code to test a different dropdown menu
-  const data = [
-    {
-      label: 'Option 1',
-      value: 'option1',
-    },
-    {
-      label: 'Option 2',
-      value: 'option2',
-    },
-    {
-      label: 'Option 3',
-      value: 'option3',
-    },
-    {
-      label: 'Option 4',
-      value: 'option4',
-    },
-  ];
-
   const renderItem = (item: any) => {
     return (
       <View style={styles.item}>
@@ -115,40 +104,116 @@ const OnboardingScreen3: React.FC = () => {
     return null;
   };
 
-  const collectedData = {
-    firstName: firstName,
-    lastName: lastName,
-    studentYear: studentYear,
-    DOB: dateOfBirth,
-    pronouns: currentPronounDropdownValue,
-    Gender: currentGenderDropdownValue,
-    // TODO : add more fields as needed
-    // TODO : this is the data that will be sent when API call is made
-    // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    // above link will help better explain how the POSt method for APi works
+  // const collectedData = {
+  //   firstName: firstName,
+  //   lastName: lastName,
+  //   studentYear: studentYear,
+  //   DOB: dateOfBirth,
+  //   pronouns: currentPronounDropdownValue,
+  //   Gender: currentGenderDropdownValue,
+  //   // TODO : add more fields as needed
+  //   // TODO : this is the data that will be sent when API call is made
+  //   // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  //   // above link will help better explain how the POSt method for APi works
+  // };
+
+  // rust struct reference, the payload here should match
+  //   pub struct NewUser<'a> {
+  //     pub first_name : &'a str,
+  //     pub last_name : &'a str,
+  //     pub email : &'a str,
+  //     pub user_password : &'a str,
+  //     pub major : &'a str,
+  //     pub date_of_birth : &'a str,
+  //     pub pronouns : &'a str,
+  //     pub gender : &'a str,
+  //     pub degree_type : &'a str,
+  //     pub college_year : &'a str
+  // }
+
+  interface payload_type {
+    first_name: string;
+    last_name: string;
+    email: string;
+    user_password: string;
+    major: string;
+    date_of_birth: string;
+    pronouns: string;
+    gender: string;
+    degree_type: string;
+    college_year: string;
+  }
+  const payload: payload_type = {
+    first_name: firstName,
+    last_name: lastName,
+    email: route.params.currentScreenData.email as string, // retrieve email from the share data
+    user_password: route.params.currentScreenData.password as string, // retrieve hashed password from shared data
+
+    major: route.params.currentScreenData.major as string,
+    date_of_birth: dateOfBirth.toISOString(),
+    pronouns: currentPronounDropdownValue as string,
+    gender: currentGenderDropdownValue,
+    degree_type: route.params.currentScreenData.degree as string,
+    // college_year: studentYear as unknown as string, (this method was causing errors, direct casting is more consistent than type casting)
+    college_year: studentYear.toString(), // proper conversion logic to string type
   };
+
+  console.log(`Payload data : ${JSON.stringify(payload)}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // upon clicking proceed at this point, all the information collected from the user should be passed.
-  // const sendOnboarding_screen3Data = () => {
-  //   fetch('http://localhost:4001/onboarding/onboarding3Data', {
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     method: 'POST',
-  //     body: JSON.stringify(collectedData),
-  //   }).then((res) => {
-  //     if (res.ok || res.status === 200) {
-  //       console.log('Data Sent Successfully');
-  //       console.log(`Response Status : ${res.status}`);
-  //       return router.push('/(root)/(tabs)/(index)/');
-  //     } else {
-  //       if (res.status === 400) {
-  //         console.log('There was an error sending your data');
-  //       }
-  //     }
-  //   });
+  const sendRegistrationData = async () => {
+    try {
+      // Format date properly
+      const formattedPayload = {
+        ...payload,
+        date_of_birth: dateOfBirth.toISOString(), // or .toISOString().split('T')[0] for just the date
+      };
+
+      console.log(
+        'Attempting to send data to server with payload:',
+        JSON.stringify(formattedPayload)
+      );
+
+      const response = await fetch('http://127.0.0.1:5000/signup', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(formattedPayload),
+      });
+
+      console.log('Received response with status:', response.status);
+
+      if (response.ok || response.status === 200) {
+        const data = await response.json();
+        console.log('Success response data:', data);
+        router.push('/(root)/(tabs)/(index)/Schedule'); // point the user to the correct path
+      } else {
+        const errorData = await response.text();
+        console.error('Error response:', response.status, errorData);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };
+
+  // test network connectivity to check if api endpoitn is working to begin with
+  // const testConnection = async () => {
+  //   try {
+  //     console.log('Testing connection to backend server...');
+  //     const response = await fetch('http://127.0.0.1:5000/rmp/get_professor_list');
+  //     console.log('Connection test response status:', response.status);
+  //     const text = await response.text();
+  //     console.log('Connection test response text:', text);
+  //   } catch (error) {
+  //     console.error('Connection test failed:', error);
+  //   }
   // };
+
+  // useEffect(() => {
+  //   testConnection();
+  // }, []);
 
   // test to check if the changes being made to the dropdown are being detected or not
   console.log(currentPronounDropdownValue);
@@ -296,7 +361,7 @@ const OnboardingScreen3: React.FC = () => {
           maxHeight={180}
           labelField="label"
           // placeholder="Select Your Gender..."    // old placeholder
-          placeholder={currentPronounFocus ? 'Select Your Pronouns' : currentGenderDropdownValue}
+          placeholder={currentGenderFocus ? 'Select Your Gender' : currentGenderDropdownValue}
           searchPlaceholder="Search..."
           value={currentGenderDropdownValue}
           onChange={(item: any) => {
@@ -338,8 +403,8 @@ const OnboardingScreen3: React.FC = () => {
           width={'40%'}
           height={50}
           route="/onboarding2"
-          //handleOnPress={() => sendOnboarding_screen3Data()}
-          handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
+          handleOnPress={async () => await sendRegistrationData()}
+          // handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
           buttonText={'Proceed'}
         />
       </View>
