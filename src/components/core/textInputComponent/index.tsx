@@ -212,6 +212,16 @@ import { CustomButton } from '../customButton';
 // import { hashPassword } from '@/utils/passwordHash';
 import { hashPassword } from '@/utils/passwordHash';
 
+// define the prop type for the input component
+interface TextInputArrayType {
+  id: number;
+  placeholderText: string;
+  onChangeText: (text: any) => void;
+  value: string;
+  isPassword: boolean;
+  blur: boolean;
+}
+
 export const TextInputComponent = () => {
   // returns 4 values in total in the form of an object
   // this syntax can help retrieve the first 2 properties of the object
@@ -313,7 +323,7 @@ export const TextInputComponent = () => {
     */
   };
 
-  const TextInputArray = [
+  const TextInputArray: TextInputArrayType[] = [
     {
       id: 1,
       placeholderText: 'Enter Your Email',

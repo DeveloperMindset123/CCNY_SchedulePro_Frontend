@@ -44,7 +44,8 @@ import {
 } from 'react-native';
 import { SignupIcon } from '@/lib/utils/getSvgs';
 import getWindowDimensions from '@/lib/utils/getWindowDimension';
-import { TextInputComponent } from '@/components/core/textInputComponent';
+// import { TextInputComponent } from '@/components/core/textInputComponent';
+import { TextInputComponentSignin } from '@/components/core/textInputComponentSignin';
 import { getSignupStyles } from '@/components/core/textInputComponent/getSignupStyles';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -176,7 +177,7 @@ const Signin = () => {
               Explore and manage class schedules efficiently
             </Text> */}
 
-            <TextInputComponent />
+            <TextInputComponentSignin />
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
