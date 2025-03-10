@@ -2,7 +2,7 @@ import { Text } from '@/components/core/text';
 import { Ionicon } from '@/components/core/icon';
 import { ParallaxScrollView } from '@/components/core/parallax-scroll-view';
 
-export default function TabTwoScreen() {
+export default function ChatScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}

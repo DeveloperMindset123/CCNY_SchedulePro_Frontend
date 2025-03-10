@@ -1,15 +1,4 @@
-import {
-  createMaterialTopTabNavigator,
-  //MaterialTopTabNavigationOptions,
-} from '@react-navigation/material-top-tabs';
-// TODO : Remove dead code no longer being used
-//import { withLayoutContext } from 'expo-router';
-//import { NavigationState, EventMapBase } from '@react-navigation/native';
-//import ClassSchedule from '@/app/(root)/(tabs)/(index)';
-//import ClassLists from '@/app/(root)/(tabs)/(index)/feed';
-//import NewSettings from '@/app/(root)/(tabs)/(newsetting)/newSetting';
-//import CustomFeed from '@/app/(root)/(tabs)/(newsetting)/customFeed';
-import DefaultSettings from '@/app/(root)/(tabs)/(settings)/settings';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { TeachersList, ClassList, Schedule } from 'src/app/(root)/(tabs)/(index)/export.ts';
 //const { Navigator } = createMaterialTopTabNavigator();
 const Tab = createMaterialTopTabNavigator();
@@ -81,21 +70,21 @@ export const MaterialTopTabsTest = ({
   );
 };
 
-export const MaterialTopTabsTest2 = ({ tab1 }: { tab1: string }) => {
-  return (
-    <Tab3.Navigator
-      screenOptions={{
-        tabBarLabelStyle: { fontSize: 12, color: 'white' },
-        tabBarStyle: {
-          backgroundColor: 'black',
-        },
-        tabBarItemStyle: {
-          width: 150,
-        },
-      }}
-    >
-      <Tab3.Screen name={tab1} component={DefaultSettings} />
-      {/*<Tab3.Screen name={tab2} */}
-    </Tab3.Navigator>
-  );
-};
+// export const MaterialTopTabsTest2 = ({ tab1 }: { tab1: string }) => {
+//   return (
+//     <Tab3.Navigator
+//       screenOptions={{
+//         tabBarLabelStyle: { fontSize: 12, color: 'white' },
+//         tabBarStyle: {
+//           backgroundColor: 'black',
+//         },
+//         tabBarItemStyle: {
+//           width: 150,
+//         },
+//       }}
+//     >
+//       <Tab3.Screen name={tab1} component={DefaultSettings} />
+//       {/*<Tab3.Screen name={tab2} */}
+//     </Tab3.Navigator>
+//   );
+// };
