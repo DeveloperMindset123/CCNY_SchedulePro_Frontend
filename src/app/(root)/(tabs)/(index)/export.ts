@@ -5,6 +5,4 @@ import ClassList from './ClassList';
 import Schedule from './Schedule';
 import TeachersList from './TeacherList';
 
-export { ClassList, TeachersList };
-
-export default Schedule;
+export { ClassList, Schedule, TeachersList };

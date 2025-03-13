@@ -10,7 +10,6 @@ import { ThemeToggle } from '@/components/core/toggle';
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import Toast from 'react-native-toast-message';
-import { useRootNavigationState } from 'expo-router';
 
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
@@ -45,25 +44,6 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const navigationState = useRootNavigationState();
-
-  // if (!navigationState?.key) return;
-  // const [loaded, error] = useFonts({
-  //   // gloabl font import here
-  //   spaceMono: require('src/assets/fonts/spaceMono.ttf'),
-  //   playpenBold: require('src/assets/fonts/playpenBold.ttf'),
-  //   playpenExtraBold: require('src/assets/fonts/playpenExtraBold.ttf'),
-  //   playpenExtraLight: require('src/assets/fonts/playpenExtraLight.ttf'),
-  //   playpenLight: require('src/assets/fonts/playpenLight.ttf'),
-  //   playpenMedium: require('src/assets/fonts/playpenMedium.ttf'),
-  //   playpenRegular: require('src/assets/fonts/playpenRegular.ttf'),
-  //   playpenSemiBold: require('src/assets/fonts/playpenSemiBold.ttf'),
-  //   playpenThin: require('src/assets/fonts/playpenThin.ttf'),
-  //   playpenVariable: require('src/assets/fonts/playpenVariable.ttf'),
-  //   sofadi: require('src/assets/fonts/sofadi.ttf'),
-  //   pacifico: require('src/assets/fonts/pacifico.ttf'),
-  //   ...FontAwesome.font,
-  // });
   const [loaded, error] = useFonts({
     SpaceMono: require('src/assets/fonts/spaceMono.ttf'),
     'SpaceMono-Regular': require('src/assets/fonts/spaceMono.ttf'),
@@ -102,12 +82,6 @@ export default function RootLayout() {
     }
   }, [error]);
 
-  useEffect(() => {
-    if (loaded) {
-      console.log('Fonts loaded successfully:', loaded);
-    }
-  }, [loaded]);
-
   // console.log('Loaded fonts:', Object.keys(loaded));
   useEffect(() => {
     setTimeout(() => {
@@ -143,8 +117,8 @@ function RootLayoutNav() {
                 fontWeight: '900',
                 // TODO : Change Font here
                 // fontFamily: 'pacifico',
-                // fontFamily: 'Pacifico-Regular',
-                fontFamily: Platform.OS === 'ios' ? 'SpaceMono-Regular' : 'Pacifico',
+                fontFamily: 'Pacifico-Regular',
+                // fontFamily: Platform.OS === 'ios' ? 'Pacifico-Regular' : 'Pacifico',
                 // fontFamily: '',
                 fontSize: 24,
               },

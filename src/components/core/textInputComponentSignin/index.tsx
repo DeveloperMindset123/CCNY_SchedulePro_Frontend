@@ -252,7 +252,9 @@ export const TextInputComponentSignin = () => {
           <CustomButton
             width={width * 0.9}
             height={height * 0.06}
-            handleOnPress={handleSignIn}
+            // TODO : uncomment this later
+            // handleOnPress={handleSignIn}
+            handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
             button_content="Sign In"
           />
         </View>

@@ -1,6 +1,6 @@
 module.exports = {
   expo: {
-    // newArchEnabled: true,
+    newArchEnabled: true,
     name: 'expo-router-starter-kit-(expo-go)',
     owner: 'Ayan',
     experiments: {

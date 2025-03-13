@@ -84,8 +84,8 @@ export default function Schedule() {
     // TODO : modify prop to allow for draggable event and dynamic event creation logic.
 
     <CalendarContainer
-      // numberOfDays={3}
-      // scrollByDay={true} // When false, it will scroll by the number of days set in numberOfDays (allows users to scroll by intervals of 1)
+      numberOfDays={3}
+      scrollByDay={true} // When false, it will scroll by the number of days set in numberOfDays (allows users to scroll by intervals of 1)
       // scrollToNow={true} // for user experience, the day they are on should be the current day
       // minDate="1900-01-01"
       // maxDate="2600-01-01"
@@ -94,6 +94,9 @@ export default function Schedule() {
       dragStep={15}
       onDragCreateEventStart={handleDragCreateStart}
       onDragCreateEventEnd={handleDragCreateEnd}
+      minDate="2025-01-01"
+      maxDate="2025-12-31"
+      initialDate="2025-03-13"
       // events={[
       //   {
       //     id: '1',
@@ -105,11 +108,33 @@ export default function Schedule() {
       //   {
       //     id: '2',
       //     title: 'Sample Event 2',
-      //     start: { dateTime: '2025-03-15T9:00:00Z' },
-      //     end: { dateTime: '2025-03-15T11:00:00Z' },
+      //     start: { dateTime: '2025-03-13T9:00:00Z' },
+      //     end: { dateTime: '2025-03-13T11:00:00Z' },
       //     color: 'red',
       //   },
       // ]}
+
+      // events={[
+      //   {
+      //     id: '1',
+      //     title: 'Meeting with Team',
+
+      //     // the timing convention follows ISO format
+      //     start: { dateTime: '2025-03-13T10:00:00Z' },
+      //     end: { dateTime: '2025-03-13T11:00:00Z' },
+      //     color: 'cyan',
+      //   },
+      // ]}
+
+      events={[
+        {
+          id: '1',
+          title: 'Meeting with Team',
+          start: { dateTime: '2025-03-15T10:00:00Z' },
+          end: { dateTime: '2025-03-15T11:00:00Z' },
+          color: '#4285F4',
+        },
+      ]}
     >
       <CalendarHeader />
 

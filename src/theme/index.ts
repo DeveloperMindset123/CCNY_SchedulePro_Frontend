@@ -14,22 +14,24 @@ const NAV_THEME: { light: Theme; dark: Theme } = {
       primary: COLORS.light.primary,
       text: COLORS.black,
     },
-    // Add the same fonts configuration here that you have in dark
+    // NOTE : this modification was needed after upgrading to expo 52
+    // requires adding the specific fonts loaded within _layout.tsx at the topmost level
+    // using useFonts, allowing for fonts of all kind regardless of the theme listed
     fonts: {
       regular: {
-        fontFamily: 'SpaceMono-Regular', // Use your loaded font
+        fontFamily: 'SpaceMono-Regular',
         fontWeight: 'normal',
       },
       medium: {
-        fontFamily: 'PlaypenSans-Medium', // Use your loaded font
+        fontFamily: 'PlaypenSans-Medium',
         fontWeight: 'normal',
       },
       bold: {
-        fontFamily: 'PlaypenSans-Bold', // Use your loaded font
+        fontFamily: 'PlaypenSans-Bold',
         fontWeight: 'bold',
       },
       heavy: {
-        fontFamily: 'PlaypenSans-ExtraBold', // Use your loaded font
+        fontFamily: 'PlaypenSans-ExtraBold',
         fontWeight: 'bold',
       },
     },
@@ -46,19 +48,19 @@ const NAV_THEME: { light: Theme; dark: Theme } = {
     },
     fonts: {
       regular: {
-        fontFamily: 'SpaceMono-Regular', // Use your loaded font
+        fontFamily: 'SpaceMono-Regular',
         fontWeight: 'normal',
       },
       medium: {
-        fontFamily: 'PlaypenSans-Medium', // Use your loaded font
+        fontFamily: 'PlaypenSans-Medium',
         fontWeight: 'normal',
       },
       bold: {
-        fontFamily: 'PlaypenSans-Bold', // Use your loaded font
+        fontFamily: 'PlaypenSans-Bold',
         fontWeight: 'bold',
       },
       heavy: {
-        fontFamily: 'PlaypenSans-ExtraBold', // Use your loaded font
+        fontFamily: 'PlaypenSans-ExtraBold',
         fontWeight: 'bold',
       },
     },
