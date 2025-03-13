@@ -188,7 +188,12 @@ const OnboardingScreen3: React.FC = () => {
       if (response.ok || response.status === 200) {
         const data = await response.json();
         console.log('Success response data:', data);
-        router.push('/(root)/(tabs)/(index)/Schedule'); // point the user to the correct path
+
+        // old navigation route
+        router.push({
+          pathname: '/(root)/(tabs)/(index)/Schedule',
+          params: { email: payload.email },
+        }); // point the user to the correct path
       } else {
         const errorData = await response.text();
         console.error('Error response:', response.status, errorData);

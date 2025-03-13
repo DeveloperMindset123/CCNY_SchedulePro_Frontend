@@ -7,14 +7,19 @@ import {
   CalendarBody,
   CalendarContainer,
   CalendarHeader,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   PackedEvent,
   DraggingEvent,
   DraggingEventProps,
 } from '@howljs/calendar-kit';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Ionicons } from '@expo/vector-icons';
-
+import { useLocalSearchParams } from 'expo-router';
 // component to intialize calendar
 export default function Schedule() {
+  // TODO : determine appropriate useState hooks to store data regarding events for a particular user
+  const { email } = useLocalSearchParams();
+  console.log(email);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const events_data = [
     {
@@ -25,6 +30,16 @@ export default function Schedule() {
       color: '#4285F4',
     },
   ];
+
+  // const [setEvent, ]
+
+  // experiment with current time and an hour later
+  // dynamic implementation
+  const now = new Date();
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+  const eventStartTime = now.toISOString();
+  const eventEndTime = oneHourLater.toISOString();
 
   const handleDragCreateStart = (start: any) => {
     console.log('Started creating event at:', start);
@@ -97,42 +112,26 @@ export default function Schedule() {
       minDate="2025-01-01"
       maxDate="2025-12-31"
       initialDate="2025-03-13"
-      // events={[
-      //   {
-      //     id: '1',
-      //     title: 'Sample Event 1',
-      //     start: { dateTime: '2025-03-9T10:00:00Z' },
-      //     end: { dateTime: '2025-03-9T11:00:00Z' },
-      //     color: '#4285F4',
-      //   },
-      //   {
-      //     id: '2',
-      //     title: 'Sample Event 2',
-      //     start: { dateTime: '2025-03-13T9:00:00Z' },
-      //     end: { dateTime: '2025-03-13T11:00:00Z' },
-      //     color: 'red',
-      //   },
-      // ]}
-
+      // working event zone (from example with minor modification)
       // events={[
       //   {
       //     id: '1',
       //     title: 'Meeting with Team',
-
-      //     // the timing convention follows ISO format
-      //     start: { dateTime: '2025-03-13T10:00:00Z' },
-      //     end: { dateTime: '2025-03-13T11:00:00Z' },
-      //     color: 'cyan',
+      //     start: { dateTime: '2025-03-15T10:00:00Z' },
+      //     end: { dateTime: '2025-03-15T11:00:00Z' },
+      //     color: '#4285F4',
       //   },
       // ]}
+
+      // experimental event implementation
 
       events={[
         {
           id: '1',
-          title: 'Meeting with Team',
-          start: { dateTime: '2025-03-15T10:00:00Z' },
-          end: { dateTime: '2025-03-15T11:00:00Z' },
-          color: '#4285F4',
+          title: 'Sample Event',
+          start: { dateTime: eventStartTime },
+          end: { dateTime: eventEndTime },
+          color: 'red',
         },
       ]}
     >

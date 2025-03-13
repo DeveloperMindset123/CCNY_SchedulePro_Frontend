@@ -154,7 +154,7 @@ export const TextInputComponentSignin = () => {
           text2: 'Logging you back in',
         });
         // navigate to the Schedule tab
-        router.push('/(root)/(tabs)/(index)/Schedule'); // point the user to the correct path
+        router.push({ pathname: '/(root)/(tabs)/(index)/Schedule', params: { email: emailInput } }); // point the user to the correct path
       } else {
         const errorData = await response.text();
         // render the toast message in the case that the user's input is incorrect
@@ -253,8 +253,8 @@ export const TextInputComponentSignin = () => {
             width={width * 0.9}
             height={height * 0.06}
             // TODO : uncomment this later
-            // handleOnPress={handleSignIn}
-            handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
+            handleOnPress={handleSignIn}
+            // handleOnPress={() => router.push('/(root)/(tabs)/(index)/Schedule')}
             button_content="Sign In"
           />
         </View>
