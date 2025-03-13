@@ -1,5 +1,6 @@
 module.exports = {
   expo: {
+    // newArchEnabled: true,
     name: 'expo-router-starter-kit-(expo-go)',
     owner: 'Ayan',
     experiments: {
@@ -19,10 +20,13 @@ module.exports = {
     },
     updates: {
       fallbackToCacheTimeout: 0,
-      url: 'https://u.expo.dev/564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef',
+      // url: 'https://u.expo.dev/564f22dd-cb02-43e7-b4a9-d0f7c49ea2ef',
     },
     mode: 'production',
     assetBundlePatterns: ['**/*'],
+    packagerOpts: {
+      assetExts: ['ttf', 'otf'],
+    },
     build: {
       development: {
         distribution: 'internal',
@@ -35,6 +39,7 @@ module.exports = {
       },
     },
     ios: {
+      // newArchEnabled: true,
       supportsTablet: true,
       bundleIdentifier: 'com.your.bundle.identifier',
     },
@@ -43,6 +48,7 @@ module.exports = {
     },
     android: {
       package: 'com.your.bundle.identifier',
+      // newArchEnabled: true,
       adaptiveIcon: {
         foregroundImage: './public/adaptive-icon.png',
         backgroundColor: '#ffffff',

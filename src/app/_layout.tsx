@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+// import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { FontAwesome } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +10,7 @@ import { ThemeToggle } from '@/components/core/toggle';
 import { ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import Toast from 'react-native-toast-message';
+import { useRootNavigationState } from 'expo-router';
 
 // @see https://stackoverflow.com/questions/68569844/react-native-expo-custom-fonts-not-loading-with-font-loadasync
 /**
@@ -29,6 +31,7 @@ import Toast from 'react-native-toast-message';
 import { NAV_THEME } from '@/theme';
 import { useColorScheme } from 'nativewind';
 import '../../global.css';
+import { Platform } from 'react-native';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,27 +45,70 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const navigationState = useRootNavigationState();
+
+  // if (!navigationState?.key) return;
+  // const [loaded, error] = useFonts({
+  //   // gloabl font import here
+  //   spaceMono: require('src/assets/fonts/spaceMono.ttf'),
+  //   playpenBold: require('src/assets/fonts/playpenBold.ttf'),
+  //   playpenExtraBold: require('src/assets/fonts/playpenExtraBold.ttf'),
+  //   playpenExtraLight: require('src/assets/fonts/playpenExtraLight.ttf'),
+  //   playpenLight: require('src/assets/fonts/playpenLight.ttf'),
+  //   playpenMedium: require('src/assets/fonts/playpenMedium.ttf'),
+  //   playpenRegular: require('src/assets/fonts/playpenRegular.ttf'),
+  //   playpenSemiBold: require('src/assets/fonts/playpenSemiBold.ttf'),
+  //   playpenThin: require('src/assets/fonts/playpenThin.ttf'),
+  //   playpenVariable: require('src/assets/fonts/playpenVariable.ttf'),
+  //   sofadi: require('src/assets/fonts/sofadi.ttf'),
+  //   pacifico: require('src/assets/fonts/pacifico.ttf'),
+  //   ...FontAwesome.font,
+  // });
   const [loaded, error] = useFonts({
-    // gloabl font import here
-    spaceMono: require('src/assets/fonts/spaceMono.ttf'),
-    playpenBold: require('src/assets/fonts/playpenBold.ttf'),
-    playpenExtraBold: require('src/assets/fonts/playpenExtraBold.ttf'),
-    playpenExtraLight: require('src/assets/fonts/playpenExtraLight.ttf'),
-    playpenLight: require('src/assets/fonts/playpenLight.ttf'),
-    playpenMedium: require('src/assets/fonts/playpenMedium.ttf'),
-    playpenRegular: require('src/assets/fonts/playpenRegular.ttf'),
-    playpenSemiBold: require('src/assets/fonts/playpenSemiBold.ttf'),
-    playpenThin: require('src/assets/fonts/playpenThin.ttf'),
-    playpenVariable: require('src/assets/fonts/playpenVariable.ttf'),
-    sofadi: require('src/assets/fonts/sofadi.ttf'),
-    pacifico: require('src/assets/fonts/pacifico.ttf'),
+    SpaceMono: require('src/assets/fonts/spaceMono.ttf'),
+    'SpaceMono-Regular': require('src/assets/fonts/spaceMono.ttf'),
+
+    'PlaypenSans-Bold': require('src/assets/fonts/playpenBold.ttf'),
+    'PlaypenSans-ExtraBold': require('src/assets/fonts/playpenExtraBold.ttf'),
+    'PlaypenSans-ExtraLight': require('src/assets/fonts/playpenExtraLight.ttf'),
+    'PlaypenSans-Light': require('src/assets/fonts/playpenLight.ttf'),
+    'PlaypenSans-Medium': require('src/assets/fonts/playpenMedium.ttf'),
+    'PlaypenSans-Regular': require('src/assets/fonts/playpenRegular.ttf'),
+    'PlaypenSans-SemiBold': require('src/assets/fonts/playpenSemiBold.ttf'),
+    'PlaypenSans-Thin': require('src/assets/fonts/playpenThin.ttf'),
+    PlaypenSans: require('src/assets/fonts/playpenVariable.ttf'),
+
+    'Sofadi-Regular': require('src/assets/fonts/sofadi.ttf'),
+    Sofadi: require('src/assets/fonts/sofadi.ttf'),
+
+    'Pacifico-Regular': require('src/assets/fonts/pacifico.ttf'),
+    Pacifico: require('/Users/ayandas/Desktop/VS_Code_Projects/CCNY_SchedulePro/src/assets/fonts/pacifico.ttf'),
+
     ...FontAwesome.font,
   });
 
   useEffect(() => {
-    if (error) throw error;
+    if (error) {
+      console.log('Error occuring here : ', error);
+      throw error;
+    }
   }, [error]);
 
+  // useEffect hooks to check if font loading is working
+  useEffect(() => {
+    if (error) {
+      console.log('Font loading error:', error);
+      throw error;
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      console.log('Fonts loaded successfully:', loaded);
+    }
+  }, [loaded]);
+
+  // console.log('Loaded fonts:', Object.keys(loaded));
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hideAsync();
@@ -88,7 +134,7 @@ function RootLayoutNav() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack
             screenOptions={{
-              animation: 'ios',
+              // animation: 'ios',
               headerStyle: {
                 backgroundColor: 'black',
               },
@@ -96,7 +142,10 @@ function RootLayoutNav() {
               headerTitleStyle: {
                 fontWeight: '900',
                 // TODO : Change Font here
-                fontFamily: 'pacifico',
+                // fontFamily: 'pacifico',
+                // fontFamily: 'Pacifico-Regular',
+                fontFamily: Platform.OS === 'ios' ? 'SpaceMono-Regular' : 'Pacifico',
+                // fontFamily: '',
                 fontSize: 24,
               },
             }}
