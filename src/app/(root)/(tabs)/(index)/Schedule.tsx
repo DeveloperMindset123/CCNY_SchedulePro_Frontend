@@ -1,5 +1,8 @@
+// TODO : implement a small button on the right hand side of the screen
+// upon clicking on the button, a modal should pop-up that will allow users to modify and change as needed as part of their event creation.
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { View, Text } from 'react-native';
 // import { Agenda } from 'react-native-calendars';
@@ -19,7 +22,22 @@ import { useLocalSearchParams } from 'expo-router';
 export default function Schedule() {
   // TODO : determine appropriate useState hooks to store data regarding events for a particular user
   const { email } = useLocalSearchParams();
-  console.log(email);
+  // console.log(email);
+
+  // set the current start and end event as an object
+  // this hook will store the immediate event changes
+  const [currentEvent, setCurrentEvent] = useState({
+    start: '',
+    end: '',
+  });
+
+  // this hook will store all the events related data that has been created by the particular user wtihin the screen so far.
+  const [eventsData, setEventsData] = useState([{}]);
+  const [eventCreationComplete, setEventCreationComplete] = useState(false);
+
+  // const addNewEvents = (current_event: any) => {
+
+  // }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const events_data = [
     {
@@ -41,13 +59,57 @@ export default function Schedule() {
   const eventStartTime = now.toISOString();
   const eventEndTime = oneHourLater.toISOString();
 
-  const handleDragCreateStart = (start: any) => {
-    console.log('Started creating event at:', start);
+  const handleDragCreateStart = (start_time: any) => {
+    // method to update the current start time
+    // utilizing spread opeartor logic
+    setCurrentEvent((prevState) => ({
+      ...prevState,
+      start: start_time,
+    }));
+
+    setEventCreationComplete(false);
+    // console.log('Started creating event at:', start_time);
   };
 
-  const handleDragCreateEnd = (event: any) => {
-    console.log('New event:', event);
+  const handleDragCreateEnd = (end_time: any) => {
+    setCurrentEvent((prevState) => ({
+      ...prevState,
+      end: end_time,
+    }));
+
+    setEventCreationComplete(true);
+    // console.log('New event:', end_time);
   };
+
+  // this could potentially be causing excessive component re-rendering
+  // if (eventCreationComplete === true) {
+  //   // replace the state
+  //   // with a brand new array
+  //   setEventsData([...eventsData, currentEvent]);
+  // }
+
+  useEffect(() => {
+    if (eventCreationComplete === true) {
+      setEventsData([...eventsData, currentEvent]);
+
+      // TODO : remove after
+      console.log(eventsData);
+      setEventCreationComplete(false);
+    }
+  }, [eventCreationComplete, eventsData, currentEvent]);
+
+  // TODO : remove later, mainly to check if changes to the currentEvent is being detected or not
+  useEffect(() => {
+    console.log('changes detected for current event : ', currentEvent);
+  }, [currentEvent]);
+
+  // TODO : remove this useEffect hook as well
+  // this is also to experiment to see if the list of events are being updated or not
+  useEffect(() => {
+    console.log('current events data : ', JSON.stringify(eventsData));
+  }, [eventsData]);
+
+  // console.log(currentEvent);
 
   // old event rendering logic
   // const renderCalendarEvent = useCallback(
@@ -134,6 +196,11 @@ export default function Schedule() {
           color: 'red',
         },
       ]}
+      // experimental to check if event being pressed works
+      onPressEvent={(event) => {
+        // print out information about a particular event
+        console.log('Event pressed', event);
+      }}
     >
       <CalendarHeader />
 
