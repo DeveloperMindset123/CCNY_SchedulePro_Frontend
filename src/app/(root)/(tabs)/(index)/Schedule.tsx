@@ -1,76 +1,141 @@
-// TODO : implement a small button on the right hand side of the screen
-// upon clicking on the button, a modal should pop-up that will allow users to modify and change as needed as part of their event creation.
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useCallback, useEffect, useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { View, Text, Pressable } from 'react-native';
-// import { Agenda } from 'react-native-calendars';
+import {
+  View,
+  Text,
+  Pressable,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+} from 'react-native';
 import {
   CalendarBody,
   CalendarContainer,
   CalendarHeader,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  PackedEvent,
   DraggingEvent,
   DraggingEventProps,
 } from '@howljs/calendar-kit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 
-// component to intialize calendar
 export default function Schedule() {
-  // TODO : determine appropriate useState hooks to store data regarding events for a particular user
-  const { email } = useLocalSearchParams();
-  // console.log(email);
+  // Define the theme we will need
+  // relevant css styling
+  const customTheme = {
+    colors: {
+      primary: '#3498db',
+      onPrimary: '#ffffff',
+      background: '#f5f5f5',
+      onBackground: '#333333',
+      border: '#e0e0e0',
+      text: '#333333',
+      surface: '#ffffff',
+      onSurface: '#666666',
+    },
+    textStyle: {
+      fontFamily: 'Roboto',
+    },
+    hourTextStyle: {
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    dayName: {
+      fontSize: 14,
+      color: '#666666',
+    },
+    dayNumber: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    todayNumberContainer: {
+      backgroundColor: '#3498db',
+    },
+    todayNumber: {
+      color: '#ffffff',
+    },
+    eventContainerStyle: {
+      borderRadius: 4,
+    },
+    eventTitleStyle: {
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
+    // Additional properties to enhance header display
+    headerContainerStyle: {
+      backgroundColor: '#ffffff',
+      borderBottomWidth: 1,
+      borderBottomColor: '#e0e0e0',
+      paddingVertical: 8,
+    },
+    monthYearStyle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#333333',
+    },
+  };
 
-  // set the current start and end event as an object
-  // this hook will store the immediate event changes
-  // NOTE : useState hooks are asycnhronous so data updates will not be shown immediately
-  // therefore, useEffect hooks are needed to detect changes and retrieve data
+  // this is to identify the user who is creating the event
+  // needed to store the event related data within the database.
+  // as well as adding/deleting/modifying the events related data.
+  const { email } = useLocalSearchParams();
+
+  // State for current event being edited
+  // initial values for the event to be created
   const [currentEvent, setCurrentEvent] = useState({
+    id: null,
+    title: 'New Event',
     start: '',
     end: '',
+    color: '#4285F4',
+    description: '',
+
+    // TODO : by default, location should be either be not specified or based on user input
+    location: 'not specified',
+
+    // NOTE : need to set logic regarding how recurring data should be rendered
+    // ternary operator logic should suffice in this regard, as in if isRecurring checkbox is selected
+    // a dropdown should pop up that will allow users to determine whether the event should take place
+    // daily, weekly, biweekly, monthly (these 4 modes should suffice and the appropriate calculations needs to be done)
+    isRecurring: false,
   });
 
-  // this hook will store all the events related data that has been created by the particular user wtihin the screen so far.
-  const [eventsData, setEventsData] = useState([{}]);
+  // Events data state
+  const [eventsData, setEventsData] = useState([]);
   const [eventCreationComplete, setEventCreationComplete] = useState(false);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const addNewEvents = (current_event: any) => {
-    throw new Error('Not yet implemented.');
-  };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const events_data = [
-    {
-      id: '1',
-      title: 'Meeting with Team',
-      start: { dateTime: '2025-03-8T10:00:00Z' },
-      end: { dateTime: '2025-03-8T11:00:00Z' },
-      color: '#4285F4',
-    },
-  ];
-
-  // experiment with current time and an hour later
-  // dynamic implementation
   const now = new Date();
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+  const [currentMonth, setCurrentMonth] = useState(
+    now.toLocaleString('default', { month: 'long', year: 'numeric' })
+  );
 
+  // Modal visibility state
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Experiment with current time and an hour later
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
   const eventStartTime = now.toISOString();
   const eventEndTime = oneHourLater.toISOString();
 
+  // TODO : in terms of the id logic, it should be in the form of a set
+  // to be able to delete a particular event, I need to be able to determin what the current event that has been selected
+  // and retrieve information about the particular event.
+  //
+  // Sample static event
+  const sampleEvent = {
+    id: '1',
+    title: 'Sample Event',
+    start: { dateTime: eventStartTime },
+    end: { dateTime: eventEndTime },
+    color: '#e74c3c',
+  };
+
+  // Event handlers
   const handleDragCreateStart = (start_time: any) => {
-    // method to update the current start time
-    // utilizing spread opeartor logic
-    setCurrentEvent((prevState) => ({
+    setCurrentEvent((prevState: any) => ({
       ...prevState,
+      id: `event-${Date.now()}`,
       start: start_time,
     }));
-
     setEventCreationComplete(false);
-    // console.log('Started creating event at:', start_time);
   };
 
   const handleDragCreateEnd = (end_time: any) => {
@@ -78,53 +143,130 @@ export default function Schedule() {
       ...prevState,
       end: end_time,
     }));
-
     setEventCreationComplete(true);
-    // console.log('New event:', end_time);
+    // Show modal for editing the newly created event
+    setModalVisible(true);
   };
 
-  useEffect(() => {
-    if (eventCreationComplete === true) {
-      setEventsData([...eventsData, currentEvent]);
+  const LeftAreaComponentFunction = () => (
+    <TouchableOpacity
+      style={styles.todayButton}
+      onPress={() => {
+        console.log('Go to today'); // placeholder text
+      }}
+    >
+      <Text style={styles.todayButtonText}>Today</Text>
+    </TouchableOpacity>
+  );
 
-      // TODO : remove after
-      console.log(eventsData);
-      setEventCreationComplete(false);
+  const NowIndicatorComponentFunction = () => (
+    <View style={styles.nowIndicator}>
+      <View style={styles.nowIndicatorCircle} />
+      <View style={styles.nowIndicatorLine} />
+    </View>
+  );
+
+  // Save the event from modal
+  const handleSaveEvent = () => {
+    if (currentEvent.id && currentEvent.start && currentEvent.end) {
+      // Check if we're editing an existing event
+      const existingEventIndex = eventsData.findIndex((e) => e.id === currentEvent.id);
+
+      if (existingEventIndex >= 0) {
+        // Update existing event
+        const updatedEvents = [...eventsData];
+        updatedEvents[existingEventIndex] = currentEvent;
+        setEventsData(updatedEvents);
+      } else {
+        // Add new event
+        setEventsData([...eventsData, currentEvent]);
+      }
     }
-  }, [eventCreationComplete, eventsData, currentEvent]);
 
-  // TODO : remove later, mainly to check if changes to the currentEvent is being detected or not
+    // Reset and close modal
+    setEventCreationComplete(false);
+    setModalVisible(false);
+  };
+
+  // Create a new empty event
+  const handleCreateNewEvent = () => {
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+
+    setCurrentEvent({
+      id: `event-${Date.now()}`,
+      title: 'New Event',
+      start: startTime.toISOString(),
+      end: endTime.toISOString(),
+      color: '#4285F4',
+    });
+
+    setModalVisible(true);
+  };
+
+  // Update UI when event creation is complete
   useEffect(() => {
-    console.log('changes detected for current event : ', currentEvent);
-  }, [currentEvent]);
+    if (eventCreationComplete) {
+      console.log('Event creation completed:', currentEvent);
+    }
+  }, [eventCreationComplete, currentEvent]);
 
-  // TODO : remove this useEffect hook as well
-  // this is also to experiment to see if the list of events are being updated or not
-  useEffect(() => {
-    console.log('current events data : ', JSON.stringify(eventsData));
-  }, [eventsData]);
+  // Function to format events for the calendar
+  const formatEventsForCalendar = () => {
+    // Filter out any invalid events (no id, start or end time)
+    const validEvents = eventsData.filter((event) => event.id && event.start && event.end);
 
-  // console.log(currentEvent);
+    const formattedEvents = validEvents.map((event) => ({
+      id: event.id,
+      title: event.title || 'Untitled Event',
+      start: { dateTime: event.start },
+      end: { dateTime: event.end },
+      color: event.color || '#4285F4',
+      // Add additional properties that may be useful
+      editable: true,
+      // You can add custom data to be used in event rendering
+      meta: {
+        description: event.description || '',
+        location: event.location || '',
+        isRecurring: event.isRecurring || false,
+      },
+    }));
 
-  // old event rendering logic
-  // const renderCalendarEvent = useCallback(
-  //   (event: PackedEvent) => (
-  //     <View
-  //       // define the styling for the view
-  //       style={{
-  //         width: '100%',
-  //         height: '100%',
-  //         padding: 4,
-  //       }}
-  //     >
-  //       <Ionicons name="calendar" size={10} color="white" />
-  //       <Text style={{ color: 'white', fontSize: 10 }}>{event.title}</Text>
-  //     </View>
-  //   ),
-  //   []
-  // );
+    return [sampleEvent, ...formattedEvents];
+  };
 
-  const renderDraggingEvent = useCallback((props: DraggingEventProps) => {
+  // Handle edit of existing events
+  const handleDragEditStart = (event) => {
+    console.log('Started editing event:', event);
+  };
+
+  const handleDragEditEnd = async (event: any, newStart, newEnd: any) => {
+    const new_start_time = await newStart;
+    const new_end_time = await newEnd;
+
+    console.log(`New event times are : ${new_start_time}, ${new_end_time}`);
+    // console.log('End of event drag:', event);
+    // console.log('End of event drag edit : ', newStart, newEnd);
+    // console.log(event.start);
+    // console.log(eventsData);
+
+    // Update the event in our state
+    const updatedEvents = eventsData.map((e) => {
+      if (e.id === event.id) {
+        return {
+          ...e,
+          start: newStart,
+          end: newEnd,
+        };
+      }
+      return e;
+    });
+
+    setEventsData(updatedEvents);
+  };
+
+  // Render dragging event component
+  const renderDraggingEvent = useCallback((props) => {
     return (
       <DraggingEvent
         {...props}
@@ -133,181 +275,444 @@ export default function Schedule() {
             style={{
               height: 10,
               width: '100%',
-              backgroundColor: 'red',
+              backgroundColor: '#3498db',
               position: 'absolute',
+              borderTopLeftRadius: 4,
+              borderTopRightRadius: 4,
             }}
-          />
+          >
+            <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>Drag</Text>
+          </View>
         }
         BottomEdgeComponent={
           <View
             style={{
               height: 10,
               width: '100%',
-              backgroundColor: 'red',
+              backgroundColor: '#3498db',
               bottom: 0,
               position: 'absolute',
+              borderBottomLeftRadius: 4,
+              borderBottomRightRadius: 4,
             }}
-          />
+          >
+            <Text style={{ textAlign: 'center', fontSize: 10, color: 'white' }}>Drag</Text>
+          </View>
         }
       />
     );
   }, []);
 
-  // sample functions from the documentation to handle drag and edit feature of events
-  // note that they are both synchronous methods
-  // event param will represent the event that has been selected
-  // TODO : update logic to update the specific event that has been selected
-  const handleDragEditStart = (event: any) => {
-    console.log('started editing event:', event);
+  // Format date for display in the modal
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString();
   };
 
-  // this function should be triggered in the event that the event's changes has been modified
-  // this function should allow modifying the time within which the event has been placed
-  const handleDragEditEnd = (event, newStart, newEnd) => {
-    console.log('Event edited :', event, newStart, newEnd);
-  };
   return (
-    // TODO : modify prop to allow for draggable event and dynamic event creation logic.
+    <View style={styles.container}>
+      {/* Add event button */}
+      <TouchableOpacity style={styles.addButton} onPress={handleCreateNewEvent}>
+        <Ionicons name="add-circle" size={24} color="white" />
+      </TouchableOpacity>
 
-    <CalendarContainer
-      numberOfDays={3}
-      scrollByDay={true} // When false, it will scroll by the number of days set in numberOfDays (allows users to scroll by intervals of 1)
-      // scrollToNow={true} // for user experience, the day they are on should be the current day
-      // minDate="1900-01-01"
-      // maxDate="2600-01-01"
-      // prop that handles adding events
-      allowDragToCreate={true}
-      allowDragToEdit={true}
-      onDragEventStart={handleDragEditStart}
-      onDragEventEnd={handleDragEditEnd}
-      dragStep={15} // this allows customizing drag step behavior
-      onDragCreateEventStart={handleDragCreateStart}
-      onDragCreateEventEnd={handleDragCreateEnd}
-      minDate="2025-01-01"
-      maxDate="2025-12-31"
-      initialDate="2025-03-13"
-      // working event zone (from example with minor modification)
-      // events={[
-      //   {
-      //     id: '1',
-      //     title: 'Meeting with Team',
-      //     start: { dateTime: '2025-03-15T10:00:00Z' },
-      //     end: { dateTime: '2025-03-15T11:00:00Z' },
-      //     color: '#4285F4',
-      //   },
-      // ]}
+      <CalendarContainer
+        timeZone="America/New_York"
+        theme={customTheme}
+        numberOfDays={3}
+        scrollByDay={true}
+        allowDragToCreate={false}
+        allowDragToEdit={true}
+        onDragEventStart={handleDragEditStart}
+        onDragEventEnd={handleDragEditEnd}
+        dragStep={15}
+        // onDragCreateEventStart={handleDragCreateStart}
+        // onDragCreateEventEnd={handleDragCreateEnd}
+        minDate="2024-01-01"
+        maxDate="2025-12-31"
+        initialDate={now.toISOString().split('T')[0]}
+        events={formatEventsForCalendar()}
+        onPressEvent={(event) => {
+          // TODO : remove after, this is to be able to determine if I can retrieve information about the current event
+          // console.log(`Currently selected event : ${JSON.stringify(event)}`);
+          console.log(`Events related data : ${eventsData}`);
+          // Open modal to edit the pressed event
+          setCurrentEvent({
+            id: event.id,
+            title: event.title,
+            start: event.start.dateTime,
+            end: event.end.dateTime,
+            color: event.color,
+          });
+          setModalVisible(true);
+        }}
+        firstDay={0} // Start week on Sunday (0) or Monday (1)
+        showAllDayEventCell={true}
+        scrollToNow={true}
+        useHaptic={true}
+        allowPinchToZoom={true}
+        timeInterval={60} // 60 minute intervals
+        spaceFromTop={20}
+        spaceFromBottom={20}
+        onChange={(visibleRange) => console.log('Visible range changed:', visibleRange)}
+        onDateChanged={(date) => console.log('Date changed:', date)}
+        onPressBackground={(date, timeString) =>
+          console.log('Background pressed:', date, timeString)
+        }
+      >
+        <CalendarHeader
+          // Enhanced header configuration
+          showWeekNumber={true}
+          showCurrentTime={true}
+          headerContainerStyle={customTheme.headerContainerStyle}
+          monthYearStyle={customTheme.monthYearStyle}
+          dayBarHeight={70} // Increase height for better visibility
+          headerBottomHeight={25} // Add space at bottom of header
+          collapsedItems={3} // Show 3 items when collapsed
+          LeftAreaComponent={LeftAreaComponentFunction}
+        />
+        <CalendarBody
+          renderDraggingEvent={renderDraggingEvent}
+          hourFormat="HH:mm" // 24-hour format
+          showNowIndicator={true}
+          NowIndicatorComponent={NowIndicatorComponentFunction}
+        />
+      </CalendarContainer>
 
-      // experimental event implementation
-      // NOTE : each event has an unique id component to differentiate them
-      events={[
-        {
-          id: '1',
-          title: 'Sample Event',
-          start: { dateTime: eventStartTime },
-          end: { dateTime: eventEndTime },
-          color: 'red',
-        },
-      ]}
-      // experimental to check if event being pressed works
-      onPressEvent={(event) => {
-        // print out information about a particular event
-        console.log('Event pressed', event);
-      }}
-    >
-      <CalendarHeader />
+      {/* Event editing modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            {/* <Text style={styles.modalTitle}>
+              Event Details
+              <AntDesign
+                style={{
+                  marginLeft: 24,
+                  position: 'fixed',
+                  // display: 'flex',
+                  // flex: 1,
+                  // justifyContent: 'flex-end',
+                }}
+                name="delete"
+                size={24}
+                color="black"
+              />
+            </Text> */}
 
-      {/**Determine how events ought to be rendered */}
-      <CalendarBody renderDraggingEvent={renderDraggingEvent} />
-    </CalendarContainer>
+            {/* <Text style={styles.modalTitle}>
+              Event Details
+              <AntDesign
+                style={{
+                  marginLeft: 24,
+                  position: 'fixed',
+                }}
+                name="delete"
+                size={24}
+                color="black"
+              />
+            </Text>
+
+            {} */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Event Details</Text>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  console.log('Delete event:', currentEvent.id);
+                  setModalVisible(false);
+                }}
+              >
+                <AntDesign name="delete" size={24} color="red" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Title:</Text>
+              <TextInput
+                style={styles.input}
+                value={currentEvent.title || ''}
+                onChangeText={(text) => setCurrentEvent((prev) => ({ ...prev, title: text }))}
+                placeholder="Enter event title"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Description:</Text>
+              <TextInput
+                style={[styles.input, styles.multilineInput]}
+                value={currentEvent.description || ''}
+                onChangeText={(text) => setCurrentEvent((prev) => ({ ...prev, description: text }))}
+                placeholder="Enter event description"
+                multiline={true}
+                numberOfLines={3}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Location:</Text>
+              <TextInput
+                style={styles.input}
+                value={currentEvent.location || ''}
+                onChangeText={(text) => setCurrentEvent((prev) => ({ ...prev, location: text }))}
+                placeholder="Enter event location"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Start Time:</Text>
+              <Text style={styles.timeText}>{formatDateForDisplay(currentEvent.start)}</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>End Time:</Text>
+              <Text style={styles.timeText}>{formatDateForDisplay(currentEvent.end)}</Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <View style={styles.checkboxRow}>
+                <Text style={styles.label}>Recurring Event:</Text>
+                <TouchableOpacity
+                  style={[styles.checkbox, currentEvent.isRecurring && styles.checkboxChecked]}
+                  onPress={() =>
+                    setCurrentEvent((prev) => ({ ...prev, isRecurring: !prev.isRecurring }))
+                  }
+                >
+                  {currentEvent.isRecurring && (
+                    <Ionicons name="checkmark" size={16} color="white" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.colorSection}>
+              <Text style={styles.label}>Color:</Text>
+              <View style={styles.colorOptions}>
+                {['#4285F4', '#0F9D58', '#F4B400', '#DB4437', '#7B1FA2'].map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      styles.colorOption,
+                      { backgroundColor: color },
+                      currentEvent.color === color && styles.selectedColor,
+                    ]}
+                    onPress={() => setCurrentEvent((prev) => ({ ...prev, color }))}
+                  />
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonSave]}
+                onPress={handleSaveEvent}
+              >
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, styles.buttonCancel]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
-// export default function Schedule() {
-//   /* start of old default code
-//   // const [items, setItems] = useState({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: 'relative',
+  },
+  addButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1000,
+    backgroundColor: '#3498db',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  todayButton: {
+    backgroundColor: '#3498db',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginLeft: 10,
+    marginTop: 5,
+  },
+  todayButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  nowIndicator: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 100,
+  },
+  nowIndicatorCircle: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'red',
+    marginLeft: 2,
+  },
+  nowIndicatorLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: 'red',
+    opacity: 0.7,
+  },
 
-//   // const today = new Date().toISOString().split('T')[0];
+  // this ensures that the modal remains within the centermost portion of the screen
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
 
-//   // const tuesdayThursdayClasses = [
-//   //   { name: 'Programming Language Paradigms', time: '3:30 PM - 4:45 PM' },
-//   //   { name: 'Software Engineering', time: '2:00 PM - 3:15 PM' },
-//   //   { name: 'Senior Project II', time: '9:30 AM - 10:45 AM' },
-//   //   { name: 'Numerical Issues in Scientific Programming', time: '11:00 AM - 12:15 PM' }
-//   // ];
-
-//   // const loadItems = (day) => {
-//   //   const newItems = { ...items };
-
-//   //   setTimeout(() => {
-//   //     for (let i = -15; i < 85; i++) {
-//   //       const date = new Date(day.timestamp + i * 24 * 60 * 60 * 1000);
-//   //       const strDate = date.toISOString().split('T')[0];
-//   //       const dayOfWeek = date.getDay();
-
-//   //       if (dayOfWeek === 2 || dayOfWeek === 4) {
-//   //         newItems[strDate] = tuesdayThursdayClasses;
-//   //       } else {
-//   //         newItems[strDate] = [{ name: 'No classes', time: '' }];
-//   //       }
-//   //     }
-//   //     setItems(newItems);
-//   //   }, 1000);
-//   // };
-
-//   // const renderItem = (item) => {
-//   //   return (
-//   //     <View
-//   //       style={{
-//   //         backgroundColor: '#fff',
-//   //         borderRadius: 10,
-//   //         padding: 20,
-//   //         marginBottom: 10,
-//   //         marginHorizontal: 10,
-//   //         shadowColor: '#000',
-//   //         shadowOpacity: 0.1,
-//   //         shadowOffset: { width: 0, height: 2 },
-//   //         elevation: 3,
-//   //       }}
-//   //     >
-//   //       <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
-//   //       {item.time ? (
-//   //         <Text style={{ fontSize: 14, color: '#666', marginTop: 5 }}>{item.time}</Text>
-//   //       ) : null}
-//   //     </View>
-//   //   );
-//   // };
-
-//   // return (
-//   //   <View style={{ flex: 1, backgroundColor: '#f2f2f2' }}>
-//   //     <Agenda
-//   //       items={items}
-//   //       loadItemsForMonth={loadItems}
-//   //       selected={today}
-//   //       renderItem={renderItem}
-//   //       renderEmptyDate={() => (
-//   //         <View style={{ height: 50, flex: 1, paddingTop: 20, paddingLeft: 10 }}>
-//   //           <Text>No classes today.</Text>
-//   //         </View>
-//   //       )}
-//   //       theme={{
-//   //         selectedDayBackgroundColor: '#00adf5',
-//   //         todayTextColor: '#00adf5',
-//   //         arrowColor: '#00adf5',
-//   //       }}
-//   //     />
-//   //   </View>
-//   // );
-//   * end of old default code.
-//   */
-
-//   return (
-//     <View
-//       style={{
-//         flex: 1,
-//         backgroundColor: '#f2f2f2',
-//       }}
-//     >
-//       <Calendar />
-//     </View>
-//   );
-// }
+  // css styling for the modal view itself
+  modalView: {
+    width: '85%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalHeader: {
+    position: 'relative',
+    width: '100%',
+    marginBottom: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // styling for the delete button icon
+  deleteButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    // paddingHorizontal: 2,
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#555',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  multilineInput: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#3498db',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  checkboxChecked: {
+    backgroundColor: '#3498db',
+  },
+  timeText: {
+    fontSize: 16,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  colorSection: {
+    marginBottom: 15,
+  },
+  colorOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+  },
+  colorOption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  selectedColor: {
+    borderWidth: 3,
+    borderColor: '#333',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  button: {
+    padding: 12,
+    borderRadius: 5,
+    width: '48%',
+    alignItems: 'center',
+  },
+  buttonSave: {
+    backgroundColor: '#3498db',
+  },
+  buttonCancel: {
+    backgroundColor: '#e74c3c',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+});
