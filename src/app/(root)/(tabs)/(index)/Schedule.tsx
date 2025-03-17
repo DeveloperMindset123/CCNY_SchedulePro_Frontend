@@ -4,7 +4,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { useCallback, useEffect, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 // import { Agenda } from 'react-native-calendars';
 import {
   CalendarBody,
@@ -18,6 +18,7 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
+
 // component to intialize calendar
 export default function Schedule() {
   // TODO : determine appropriate useState hooks to store data regarding events for a particular user
@@ -26,6 +27,8 @@ export default function Schedule() {
 
   // set the current start and end event as an object
   // this hook will store the immediate event changes
+  // NOTE : useState hooks are asycnhronous so data updates will not be shown immediately
+  // therefore, useEffect hooks are needed to detect changes and retrieve data
   const [currentEvent, setCurrentEvent] = useState({
     start: '',
     end: '',
@@ -35,9 +38,10 @@ export default function Schedule() {
   const [eventsData, setEventsData] = useState([{}]);
   const [eventCreationComplete, setEventCreationComplete] = useState(false);
 
-  // const addNewEvents = (current_event: any) => {
-
-  // }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const addNewEvents = (current_event: any) => {
+    throw new Error('Not yet implemented.');
+  };
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const events_data = [
     {
@@ -48,8 +52,6 @@ export default function Schedule() {
       color: '#4285F4',
     },
   ];
-
-  // const [setEvent, ]
 
   // experiment with current time and an hour later
   // dynamic implementation
@@ -80,13 +82,6 @@ export default function Schedule() {
     setEventCreationComplete(true);
     // console.log('New event:', end_time);
   };
-
-  // this could potentially be causing excessive component re-rendering
-  // if (eventCreationComplete === true) {
-  //   // replace the state
-  //   // with a brand new array
-  //   setEventsData([...eventsData, currentEvent]);
-  // }
 
   useEffect(() => {
     if (eventCreationComplete === true) {
@@ -157,6 +152,20 @@ export default function Schedule() {
       />
     );
   }, []);
+
+  // sample functions from the documentation to handle drag and edit feature of events
+  // note that they are both synchronous methods
+  // event param will represent the event that has been selected
+  // TODO : update logic to update the specific event that has been selected
+  const handleDragEditStart = (event: any) => {
+    console.log('started editing event:', event);
+  };
+
+  // this function should be triggered in the event that the event's changes has been modified
+  // this function should allow modifying the time within which the event has been placed
+  const handleDragEditEnd = (event, newStart, newEnd) => {
+    console.log('Event edited :', event, newStart, newEnd);
+  };
   return (
     // TODO : modify prop to allow for draggable event and dynamic event creation logic.
 
@@ -168,7 +177,10 @@ export default function Schedule() {
       // maxDate="2600-01-01"
       // prop that handles adding events
       allowDragToCreate={true}
-      dragStep={15}
+      allowDragToEdit={true}
+      onDragEventStart={handleDragEditStart}
+      onDragEventEnd={handleDragEditEnd}
+      dragStep={15} // this allows customizing drag step behavior
       onDragCreateEventStart={handleDragCreateStart}
       onDragCreateEventEnd={handleDragCreateEnd}
       minDate="2025-01-01"
@@ -186,7 +198,7 @@ export default function Schedule() {
       // ]}
 
       // experimental event implementation
-
+      // NOTE : each event has an unique id component to differentiate them
       events={[
         {
           id: '1',
