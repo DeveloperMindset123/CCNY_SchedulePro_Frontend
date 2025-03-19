@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+  TextInput,
+  Alert,
+  TouchableWithoutFeedback, // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
+  Platform,
+} from 'react-native';
 import {
   CalendarBody,
   CalendarContainer,
@@ -7,11 +17,16 @@ import {
   DraggingEvent,
   DraggingEventProps,
 } from '@howljs/calendar-kit';
-import { Ionicon, AntDesign } from '@/components/core/icon';
+// import { Ionicon, AntDesign } from '@/components/core/icon';
+import { AntDesign } from '@expo/vector-icons';
+import { Ionicon } from '@/components/core/icon';
 import CalendarModal from '@/components/core/calendarModal';
 export default function Schedule() {
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
+  // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
   // define the function that will handle the creation of new events
   // note that the modal for this should be different from the existing event modal
   const handleCreateNewEvent = () => {
@@ -78,29 +93,89 @@ export default function Schedule() {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={newEventModal}
-        onRequestClose={() => setNewEventModal(false)}
+        visible={newEventModal} // meaning as long as this useState hook is true, the modal will be displayed
+        onRequestClose={() => {
+          Alert.alert('This modal has been closed');
+          setNewEventModal(false);
+        }}
       >
-        {/**define the css for the modal */}
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-          }}
-        >
+        <TouchableWithoutFeedback>
+          {/**define the css for the modal */}
           <View
+            // styling to ensure that content within the modal is positioned at the center of the page
             style={{
-              width: '85%',
-              backgroundColor: 'white',
-              borderRadius: 10,
-              padding: 20,
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)', // this creates a background dimming effect once the modal pops up
             }}
           >
-            <Text>This is a modal</Text>
+            <View
+              // styling for modalView
+              style={{
+                width: '85%',
+                backgroundColor: 'white',
+                borderRadius: 10,
+                padding: 20,
+                shadowColor: '#000',
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }}
+            >
+              <View
+                // styling for the header of the modal
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  // paddingBottom: 15,
+                  marginBottom: 15, // adding paddingBottom and marginBottom does not yield the same result
+                  // paddingBottom: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {/**Render the text that will display the modal's title itself */}
+                <Text
+                  // styling for the header title that is to be rendered at the top of the modal
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginBottom: 15,
+                    textAlign: 'center',
+                    color: '#333',
+
+                    // conditional rendering of fonts
+                    // the fonts are quite generic
+                    fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
+                  }}
+                >
+                  Event Details
+                </Text>
+                {/**add the delete button to be positioned to the right hand side of the modal at the same level as the modal header*/}
+                <TouchableOpacity
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: -2,
+                  }}
+                  // upon clicking on the delete button, modal should close
+                  // no data should be saved in reagrds to this modal
+                  // in this case, no eventhas been created so we simply need to discard the data by closing the modal
+                  onPress={() => {
+                    setNewEventModal(false);
+                  }}
+                >
+                  <AntDesign name="delete" size={20} color="red" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
       {/* )} */}
     </View>

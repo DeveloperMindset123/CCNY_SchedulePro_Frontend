@@ -18,7 +18,7 @@ import {
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 
-export default function oldSchedule() {
+export default function OldSchedule() {
   // Define the theme we will need
   // relevant css styling
   const customTheme = {
