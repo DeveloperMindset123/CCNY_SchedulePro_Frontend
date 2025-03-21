@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -25,6 +26,25 @@ export default function Schedule() {
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [currentEventData, setCurrentEventData] = useState({
+    id: -1, // we want the id to be a random generated unsigned integer
+    title: '', // event title, should originally be empty
+    description: '', // description of the event
+    start: '', // start time (should be set to ISO string format)
+    end: '', // end time, should also be set to ISO string format
+    color: '#4285F4', // users should have various choices to select from
+    location: 'Not Specified', // specifies the location where the event should take place
+    isRecurring: false,
+    recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
+  });
+
+  const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
+  // TODO : Reference to this useState hook --> this array should be updated in the following conditions:
+  // 1. once a new event has been created (meaning the save button within the modal has been clicked)
+  // 2. once an existing event has been modified (a seperate modal will be used for this)
+  // 3. once an event has been deleted (the same modal that has been used for editing an event can be reused)
+  const [eventsList, setEventList] = useState([]);
+
   // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
   // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
   // define the function that will handle the creation of new events
@@ -34,6 +54,12 @@ export default function Schedule() {
     // when this modal view is set to true, the modal will be displayed
     setNewEventModal(true);
   };
+
+  // useEffect hook to test if sample event is working as intended
+  useEffect(() => {
+    console.log(currentEventData);
+  }, [currentEventData]);
+
   return (
     <View
       style={{
@@ -158,6 +184,7 @@ export default function Schedule() {
                 </Text>
                 {/**add the delete button to be positioned to the right hand side of the modal at the same level as the modal header*/}
                 <TouchableOpacity
+                  // specifying position to be absolute ensures that the icon can be positioned within the top/bottom right/left overriding the parent code of content being placed within center
                   style={{
                     position: 'absolute',
                     right: 0,
@@ -172,6 +199,98 @@ export default function Schedule() {
                 >
                   <AntDesign name="delete" size={20} color="red" />
                 </TouchableOpacity>
+              </View>
+
+              {/** Define the text input component for the title of the new event, this will be a single line component */}
+              <View
+                style={{
+                  marginBottom: 15,
+                }}
+              >
+                <Text
+                  style={{
+                    // styling for the event title text-input
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    marginBottom: 5,
+                    color: '#555',
+                  }}
+                >
+                  Title:
+                </Text>
+                <TextInput
+                  style={{
+                    borderWidth: 1, // forms a square outline surrounding the text input
+                    borderColor: '#ddd', // determines the color of the outline
+                    borderRadius: 5, // determines the curvature of the edges around the squares
+                    padding: 10, // determines how much extra space should be added to push out the borders
+                    fontSize: 14, // determines how large the text should appear within the input box
+                    backgroundColor: '#f9f9f9', // determines the color within the input box itself
+                    shadowOffset: { width: 10, height: 10 },
+                    // shadowRadius: 20,
+                  }}
+                  value={currentEventData.title || ''}
+                  placeholder="Enter event title"
+                  // NOTE : we only want to update the title portion of the currentEvent state
+                  // all the other fields will remain unchanged
+                  onChangeText={(newUserInputTitle) =>
+                    setCurrentEventData((prev) => ({
+                      ...prev,
+                      title: newUserInputTitle,
+                    }))
+                  }
+                />
+              </View>
+
+              {/* component that implements the description text input (multiline component implementation) */}
+              <View
+                style={{
+                  marginBottom: 15,
+                }}
+              >
+                <Text
+                  // styling for the text that appears above the text input placeholder
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    marginBottom: 5,
+                    color: '#555',
+                  }}
+                >
+                  Event Description
+                </Text>
+                <TextInput
+                  // some of the styling here is reusable as it's part of the title input as well (the portion that remains unchanged has been marked via comments)
+                  style={{
+                    // start of similar styling to previous title input
+                    borderWidth: 1,
+                    borderColor: '#ddd',
+                    borderRadius: 5,
+                    padding: 10,
+                    fontSize: 12, // this is the only modification for the input styling compared to the previous one
+                    backgroundColor: '#f9f9f9',
+                    // end of similar styling to previous title input
+
+                    // styling exclusive to multiline input
+                    height: 80,
+                    textAlignVertical: 'bottom',
+                  }}
+                  placeholder="Enter Event Description"
+                  value={currentEventData.description || ''}
+                  onChangeText={(newEventDescription) =>
+                    setCurrentEventData((previousEventData) => ({
+                      ...previousEventData, // copy the data that is currently within the object
+
+                      // update the description based on the user input
+                      description: newEventDescription,
+                    }))
+                  }
+                  multiline={true}
+                  numberOfLines={3}
+                />
+              </View>
+              <View>
+                {/**TODO : implement react-native date time picker logic here for the date and time */}
               </View>
             </View>
           </View>
