@@ -10,6 +10,7 @@ import {
   Alert,
   TouchableWithoutFeedback, // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
   Platform,
+  Button,
 } from 'react-native';
 import {
   CalendarBody,
@@ -22,9 +23,15 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import CalendarModal from '@/components/core/calendarModal';
+// import DatePicker from 'react-native-date-picker';
 export default function Schedule() {
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  // TODO : you will need 2 modals here --> the first to pick the starting date and the second for the ending date
+  // modal to handle the date and time picker logic
+  const [date, setDate] = useState(new Date()); // default should be current date
+  const [open, setOpen] = useState(false); // determines whether the datetime-picker modal should open or remain closed
 
   const [currentEventData, setCurrentEventData] = useState({
     id: -1, // we want the id to be a random generated unsigned integer
@@ -289,8 +296,44 @@ export default function Schedule() {
                   numberOfLines={3}
                 />
               </View>
-              <View>
-                {/**TODO : implement react-native date time picker logic here for the date and time */}
+              <View
+                style={{
+                  // flex: 3,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                }}
+              >
+                <View
+                  style={{
+                    marginRight: 10,
+                    backgroundColor: 'red',
+                  }}
+                >
+                  <Text>Start Date</Text>
+                  <Button title="open" onPress={() => setOpen(true)} />
+                  {/* <DatePicker
+                    modal
+                    // mode="datetime" // ensures that date and time is rendered
+                    open={open}
+                    date={date}
+                    onConfirm={(date) => {
+                      setOpen(false);
+                      setDate(date); // update the date based on user-input
+                    }}
+                    onCancel={() => {
+                      setOpen(false); // close the inner modal
+                    }}
+                  /> */}
+
+                  <DatePicker date={date} onDateChange={setDate} />
+                </View>
+                <View
+                  style={{
+                    backgroundColor: 'green',
+                  }}
+                >
+                  <Text>End Date</Text>
+                </View>
               </View>
             </View>
           </View>
