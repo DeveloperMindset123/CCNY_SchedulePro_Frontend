@@ -24,14 +24,52 @@ import { AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import CalendarModal from '@/components/core/calendarModal';
 // import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 export default function Schedule() {
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   // TODO : you will need 2 modals here --> the first to pick the starting date and the second for the ending date
   // modal to handle the date and time picker logic
-  const [date, setDate] = useState(new Date()); // default should be current date
-  const [open, setOpen] = useState(false); // determines whether the datetime-picker modal should open or remain closed
+  const [startDate, setStartDate] = useState(new Date()); // default should be current date
+  const [endDate, setEndDate] = useState(new Date());
+  const [show, setShow] = useState(true); // determines whether the datetime-picker modal should open or remain closed
+  const [mode, setMode] = useState('date');
+  // TODO : 3 types of mode : date, time, datetime
+
+  const onChangeStart = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
+    setStartDate(currentDate);
+  };
+
+  // mirror of onChangeStart (a bit on the repetitive end)
+  const onChangeEnd = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate;
+    console.log(`Current available events : ${event}`);
+    setEndDate(currentDate);
+  };
+
+  // function that renders the current mode that the user has selected (i.e. date, time, or datetime)
+  // the below functions can be reused for both the start and end date
+  const showMode = (currentMode: string) => {
+    // setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatePicker = () => {
+    showMode('date');
+  };
+
+  const showTimePicker = () => {
+    showMode('time');
+  };
+
+  // NOTE : IOS Only has the datetime feature
+  const showDateTimePicker = () => {
+    showMode('datetime');
+  };
 
   const [currentEventData, setCurrentEventData] = useState({
     id: -1, // we want the id to be a random generated unsigned integer
@@ -62,10 +100,13 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
+  // const datetimePickerMode = Platform.OS === 'ios' ? 'datetime' : 'date';
+
   // useEffect hook to test if sample event is working as intended
   useEffect(() => {
     console.log(currentEventData);
-  }, [currentEventData]);
+    console.log(`current start and end date : \n${startDate}\n ${endDate}`);
+  }, [currentEventData, startDate, endDate]);
 
   return (
     <View
@@ -299,40 +340,75 @@ export default function Schedule() {
               <View
                 style={{
                   // flex: 3,
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   justifyContent: 'center',
                 }}
               >
                 <View
                   style={{
-                    marginRight: 10,
-                    backgroundColor: 'red',
+                    flexDirection: 'row',
+                    padding: -10,
+                    // marginRight: 10,
+                    // backgroundColor: 'red',
                   }}
                 >
-                  <Text>Start Date</Text>
-                  <Button title="open" onPress={() => setOpen(true)} />
-                  {/* <DatePicker
-                    modal
-                    // mode="datetime" // ensures that date and time is rendered
-                    open={open}
-                    date={date}
-                    onConfirm={(date) => {
-                      setOpen(false);
-                      setDate(date); // update the date based on user-input
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      marginTop: 7,
+                      marginLeft: -5,
                     }}
-                    onCancel={() => {
-                      setOpen(false); // close the inner modal
-                    }}
-                  /> */}
+                  >
+                    Start Date:
+                  </Text>
+                  {/* {/* <Button title="open" onPress={() => setOpen(true)} />
+                   * conditionally render the date and time picker
 
-                  <DatePicker date={date} onDateChange={setDate} />
+                  {Platform.OS === 'ios' ? (
+                    <Button onPress={showDateTimePicker} title="Show datetime picker!" />
+                  ) : (
+                    <View>
+                      <Button onPress={showDatePicker} title="Show date picker!" />
+                      <Button onPress={showDatePicker} title="Show date picker!" />
+                    </View>
+                  )}
+                   <Button onPress={showDatePicker} title="Show date picker!" />
+                  <Button onPress={showTimePicker} title="Show time picker!" />
+
+                  {/**Text that dynamically renders the date and time that has been selected by the user
+                  <Text>selected: {date.toLocaleString()}</Text> */}
+                  <DateTimePicker
+                    style={{}}
+                    testID="dateTimePicker"
+                    value={startDate}
+                    mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                    is24Hour={true}
+                    onChange={onChangeStart}
+                  />
                 </View>
                 <View
                   style={{
-                    backgroundColor: 'green',
+                    flexDirection: 'row',
+                    padding: -10,
+                    marginTop: 10,
+                    // backgroundColor: 'green',
                   }}
                 >
-                  <Text>End Date</Text>
+                  <Text
+                    style={{
+                      marginTop: 8,
+                    }}
+                  >
+                    End Date:
+                  </Text>
+                  <DateTimePicker
+                    style={{}}
+                    testID="dateTimePicker"
+                    value={endDate}
+                    mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                    is24Hour={true}
+                    onChange={onChangeEnd}
+                  />
                 </View>
               </View>
             </View>
