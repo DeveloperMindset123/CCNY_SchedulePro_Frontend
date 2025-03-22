@@ -25,10 +25,25 @@ import { Ionicon } from '@/components/core/icon';
 import CalendarModal from '@/components/core/calendarModal';
 // import DatePicker from 'react-native-date-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Dropdown } from 'react-native-element-dropdown';
+
+// TODO : conditioanlly render dropdown component based on user's selection
 
 export default function Schedule() {
+  const dropdownData = [
+    { label: 'Daily', value: '1' },
+    { label: 'Weekly', value: '2' },
+    { label: 'Annually', value: '3' },
+    { label: 'Every Weekday', value: '4' },
+    { label: 'Every Weekend', value: '5' },
+
+    // TODO : this should be a feature post-mvp (as it would be more work to implement atm)
+    // { label : 'custom', value : '6' }
+  ];
+
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [dropdownValue, setDropdownValue] = useState(null);
 
   // TODO : you will need 2 modals here --> the first to pick the starting date and the second for the ending date
   // modal to handle the date and time picker logic
@@ -42,6 +57,10 @@ export default function Schedule() {
     const currentDate = selectedDate;
     // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
     setStartDate(currentDate);
+    setCurrentEventData((previousEventData) => ({
+      ...previousEventData,
+      start: startDate.toString(),
+    }));
   };
 
   // mirror of onChangeStart (a bit on the repetitive end)
@@ -49,6 +68,10 @@ export default function Schedule() {
     const currentDate = selectedDate;
     console.log(`Current available events : ${event}`);
     setEndDate(currentDate);
+    setCurrentEventData((previousEventData) => ({
+      ...previousEventData,
+      end: endDate.toString(), // update the endDate (experimental)
+    }));
   };
 
   // function that renders the current mode that the user has selected (i.e. date, time, or datetime)
@@ -72,14 +95,24 @@ export default function Schedule() {
   };
 
   const [currentEventData, setCurrentEventData] = useState({
-    id: -1, // we want the id to be a random generated unsigned integer
-    title: '', // event title, should originally be empty
-    description: '', // description of the event
+    // we want the id to be a random generated unsigned integer
+    // id should be randomly genereated once the save button at the bottom of the modal has been pressed
+    id: -1,
+
+    // event title, should originally be empty
+    // the title tag should be the first to be updated on the event modal (but discarded if modal is deleted)
+    title: '',
+
+    // description of the event
+    // the description tag should be the second to be updated
+    description: '',
+
     start: '', // start time (should be set to ISO string format)
     end: '', // end time, should also be set to ISO string format
     color: '#4285F4', // users should have various choices to select from
     location: 'Not Specified', // specifies the location where the event should take place
     isRecurring: false,
+    eventColor: '#4285F4', // default event color should be blue
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
 
@@ -100,7 +133,16 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
-  // const datetimePickerMode = Platform.OS === 'ios' ? 'datetime' : 'date';
+  const renderDropdownItem = (item) => {
+    return (
+      <View style={dropdownStyles.item}>
+        <Text style={dropdownStyles.textItem}>{item.label}</Text>
+        {item.value === dropdownValue && (
+          <AntDesign style={dropdownStyles.icon} color="black" name="Safety" size={20} />
+        )}
+      </View>
+    );
+  };
 
   // useEffect hook to test if sample event is working as intended
   useEffect(() => {
@@ -347,7 +389,7 @@ export default function Schedule() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    padding: -10,
+                    // padding: -10,
                     // marginRight: 10,
                     // backgroundColor: 'red',
                   }}
@@ -356,10 +398,12 @@ export default function Schedule() {
                     style={{
                       fontSize: 14,
                       marginTop: 7,
-                      marginLeft: -5,
+                      color: '#555',
+                      fontWeight: 'bold',
+                      // marginLeft: -2,
                     }}
                   >
-                    Start Date:
+                    Start:
                   </Text>
                   {/* {/* <Button title="open" onPress={() => setOpen(true)} />
                    * conditionally render the date and time picker
@@ -389,20 +433,22 @@ export default function Schedule() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    padding: -10,
+                    // padding: -10,
                     marginTop: 10,
                     // backgroundColor: 'green',
                   }}
                 >
                   <Text
                     style={{
+                      fontWeight: 'bold',
+                      color: '#555',
                       marginTop: 8,
+                      marginRight: 7.5,
                     }}
                   >
-                    End Date:
+                    End:
                   </Text>
                   <DateTimePicker
-                    style={{}}
                     testID="dateTimePicker"
                     value={endDate}
                     mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
@@ -411,6 +457,87 @@ export default function Schedule() {
                   />
                 </View>
               </View>
+              {/**This section determines whether the event should be recurring or not
+               *
+               * NOTE : a dropdown should be displayed if event happens to be recurring
+               *
+               */}
+              <View
+                style={{
+                  marginTop: 15,
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      marginBottom: 5,
+                      color: '#666',
+                    }}
+                  >
+                    Is this event recurring?
+                  </Text>
+                  <TouchableOpacity
+                    // checkbox styling
+                    // the checkboxChecked styling should only render
+                    // if isRecurring is set to true
+                    style={[
+                      checkboxStyling.checkbox,
+                      currentEventData.isRecurring && checkboxStyling.checkboxChecked,
+                    ]}
+                    onPress={() =>
+                      setCurrentEventData((previousData) => ({
+                        ...previousData,
+                        isRecurring: !previousData.isRecurring, // toggle logic
+                      }))
+                    }
+                  >
+                    {
+                      // render a checkmark if isRecurring is set to true
+                      currentEventData.isRecurring && (
+                        <Ionicon name="checkmark" size={16} color="white" />
+                      )
+                    }
+                  </TouchableOpacity>
+                </View>
+                {currentEventData.isRecurring && (
+                  <Dropdown
+                    style={dropdownStyles.dropdown}
+                    placeholderStyle={dropdownStyles.placeholderStyle}
+                    selectedTextStyle={dropdownStyles.selectedTextStyle}
+                    inputSearchStyle={dropdownStyles.inputSearchStyle}
+                    iconStyle={dropdownStyles.iconStyle}
+                    data={dropdownData}
+                    search
+                    maxHeight={300}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Select item"
+                    searchPlaceholder="Search..."
+                    value={dropdownValue}
+                    onChange={(item) => {
+                      setDropdownValue(item.value);
+                    }}
+                    renderLeftIcon={() => (
+                      <AntDesign
+                        style={dropdownStyles.icon}
+                        color="black"
+                        name="Safety"
+                        size={20}
+                      />
+                    )}
+                    renderItem={renderDropdownItem}
+                  />
+                )}
+              </View>
+              <Text>Testing</Text>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -419,3 +546,65 @@ export default function Schedule() {
     </View>
   );
 }
+
+const checkboxStyling = StyleSheet.create({
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#3498db',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  checkboxChecked: {
+    backgroundColor: '#3498db', // adjust background color to the border color if it has been selected (meaning status set to true)
+  },
+});
+
+// this styling has been copied from the documentation example provided
+const dropdownStyles = StyleSheet.create({
+  dropdown: {
+    margin: 16,
+    height: 50,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+  },
+  icon: {
+    marginRight: 5,
+  },
+  item: {
+    padding: 17,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textItem: {
+    flex: 1,
+    fontSize: 16,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+});
