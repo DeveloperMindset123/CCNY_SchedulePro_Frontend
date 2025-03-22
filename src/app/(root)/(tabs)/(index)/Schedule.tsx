@@ -109,10 +109,10 @@ export default function Schedule() {
 
     start: '', // start time (should be set to ISO string format)
     end: '', // end time, should also be set to ISO string format
-    color: '#4285F4', // users should have various choices to select from
+    event_color: '#4285F4', // users should have various choices to select from
     location: 'Not Specified', // specifies the location where the event should take place
     isRecurring: false,
-    eventColor: '#4285F4', // default event color should be blue
+    // eventColor: '#4285F4', // default event color should be blue
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
 
@@ -516,14 +516,23 @@ export default function Schedule() {
                     iconStyle={dropdownStyles.iconStyle}
                     data={dropdownData}
                     search
-                    maxHeight={300}
+                    maxHeight={180}
                     labelField="label"
                     valueField="value"
                     placeholder="Select item"
                     searchPlaceholder="Search..."
                     value={dropdownValue}
                     onChange={(item) => {
+                      // this is a bit confusing since it's updating the value which is an integer digit
+                      // but we want to update the label instead
                       setDropdownValue(item.value);
+
+                      // note the syntax
+                      // update the recurrence frequency
+                      setCurrentEventData((previousStateData) => ({
+                        ...previousStateData,
+                        recurrence_frequency: item.label,
+                      }));
                     }}
                     renderLeftIcon={() => (
                       <AntDesign
@@ -534,9 +543,33 @@ export default function Schedule() {
                       />
                     )}
                     renderItem={renderDropdownItem}
+                    dropdownPosition="top" // to prevent content from going outside of screen
                   />
                 )}
               </View>
+              {/**determine choice of color for the event (default is lightblue) */}
+              <View style={eventColorStyling.colorSection}>
+                <Text style={eventColorStyling.label}>Color:</Text>
+                <View style={eventColorStyling.colorOptions}>
+                  {['#4285F4', '#0F9D58', '#F4B400', '#DB4437', '#7B1FA2'].map((color) => (
+                    <TouchableOpacity
+                      key={color}
+                      style={[
+                        eventColorStyling.colorOption,
+                        { backgroundColor: color },
+                        currentEventData.event_color === color && eventColorStyling.selectedColor,
+                      ]}
+                      // onFocus={}
+                      onPress={() => {
+                        console.log(`currently selected color : ${color}`);
+                        setCurrentEventData((prev) => ({ ...prev, event_color: color }));
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              {/**Anchor point to determine where the actual content should be positioned */}
               <Text>Testing</Text>
             </View>
           </View>
@@ -606,5 +639,35 @@ const dropdownStyles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+});
+
+const eventColorStyling = StyleSheet.create({
+  colorOption: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+
+  colorOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 5,
+  },
+
+  // styling to fill in the radio button
+  // based on the color for the event that has been selected
+  selectedColor: {
+    borderWidth: 3,
+    borderColor: '#333',
+  },
+  colorSection: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#555',
   },
 });
