@@ -141,25 +141,24 @@ export default function Schedule() {
     // save it into the list (which will then be sent to the database based on the email of the user)
     // treating this also as a form of base case
     if (id_existence === -1) {
-      setCurrentEventData((previousEventdata) => ({
-        ...previousEventdata,
-        id: random_generated_id,
-      }));
+      // setCurrentEventData((previousEventdata) => ({
+      //   ...previousEventdata,
+      //   id: random_generated_id,
+      // }));
 
+      const updatedEvent = {
+        ...currentEventData,
+        id: random_generated_id,
+      };
+
+      setEventList([...eventsList, updatedEvent]);
       // id doesn't seem to be updating
       console.log(currentEventData);
-
-      // add the newly created event to the list
-      setEventList((previousEventList) => ({
-        ...previousEventList,
-        currentEventData,
-      }));
-      // TODO : set modal to close after
       setNewEventModal(false);
-      // return;
-      // } else {
+      return;
+    } else {
       //   // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
-      //   handleCreateSaveNewEvent();
+      handleCreateSaveNewEvent();
     }
   };
 
@@ -171,6 +170,18 @@ export default function Schedule() {
   const handleCreateNewEvent = () => {
     // for now the only behavior we want is for the useState hook variable
     // when this modal view is set to true, the modal will be displayed
+    // reset all the previous relevant data (so that the modal doesn't render old data that was previously entered by user)
+    setCurrentEventData({
+      id: -1,
+      title: '',
+      description: '',
+      start: '',
+      end: '',
+      event_color: '#4285F4',
+      location: 'Not Specified',
+      isRecurring: false,
+      recurrence_frequency: null,
+    });
     setNewEventModal(true);
   };
 
@@ -621,25 +632,37 @@ export default function Schedule() {
                 {/* <Button title="Save" />
                 <Button title="Cancel" /> */}
                 <TouchableOpacity
-                  // onPress={handleCreateSaveNewEvent}
-                  onPress={() => {
-                    const id = Math.floor(Math.random() * 100 + 1);
-                    const id_existence = eventsList.findIndex((e: any) => e.id === id);
+                  onPress={handleCreateSaveNewEvent}
+                  // onPress={() => {
+                  //   // NOTE : rather than updating the state twice
+                  //   // given the nature of state updates being asynchronous
+                  //   // update only once the state instead
+                  //   const new_generated_id = Math.floor(Math.random() * 100 + 1);
 
-                    // TODO : look into why the id value isn't updating here
-                    // if (id_existence === -1) {
-                    setCurrentEventData((prev) => ({
-                      ...prev,
-                      id,
-                    }));
-                    // }
+                  //   // check if id exists within list of events
+                  //   const id_existence = eventsList.findIndex((e: any) => e.id === new_id);
+                  //   const updatedEvent = {
+                  //     ...currentEventData,
+                  //     id: new_generated_id,
+                  //   };
 
-                    console.log(`current event related data : ${JSON.stringify(currentEventData)}`);
-                    // possible fix to the current issue
-                    setEventList([...eventsList, currentEventData]);
-                    console.log(JSON.stringify(eventsList));
-                    setNewEventModal(false); // close modal at the end of the function execution
-                  }}
+                  //   setEventList([...eventsList, updatedEvent]);
+                  //   setNewEventModal(false); // close modal at the end of the function execution
+
+                  //   // // TODO : look into why the id value isn't updating here
+                  //   // // if (id_existence === -1) {
+                  //   // setCurrentEventData((prev) => ({
+                  //   //   ...prev,
+                  //   //   id,
+                  //   // }));
+                  //   // // }
+
+                  //   // console.log(`current event related data : ${JSON.stringify(currentEventData)}`);
+                  //   // // possible fix to the current issue
+                  //   // setEventList([...eventsList, currentEventData]);
+                  //   // console.log(JSON.stringify(eventsList));
+                  //   // setNewEventModal(false); // close modal at the end of the function execution
+                  // }}
                 >
                   <Text>Save</Text>
                 </TouchableOpacity>
