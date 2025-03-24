@@ -66,7 +66,7 @@ export default function Schedule() {
   // mirror of onChangeStart (a bit on the repetitive end)
   const onChangeEnd = (event: any, selectedDate: any) => {
     const currentDate = selectedDate;
-    console.log(`Current available events : ${event}`);
+    // console.log(`Current available events : ${event}`);
     setEndDate(currentDate);
     setCurrentEventData((previousEventData) => ({
       ...previousEventData,
@@ -123,10 +123,51 @@ export default function Schedule() {
   // 3. once an event has been deleted (the same modal that has been used for editing an event can be reused)
   const [eventsList, setEventList] = useState([]);
 
+  // define the function for saving newly created event
+  // assign a new random id for the current event
+  const handleCreateSaveNewEvent = () => {
+    const random_generated_id = Math.floor(Math.random() * 100 + 1);
+    console.log(random_generated_id);
+
+    // check if the newly generated id happens to exist within the current event list
+    const id_existence = eventsList.findIndex(
+      (current_event) => current_event.id === random_generated_id
+    );
+
+    console.log(`id_existence value : ${id_existence}`);
+
+    // in the event that this conditional is true, that means the id doesn't exist
+    // that means we can attach the current event's data with the new id that has been found
+    // save it into the list (which will then be sent to the database based on the email of the user)
+    // treating this also as a form of base case
+    if (id_existence === -1) {
+      setCurrentEventData((previousEventdata) => ({
+        ...previousEventdata,
+        id: random_generated_id,
+      }));
+
+      // id doesn't seem to be updating
+      console.log(currentEventData);
+
+      // add the newly created event to the list
+      setEventList((previousEventList) => ({
+        ...previousEventList,
+        currentEventData,
+      }));
+      // TODO : set modal to close after
+      setNewEventModal(false);
+      // return;
+      // } else {
+      //   // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
+      //   handleCreateSaveNewEvent();
+    }
+  };
+
   // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
   // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
   // define the function that will handle the creation of new events
   // note that the modal for this should be different from the existing event modal
+  // NOTE : it would be more appropriate to call this functon "renderNewEventModal"
   const handleCreateNewEvent = () => {
     // for now the only behavior we want is for the useState hook variable
     // when this modal view is set to true, the modal will be displayed
@@ -146,9 +187,10 @@ export default function Schedule() {
 
   // useEffect hook to test if sample event is working as intended
   useEffect(() => {
-    console.log(currentEventData);
-    console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [currentEventData, startDate, endDate]);
+    console.log(`List of available events : ${JSON.stringify(eventsList)}`);
+    // console.log(currentEventData);
+    // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
+  }, [eventsList]);
 
   return (
     <View
@@ -422,7 +464,7 @@ export default function Schedule() {
                   {/**Text that dynamically renders the date and time that has been selected by the user
                   <Text>selected: {date.toLocaleString()}</Text> */}
                   <DateTimePicker
-                    style={{}}
+                    // style={{}}
                     testID="dateTimePicker"
                     value={startDate}
                     mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
@@ -568,7 +610,43 @@ export default function Schedule() {
                   ))}
                 </View>
               </View>
+              <View
+                // TODO : implement the logic for this
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginTop: 20,
+                }}
+              >
+                {/* <Button title="Save" />
+                <Button title="Cancel" /> */}
+                <TouchableOpacity
+                  // onPress={handleCreateSaveNewEvent}
+                  onPress={() => {
+                    const id = Math.floor(Math.random() * 100 + 1);
+                    const id_existence = eventsList.findIndex((e: any) => e.id === id);
 
+                    // TODO : look into why the id value isn't updating here
+                    // if (id_existence === -1) {
+                    setCurrentEventData((prev) => ({
+                      ...prev,
+                      id,
+                    }));
+                    // }
+
+                    console.log(`current event related data : ${JSON.stringify(currentEventData)}`);
+                    // possible fix to the current issue
+                    setEventList([...eventsList, currentEventData]);
+                    console.log(JSON.stringify(eventsList));
+                    setNewEventModal(false); // close modal at the end of the function execution
+                  }}
+                >
+                  <Text>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setNewEventModal(false)}>
+                  <Text>Cancel</Text>
+                </TouchableOpacity>
+              </View>
               {/**Anchor point to determine where the actual content should be positioned */}
               <Text>Testing</Text>
             </View>
