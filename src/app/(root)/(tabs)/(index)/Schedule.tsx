@@ -18,16 +18,12 @@ import {
   CalendarHeader,
   DraggingEvent,
   DraggingEventProps,
+  PackedEvent,
 } from '@howljs/calendar-kit';
-// import { Ionicon, AntDesign } from '@/components/core/icon';
-import { AntDesign } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
-import CalendarModal from '@/components/core/calendarModal';
-// import DatePicker from 'react-native-date-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
-
-// TODO : conditioanlly render dropdown component based on user's selection
 
 export default function Schedule() {
   const dropdownData = [
@@ -41,6 +37,23 @@ export default function Schedule() {
     // { label : 'custom', value : '6' }
   ];
 
+  // define the function to render events
+  const renderEvent = useCallback(
+    (event: PackedEvent) => (
+      <View
+        style={{
+          width: '100%',
+          height: '100%',
+          padding: 4,
+        }}
+      >
+        <Ionicons name="calendar" size={10} color="white" />
+        <Text style={{ color: 'white', fontSize: 10 }}>{event.title}</Text>
+      </View>
+    ),
+    []
+  );
+
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [dropdownValue, setDropdownValue] = useState(null);
@@ -50,27 +63,43 @@ export default function Schedule() {
   const [startDate, setStartDate] = useState(new Date()); // default should be current date
   const [endDate, setEndDate] = useState(new Date());
   const [show, setShow] = useState(true); // determines whether the datetime-picker modal should open or remain closed
+
+  // this is just an example of how to add hours to the current time
+  // this variable is intended to be a reference, it is not being used
+  const _four_hours_delay = new Date().getHours() + 4;
+
   const [mode, setMode] = useState('date');
   // TODO : 3 types of mode : date, time, datetime
 
-  const onChangeStart = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate;
+  const onChangeStart = async (event: any, selectedDate: any) => {
+    // we want a delay for the selected date
+    const currentDate = await selectedDate;
     // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
-    setStartDate(currentDate);
+
+    const updatedDatetime = {
+      dateTime: currentDate,
+    };
+
+    // NOTE : it may not be ideal to set two states within a single function
+    setStartDate(currentDate); // there is not really a need for this useState hook
     setCurrentEventData((previousEventData) => ({
       ...previousEventData,
-      start: startDate.toString(),
+      start: updatedDatetime,
     }));
   };
 
   // mirror of onChangeStart (a bit on the repetitive end)
-  const onChangeEnd = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate;
+  const onChangeEnd = async (event: any, selectedDate: any) => {
+    const currentDate = await selectedDate;
+
+    const updatedDatetime = {
+      dateTime: currentDate,
+    };
     // console.log(`Current available events : ${event}`);
     setEndDate(currentDate);
     setCurrentEventData((previousEventData) => ({
       ...previousEventData,
-      end: endDate.toString(), // update the endDate (experimental)
+      end: updatedDatetime, // update the endDate (experimental)
     }));
   };
 
@@ -105,11 +134,15 @@ export default function Schedule() {
 
     // description of the event
     // the description tag should be the second to be updated
+    // this should only be rendered if the particular event has been selected
     description: '',
 
-    start: '', // start time (should be set to ISO string format)
-    end: '', // end time, should also be set to ISO string format
-    event_color: '#4285F4', // users should have various choices to select from
+    start: { dateTime: '' }, // start time (should be set to ISO string format)
+    end: { dateTime: '' }, // end time, should also be set to ISO string format
+
+    // NOTE : this should be set to color so that the component can automatically pickup on the color
+    // of the particular event, by default it's set to blue
+    color: '#4285F4',
     location: 'Not Specified', // specifies the location where the event should take place
     isRecurring: false,
     // eventColor: '#4285F4', // default event color should be blue
@@ -125,6 +158,7 @@ export default function Schedule() {
 
   // define the function for saving newly created event
   // assign a new random id for the current event
+  // this function handles determining and assigning a new unique id to a calendar event
   const handleCreateSaveNewEvent = () => {
     const random_generated_id = Math.floor(Math.random() * 100 + 1);
     console.log(random_generated_id);
@@ -141,11 +175,6 @@ export default function Schedule() {
     // save it into the list (which will then be sent to the database based on the email of the user)
     // treating this also as a form of base case
     if (id_existence === -1) {
-      // setCurrentEventData((previousEventdata) => ({
-      //   ...previousEventdata,
-      //   id: random_generated_id,
-      // }));
-
       const updatedEvent = {
         ...currentEventData,
         id: random_generated_id,
@@ -175,9 +204,9 @@ export default function Schedule() {
       id: -1,
       title: '',
       description: '',
-      start: '',
-      end: '',
-      event_color: '#4285F4',
+      start: { dateTime: '' },
+      end: { dateTime: '' },
+      color: '#4285F4',
       location: 'Not Specified',
       isRecurring: false,
       recurrence_frequency: null,
@@ -197,12 +226,14 @@ export default function Schedule() {
   };
 
   // useEffect hook to test if sample event is working as intended
+  // TODO : delete this useState hooks
   useEffect(() => {
     console.log(`List of available events : ${JSON.stringify(eventsList)}`);
+    console.log('Detected changes to start date : ', startDate.toISOString());
+    console.log('Detected changes to end date : ', endDate.toISOString());
     // console.log(currentEventData);
     // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [eventsList]);
-
+  }, [eventsList, startDate, endDate]);
   return (
     <View
       style={{
@@ -241,20 +272,29 @@ export default function Schedule() {
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
       </TouchableOpacity>
       <CalendarContainer
+        timeZone="America/New_York"
+        minDate="2025-01-01"
+        maxDate="2026-12-31"
+        initialDate={new Date().toISOString().split('T')[0]}
         numberOfDays={3}
         scrollByDay={true}
-        events={[
-          {
-            id: '1',
-            title: 'Meeting with Team',
-            start: { dateTime: '2024-03-15T10:00:00Z' },
-            end: { dateTime: '2024-03-15T11:00:00Z' },
-            color: '#4285F4',
-          },
-        ]}
+        events={eventsList}
+        // to determine the current event that has been selected
+        onPressEvent={(event) => {
+          console.log('Pressed Event : ', event);
+        }}
+        // events={[
+        //   {
+        //     id: '1',
+        //     title: 'Meeting with Team and additional stuff like this and that',
+        //     start: { dateTime: '2025-03-24T10:00:00Z' },
+        //     end: { dateTime: '2025-03-24T11:00:00Z' },
+        //     color: '#4285F4',
+        //   },
+        // ]}
       >
         <CalendarHeader />
-        <CalendarBody />
+        <CalendarBody renderEvent={renderEvent} />
       </CalendarContainer>
 
       {/**if newEventModal is set to true, render the content of the modal*/}
@@ -610,12 +650,12 @@ export default function Schedule() {
                       style={[
                         eventColorStyling.colorOption,
                         { backgroundColor: color },
-                        currentEventData.event_color === color && eventColorStyling.selectedColor,
+                        currentEventData.color === color && eventColorStyling.selectedColor,
                       ]}
                       // onFocus={}
                       onPress={() => {
                         console.log(`currently selected color : ${color}`);
-                        setCurrentEventData((prev) => ({ ...prev, event_color: color }));
+                        setCurrentEventData((prev) => ({ ...prev, color }));
                       }}
                     />
                   ))}
