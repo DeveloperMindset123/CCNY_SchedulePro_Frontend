@@ -19,6 +19,7 @@ import {
   DraggingEvent,
   DraggingEventProps,
   PackedEvent,
+  LocaleConfigsProps,
 } from '@howljs/calendar-kit';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
@@ -55,7 +56,12 @@ export default function Schedule() {
   );
 
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState(false);
+
+  // this hook will determine whether to show the current existing event in the form of a modal
+  const [showExistingEventModal, setShowExistingEventModal] = useState(false);
+
+  // this will determine the event that has been currently selected
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dropdownValue, setDropdownValue] = useState(null);
 
   // TODO : you will need 2 modals here --> the first to pick the starting date and the second for the ending date
@@ -67,6 +73,24 @@ export default function Schedule() {
   // this is just an example of how to add hours to the current time
   // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
+
+  const initialLocales: Record<string, Partial<LocaleConfigsProps>> = {
+    en: {
+      weekDayShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
+      meridiem: { ante: 'am', post: 'pm' },
+      more: 'more',
+    },
+    ja: {
+      weekDayShort: '日_月_火_水_木_金_土'.split('_'),
+      meridiem: { ante: '午前', post: '午後' },
+      more: 'もっと',
+    },
+    vi: {
+      weekDayShort: 'CN_T2_T3_T4_T5_T6_T7'.split('_'),
+      meridiem: { ante: 'sa', post: 'ch' },
+      more: 'Xem thêm',
+    },
+  };
 
   const [mode, setMode] = useState('date');
   // TODO : 3 types of mode : date, time, datetime
@@ -231,9 +255,12 @@ export default function Schedule() {
     console.log(`List of available events : ${JSON.stringify(eventsList)}`);
     console.log('Detected changes to start date : ', startDate.toISOString());
     console.log('Detected changes to end date : ', endDate.toISOString());
+
+    console.log(`current selected event : ${selectedEvent}`);
+    console.log(`current status of event modal display : ${showExistingEventModal}`);
     // console.log(currentEventData);
     // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [eventsList, startDate, endDate]);
+  }, [eventsList, startDate, endDate, selectedEvent, showExistingEventModal]);
   return (
     <View
       style={{
@@ -272,6 +299,7 @@ export default function Schedule() {
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
       </TouchableOpacity>
       <CalendarContainer
+        initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
         maxDate="2026-12-31"
@@ -280,8 +308,11 @@ export default function Schedule() {
         scrollByDay={true}
         events={eventsList}
         // to determine the current event that has been selected
+        // NOTE : the event doesn't seem to be created correctly if the onPressEvent prop is present
         onPressEvent={(event) => {
           console.log('Pressed Event : ', event);
+          setSelectedEvent(event);
+          // setShowExistingEventModal(true); // we want to render the particular modal containing information about the particular event
         }}
         // events={[
         //   {
@@ -294,7 +325,7 @@ export default function Schedule() {
         // ]}
       >
         <CalendarHeader />
-        <CalendarBody renderEvent={renderEvent} />
+        <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
 
       {/**if newEventModal is set to true, render the content of the modal*/}
