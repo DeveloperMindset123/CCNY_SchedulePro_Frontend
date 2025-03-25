@@ -238,6 +238,12 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
+  const handlePressEvent = useCallback((event) => {
+    console.log(`Pressed event : ${event}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+    setSelectedEvent(event);
+    setShowExistingEventModal(true);
+  }, []);
+
   const renderDropdownItem = (item) => {
     return (
       <View style={dropdownStyles.item}>
@@ -256,7 +262,7 @@ export default function Schedule() {
     console.log('Detected changes to start date : ', startDate.toISOString());
     console.log('Detected changes to end date : ', endDate.toISOString());
 
-    console.log(`current selected event : ${selectedEvent}`);
+    console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
     console.log(`current status of event modal display : ${showExistingEventModal}`);
     // console.log(currentEventData);
     // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
@@ -307,13 +313,14 @@ export default function Schedule() {
         numberOfDays={3}
         scrollByDay={true}
         events={eventsList}
+        // to prevent unneccessary re-renders
+        // the event handler function will be memoized
+        // refer to the function definition
+        onPressEvent={handlePressEvent}
         // to determine the current event that has been selected
         // NOTE : the event doesn't seem to be created correctly if the onPressEvent prop is present
-        onPressEvent={(event) => {
-          console.log('Pressed Event : ', event);
-          setSelectedEvent(event);
-          // setShowExistingEventModal(true); // we want to render the particular modal containing information about the particular event
-        }}
+        // this could be due to the component re-rendering again leading to loss of data
+        // r
         // events={[
         //   {
         //     id: '1',
