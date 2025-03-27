@@ -26,6 +26,8 @@ import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 
+// TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
+
 export default function Schedule() {
   const dropdownData = [
     { label: 'Daily', value: '1' },
@@ -92,9 +94,6 @@ export default function Schedule() {
     },
   };
 
-  const [mode, setMode] = useState('date');
-  // TODO : 3 types of mode : date, time, datetime
-
   const onChangeStart = async (event: any, selectedDate: any) => {
     // we want a delay for the selected date
     const currentDate = await selectedDate;
@@ -127,49 +126,18 @@ export default function Schedule() {
     }));
   };
 
-  // function that renders the current mode that the user has selected (i.e. date, time, or datetime)
-  // the below functions can be reused for both the start and end date
-  const showMode = (currentMode: string) => {
-    // setShow(true);
-    setMode(currentMode);
-  };
-
-  const showDatePicker = () => {
-    showMode('date');
-  };
-
-  const showTimePicker = () => {
-    showMode('time');
-  };
-
-  // NOTE : IOS Only has the datetime feature
-  const showDateTimePicker = () => {
-    showMode('datetime');
-  };
-
   const [currentEventData, setCurrentEventData] = useState({
-    // we want the id to be a random generated unsigned integer
-    // id should be randomly genereated once the save button at the bottom of the modal has been pressed
     id: -1,
-
-    // event title, should originally be empty
-    // the title tag should be the first to be updated on the event modal (but discarded if modal is deleted)
     title: '',
-
-    // description of the event
-    // the description tag should be the second to be updated
-    // this should only be rendered if the particular event has been selected
     description: '',
 
-    start: { dateTime: '' }, // start time (should be set to ISO string format)
-    end: { dateTime: '' }, // end time, should also be set to ISO string format
+    start: { dateTime: '' },
+    end: { dateTime: '' },
+    color: '#4285F4', // default event color set to blue
 
-    // NOTE : this should be set to color so that the component can automatically pickup on the color
-    // of the particular event, by default it's set to blue
-    color: '#4285F4',
-    location: 'Not Specified', // specifies the location where the event should take place
-    isRecurring: false,
-    // eventColor: '#4285F4', // default event color should be blue
+    // TODO : this isn't really being used, could be ideal to remove altogether
+    location: 'Not Specified',
+    isRecurring: false, // TODO : determine appropriate calculation logic for recurring events
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
 
@@ -183,6 +151,7 @@ export default function Schedule() {
   // define the function for saving newly created event
   // assign a new random id for the current event
   // this function handles determining and assigning a new unique id to a calendar event
+  // due to the asynchronous nature of state updates, it is ideal to only update one state at a time.
   const handleCreateSaveNewEvent = () => {
     const random_generated_id = Math.floor(Math.random() * 100 + 1);
     console.log(random_generated_id);
@@ -205,12 +174,10 @@ export default function Schedule() {
       };
 
       setEventList([...eventsList, updatedEvent]);
-      // id doesn't seem to be updating
-      console.log(currentEventData);
       setNewEventModal(false);
       return;
     } else {
-      //   // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
+      // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
       handleCreateSaveNewEvent();
     }
   };
@@ -238,6 +205,7 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
+  // useCallback hook is being used as a wrapper around this reference function
   const handlePressEvent = useCallback((event) => {
     console.log(`Pressed event : ${event}`); // TODO : delete this statement, this is just to check if the event update is working as intended
     setSelectedEvent(event);
@@ -256,7 +224,7 @@ export default function Schedule() {
   };
 
   // useEffect hook to test if sample event is working as intended
-  // TODO : delete this useState hooks
+  // TODO : delete this useState hooks (and console.log statements within it)
   useEffect(() => {
     console.log(`List of available events : ${JSON.stringify(eventsList)}`);
     console.log('Detected changes to start date : ', startDate.toISOString());
@@ -314,7 +282,7 @@ export default function Schedule() {
         scrollByDay={true}
         events={eventsList}
         // to prevent unneccessary re-renders
-        // the event handler function will be memoized
+        // the event handler function will be memoized using useCallback hook
         // refer to the function definition
         onPressEvent={handlePressEvent}
         // to determine the current event that has been selected
@@ -556,6 +524,7 @@ export default function Schedule() {
                     // style={{}}
                     testID="dateTimePicker"
                     value={startDate}
+                    // conditionally renders mode based on platform, setMode isn't being used
                     mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                     is24Hour={true}
                     onChange={onChangeStart}
