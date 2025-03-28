@@ -8,7 +8,9 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  TouchableWithoutFeedback, // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
+
+  // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
+  TouchableWithoutFeedback,
   Platform,
   Button,
 } from 'react-native';
@@ -76,6 +78,8 @@ export default function Schedule() {
   // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
 
+  // TODO : This is something to consider later, but retrieve the user-locate and adjust according to the locale of the user
+  // this should be part of the feature that implements multilingual support in terms of languages to attract users from different location.
   const initialLocales: Record<string, Partial<LocaleConfigsProps>> = {
     en: {
       weekDayShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
@@ -99,6 +103,9 @@ export default function Schedule() {
     const currentDate = await selectedDate;
     // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
 
+    console.log(`current date that has been detected based on user input : ${currentDate}`);
+
+    // NOTE : needs to be converted into ISO string
     const updatedDatetime = {
       dateTime: currentDate,
     };
@@ -146,7 +153,7 @@ export default function Schedule() {
   // 1. once a new event has been created (meaning the save button within the modal has been clicked)
   // 2. once an existing event has been modified (a seperate modal will be used for this)
   // 3. once an event has been deleted (the same modal that has been used for editing an event can be reused)
-  const [eventsList, setEventList] = useState([]);
+  const [eventsList, setEventList] = useState<any>([]);
 
   // define the function for saving newly created event
   // assign a new random id for the current event
@@ -223,6 +230,11 @@ export default function Schedule() {
     );
   };
 
+  // prototype of the data that needs to be sent out to the datbase
+  const events_payload = {
+    email: 'user email goes here',
+    events_data: 'information regarding new events goes here',
+  };
   // useEffect hook to test if sample event is working as intended
   // TODO : delete this useState hooks (and console.log statements within it)
   useEffect(() => {
@@ -273,6 +285,8 @@ export default function Schedule() {
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
       </TouchableOpacity>
       <CalendarContainer
+        // TODO : define a function that will dynamically, this will require adjustment to the initialLocales variable.
+        locale="en"
         initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
@@ -281,30 +295,17 @@ export default function Schedule() {
         numberOfDays={3}
         scrollByDay={true}
         events={eventsList}
+        overlapType="overlap" // events should overlap, similar to google calendar
+        // defines the minimum start time difference in minutes for events to be considered overlapping
+        minStartDifference={15}
         // to prevent unneccessary re-renders
         // the event handler function will be memoized using useCallback hook
         // refer to the function definition
         onPressEvent={handlePressEvent}
-        // to determine the current event that has been selected
-        // NOTE : the event doesn't seem to be created correctly if the onPressEvent prop is present
-        // this could be due to the component re-rendering again leading to loss of data
-        // r
-        // events={[
-        //   {
-        //     id: '1',
-        //     title: 'Meeting with Team and additional stuff like this and that',
-        //     start: { dateTime: '2025-03-24T10:00:00Z' },
-        //     end: { dateTime: '2025-03-24T11:00:00Z' },
-        //     color: '#4285F4',
-        //   },
-        // ]}
       >
         <CalendarHeader />
         <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
-
-      {/**if newEventModal is set to true, render the content of the modal*/}
-      {/* {newEventModal && ( */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -504,26 +505,13 @@ export default function Schedule() {
                   >
                     Start:
                   </Text>
-                  {/* {/* <Button title="open" onPress={() => setOpen(true)} />
-                   * conditionally render the date and time picker
-
-                  {Platform.OS === 'ios' ? (
-                    <Button onPress={showDateTimePicker} title="Show datetime picker!" />
-                  ) : (
-                    <View>
-                      <Button onPress={showDatePicker} title="Show date picker!" />
-                      <Button onPress={showDatePicker} title="Show date picker!" />
-                    </View>
-                  )}
-                   <Button onPress={showDatePicker} title="Show date picker!" />
-                  <Button onPress={showTimePicker} title="Show time picker!" />
-
-                  {/**Text that dynamically renders the date and time that has been selected by the user
-                  <Text>selected: {date.toLocaleString()}</Text> */}
                   <DateTimePicker
                     // style={{}}
                     testID="dateTimePicker"
+                    // if value prop doesn't recieve a useState hook
+                    // will throw an error
                     value={startDate}
+                    // value={startDate}
                     // conditionally renders mode based on platform, setMode isn't being used
                     mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                     is24Hour={true}
@@ -679,6 +667,7 @@ export default function Schedule() {
                 {/* <Button title="Save" />
                 <Button title="Cancel" /> */}
                 <TouchableOpacity
+                  style={[ButtonStyling.button, ButtonStyling.buttonSave]}
                   onPress={handleCreateSaveNewEvent}
                   // onPress={() => {
                   //   // NOTE : rather than updating the state twice
@@ -711,14 +700,15 @@ export default function Schedule() {
                   //   // setNewEventModal(false); // close modal at the end of the function execution
                   // }}
                 >
-                  <Text>Save</Text>
+                  <Text style={ButtonStyling.buttonText}>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setNewEventModal(false)}>
-                  <Text>Cancel</Text>
+                <TouchableOpacity
+                  style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                  onPress={() => setNewEventModal(false)}
+                >
+                  <Text style={ButtonStyling.buttonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
-              {/**Anchor point to determine where the actual content should be positioned */}
-              <Text>Testing</Text>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -817,5 +807,32 @@ const eventColorStyling = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#555',
+  },
+});
+
+const ButtonStyling = StyleSheet.create({
+  // general style for button that is shared between the "save" and "cancel" button
+  button: {
+    padding: 12,
+    borderRadius: 5,
+    width: '48%',
+    alignItems: 'center',
+  },
+
+  // styling for the save button (only the background color varies)
+  buttonSave: {
+    backgroundColor: '#3498db',
+  },
+
+  // styling for the cancel button
+  buttonCancel: {
+    backgroundColor: '#e74c3c',
+  },
+
+  // styling for text within the button itself
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
