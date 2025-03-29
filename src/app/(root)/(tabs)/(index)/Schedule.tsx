@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   Platform,
   Button,
+  NativeSyntheticEvent,
 } from 'react-native';
 import {
   CalendarBody,
@@ -29,6 +30,76 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
+
+interface ExistingEventModal {
+  // input data for the current event related information the modal should render
+  current_event: any;
+
+  // useState variables that determines whether modal should be displayed or not
+  visibillity_state: boolean;
+
+  // this is based on the docs, added any just in case the previous two types fail to work
+  // this prop is intended to handle what will happen when modal is selected to be closed
+  onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  // this prop should be a useState hook that will handle whether the text input is edtiable
+  // ideally the text input should be editable when the edit button has been selected
+  isEditable: boolean;
+}
+const ExistingEventModal = ({
+  // TODO : define the relevant props needed to be rendered
+  current_event,
+  visibillity_state,
+  onRequestClose,
+  isEditable,
+}: ExistingEventModal) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visibillity_state}
+      onRequestClose={onRequestClose}
+    >
+      <TouchableWithoutFeedback>
+        <View
+          // styling for modalView (reused)
+          style={{
+            width: '85%',
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 20,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+            elevation: 5,
+          }}
+        >
+          <View>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                marginBottom: 15,
+                textAlign: 'center',
+                color: '#333',
+
+                // conditional rendering of fonts
+                // the fonts are quite generic
+                fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
+              }}
+            >
+              Event Details
+            </Text>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+};
 
 export default function Schedule() {
   const dropdownData = [
@@ -214,7 +285,7 @@ export default function Schedule() {
 
   // useCallback hook is being used as a wrapper around this reference function
   const handlePressEvent = useCallback((event) => {
-    console.log(`Pressed event : ${event}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
     setSelectedEvent(event);
     setShowExistingEventModal(true);
   }, []);
