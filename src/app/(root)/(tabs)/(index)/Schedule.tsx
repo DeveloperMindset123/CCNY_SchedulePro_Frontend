@@ -45,6 +45,9 @@ interface ExistingEventModal {
   // this prop should be a useState hook that will handle whether the text input is edtiable
   // ideally the text input should be editable when the edit button has been selected
   isEditable: boolean;
+
+  // deletes the current event upon selecting the delete icon
+  onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 }
 const ExistingEventModal = ({
   // TODO : define the relevant props needed to be rendered
@@ -52,6 +55,7 @@ const ExistingEventModal = ({
   visibillity_state,
   onRequestClose,
   isEditable,
+  onRequestDelete,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -64,36 +68,55 @@ const ExistingEventModal = ({
         <View
           // styling for modalView (reused)
           style={{
-            width: '85%',
-            backgroundColor: 'white',
-            borderRadius: 10,
-            padding: 20,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 4,
-            elevation: 5,
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
           }}
         >
-          <View>
-            <Text
+          <View
+            style={{
+              width: '85%',
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 5,
+            }}
+          >
+            <View
               style={{
-                fontSize: 18,
-                fontWeight: 'bold',
+                position: 'relative',
+                width: '100%',
                 marginBottom: 15,
-                textAlign: 'center',
-                color: '#333',
-
-                // conditional rendering of fonts
-                // the fonts are quite generic
-                fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              Event Details
-            </Text>
+              <Text
+                // TODO : continue implementation logic here
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginBottom: 15,
+                  textAlign: 'center',
+                  color: '#333',
+
+                  // conditional rendering of fonts
+                  // the fonts are quite generic
+                  fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
+                }}
+              >
+                Event Details
+              </Text>
+              <TouchableOpacity onPress={onRequestDelete}></TouchableOpacity>
+            </View>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -454,7 +477,12 @@ export default function Schedule() {
                   // upon clicking on the delete button, modal should close
                   // no data should be saved in reagrds to this modal
                   // in this case, no eventhas been created so we simply need to discard the data by closing the modal
+                  // TODO : fix this issue, since we don't want the event to be created in the first place if this is pressed
                   onPress={() => {
+                    // we essentially want every event to remain saved aside from the event containing an id of -1
+                    // although I am not entirely sure if this would be neccessary
+                    // this would be equivalent to resetting all the relevant data to a particular event
+                    setEventList(eventsList.filter((event) => event.id !== -1));
                     setNewEventModal(false);
                   }}
                 >
