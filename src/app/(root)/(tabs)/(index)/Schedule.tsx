@@ -47,7 +47,18 @@ interface ExistingEventModal {
   isEditable: boolean;
 
   // deletes the current event upon selecting the delete icon
+  // TODO : determine and filter out the event based on the id
+  // the parameter that needs to be passed in is the current_event prop
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  // This function will handle how the modal's data will be edited
+  // when the edit icon is selected
+  onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  handleOnChangeTitle: any;
+  handleOnChangeDescription: any;
+  handleOnChangeStart: any;
+  handleOnPressRecurring: any;
 }
 const ExistingEventModal = ({
   // TODO : define the relevant props needed to be rendered
@@ -56,6 +67,11 @@ const ExistingEventModal = ({
   onRequestClose,
   isEditable,
   onRequestDelete,
+  onRequestEdit,
+  handleOnChangeTitle,
+  handleOnChangeDescription,
+  handleOnChangeStart,
+  handleOnPressRecurring,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -115,7 +131,221 @@ const ExistingEventModal = ({
               >
                 Event Details
               </Text>
-              <TouchableOpacity onPress={onRequestDelete}></TouchableOpacity>
+              {/*
+              * TODO : figure out how to place the two items side by side next to one another
+
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  right: 5,
+                  // top: -2,
+                }}
+                onPress={onRequestDelete}
+              >
+                <AntDesign name="delete" size={20} color="red" />
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: -2,
+                }}
+                // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
+                onPress={onRequestEdit} // we simply want isEditable state to be set to true if this button is pressed
+              >
+                {/** Change it such that instead of delete icon, there's instead edit icon available */}
+                <AntDesign name="edit" size={20} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                marginBottom: 15,
+              }}
+            >
+              <Text
+                style={{
+                  // styling for the event title text-input
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                  color: '#555',
+                }}
+              >
+                Title:
+              </Text>
+              <TextInput
+                editable={isEditable}
+                style={{
+                  borderWidth: 1, // forms a square outline surrounding the text input
+                  borderColor: '#ddd', // determines the color of the outline
+                  borderRadius: 5, // determines the curvature of the edges around the squares
+                  padding: 10, // determines how much extra space should be added to push out the borders
+                  fontSize: 14, // determines how large the text should appear within the input box
+                  backgroundColor: '#f9f9f9', // determines the color within the input box itself
+                  shadowOffset: { width: 10, height: 10 },
+                  // shadowRadius: 20,
+                }}
+                value={current_event.title || ''}
+                // placeholder="Enter event title"    // placeholder not needed atp
+                // NOTE : we only want to update the title portion of the currentEvent state
+                // all the other fields will remain unchanged
+                // onChangeText={(newUserInputTitle) =>
+                //   setCurrentEventData((prev) => ({
+                //     ...prev,
+                //     title: newUserInputTitle,
+                //   }))
+                // }
+
+                onChangeText={handleOnChangeTitle}
+              />
+            </View>
+            <View
+              style={{
+                marginBottom: 15,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                  color: '#555',
+                }}
+              >
+                Event Description
+              </Text>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ddd',
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 12,
+                  backgroundColor: '#f9f9f9',
+                  height: 80,
+                  textAlignVertical: 'bottom',
+                }}
+                // placeholder='Should not be neccessary'
+
+                // current_event prop should contain a property
+                // named description
+                value={current_event.description}
+                onChangeText={handleOnChangeDescription}
+                multiline={true}
+                numberOfLines={3}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    marginTop: 7,
+                    color: '#555',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Start:
+                </Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  // NOTE : not entirely sure if this would work
+                  // if this doesn't work, I will need to create two seperate props for the start and end time
+                  // TODO : too many props can make the component bloated
+                  value={current_event.start.datetime}
+                  // value={startDate}
+                  // conditionally renders mode based on platform, setMode isn't being used
+                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                  is24Hour={true}
+                  onChange={handleOnChangeStart} // another prop to handle update in time
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                marginTop: 15,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    marginBottom: 5,
+                    color: '#666',
+                  }}
+                >
+                  Is this event recurring?
+                </Text>
+
+                <TouchableOpacity
+                  // checkbox styling
+                  // the checkboxChecked styling should only render
+                  // if isRecurring is set to true
+                  style={[
+                    checkboxStyling.checkbox,
+                    current_event.isRecurring && checkboxStyling.checkboxChecked,
+                  ]}
+                  onPress={handleOnPressRecurring}
+                >
+                  {
+                    // render a checkmark if isRecurring is set to true
+                    current_event.isRecurring && (
+                      <Ionicon name="checkmark" size={16} color="white" />
+                    )
+                  }
+                </TouchableOpacity>
+              </View>
+              {currentEventData.isRecurring && (
+                <Dropdown
+                  // TODO : continue here
+                  style={dropdownStyles.dropdown}
+                  placeholderStyle={dropdownStyles.placeholderStyle}
+                  selectedTextStyle={dropdownStyles.selectedTextStyle}
+                  inputSearchStyle={dropdownStyles.inputSearchStyle}
+                  iconStyle={dropdownStyles.iconStyle}
+                  data={dropdownData}
+                  search
+                  maxHeight={180}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select item"
+                  searchPlaceholder="Search..."
+                  value={dropdownValue}
+                  onChange={(item) => {
+                    // this is a bit confusing since it's updating the value which is an integer digit
+                    // but we want to update the label instead
+                    setDropdownValue(item.value);
+
+                    // note the syntax
+                    // update the recurrence frequency
+                    setCurrentEventData((previousStateData) => ({
+                      ...previousStateData,
+                      recurrence_frequency: item.label,
+                    }));
+                  }}
+                  renderLeftIcon={() => (
+                    <AntDesign style={dropdownStyles.icon} color="black" name="Safety" size={20} />
+                  )}
+                  renderItem={renderDropdownItem}
+                  dropdownPosition="top" // to prevent content from going outside of screen
+                />
+              )}
             </View>
           </View>
         </View>
@@ -477,16 +707,14 @@ export default function Schedule() {
                   // upon clicking on the delete button, modal should close
                   // no data should be saved in reagrds to this modal
                   // in this case, no eventhas been created so we simply need to discard the data by closing the modal
-                  // TODO : fix this issue, since we don't want the event to be created in the first place if this is pressed
+                  // we don't need to make additional modficaitions here, since the event's data hasn't been saved in the first place
+                  // we do however need to make this modification on the existing modal where the data needs to be deleted based on the id specified
                   onPress={() => {
-                    // we essentially want every event to remain saved aside from the event containing an id of -1
-                    // although I am not entirely sure if this would be neccessary
-                    // this would be equivalent to resetting all the relevant data to a particular event
-                    setEventList(eventsList.filter((event) => event.id !== -1));
                     setNewEventModal(false);
                   }}
                 >
                   <AntDesign name="delete" size={20} color="red" />
+                  {/* <AntDesign name="edit" size={20} color={'black'} /> */}
                 </TouchableOpacity>
               </View>
 
