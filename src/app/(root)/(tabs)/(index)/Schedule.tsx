@@ -8,9 +8,12 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  TouchableWithoutFeedback, // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
+
+  // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
+  TouchableWithoutFeedback,
   Platform,
   Button,
+  NativeSyntheticEvent,
 } from 'react-native';
 import {
   CalendarBody,
@@ -25,8 +28,394 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
+import { ShowerHeadIcon } from 'lucide-react-native';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
+
+interface ExistingEventModal {
+  // input data for the current event related information the modal should render
+  current_event: any;
+
+  // useState variables that determines whether modal should be displayed or not
+  visibillity_state: boolean;
+
+  // this is based on the docs, added any just in case the previous two types fail to work
+  // this prop is intended to handle what will happen when modal is selected to be closed
+  onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  // this prop should be a useState hook that will handle whether the text input is edtiable
+  // ideally the text input should be editable when the edit button has been selected
+  isEditable: boolean;
+
+  // deletes the current event upon selecting the delete icon
+  // TODO : determine and filter out the event based on the id
+  // the parameter that needs to be passed in is the current_event prop
+  onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  start_time: any;
+
+  // This function will handle how the modal's data will be edited
+  // when the edit icon is selected
+  onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+
+  handleOnChangeTitle: any;
+  handleOnChangeDescription: any;
+  handleOnChangeStart: any;
+  handleOnPressRecurring: any;
+  dropdown_list: any;
+  handleDropdownFunction: any;
+  renderDropdownItem: any;
+
+  handleChangeEventColor: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleSaveEditedEvent: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleCancelEditedEvent: any;
+}
+const ExistingEventModal = ({
+  // TODO : define the relevant props needed to be rendered
+  current_event,
+  visibillity_state,
+  onRequestClose,
+  isEditable,
+  onRequestDelete,
+  onRequestEdit,
+  handleOnChangeTitle,
+  handleOnChangeDescription,
+  handleOnChangeStart,
+  handleOnPressRecurring,
+  dropdown_list,
+  handleDropdownFunction,
+  renderDropdownItem,
+  handleChangeEventColor,
+  handleSaveEditedEvent,
+  handleCancelEditedEvent,
+  start_time,
+}: ExistingEventModal) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visibillity_state}
+      onRequestClose={onRequestClose}
+    >
+      <TouchableWithoutFeedback>
+        <View
+          // styling for modalView (reused)
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
+        >
+          <View
+            style={{
+              width: '85%',
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 4,
+              elevation: 5,
+            }}
+          >
+            <View
+              style={{
+                position: 'relative',
+                width: '100%',
+                marginBottom: 15,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                // TODO : continue implementation logic here
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginBottom: 15,
+                  textAlign: 'center',
+                  color: '#333',
+
+                  // conditional rendering of fonts
+                  // the fonts are quite generic
+                  fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
+                }}
+              >
+                Event Details
+              </Text>
+              {/*
+              * TODO : figure out how to place the two items side by side next to one another
+
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  right: 5,
+                  // top: -2,
+                }}
+                onPress={onRequestDelete}
+              >
+                <AntDesign name="delete" size={20} color="red" />
+              </TouchableOpacity> */}
+              <View
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: -2,
+                  flexDirection: 'row', // so that 2 items can be placed side by side
+                }}
+              >
+                <TouchableOpacity
+                  style={{
+                    marginRight: 15,
+                  }}
+                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
+                  onPress={onRequestEdit} // we simply want isEditable state to be set to true if this button is pressed
+                >
+                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
+                  <AntDesign name="edit" size={20} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={
+                    {
+                      // marginRight: 15,
+                    }
+                  }
+                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
+                  onPress={onRequestDelete} // we simply want isEditable state to be set to true if this button is pressed
+                >
+                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
+                  <AntDesign name="delete" size={20} color="red" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View
+              style={{
+                marginBottom: 15,
+              }}
+            >
+              <Text
+                style={{
+                  // styling for the event title text-input
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                  color: '#555',
+                }}
+              >
+                Title:
+              </Text>
+              <TextInput
+                editable={isEditable}
+                style={{
+                  borderWidth: 1, // forms a square outline surrounding the text input
+                  borderColor: '#ddd', // determines the color of the outline
+                  borderRadius: 5, // determines the curvature of the edges around the squares
+                  padding: 10, // determines how much extra space should be added to push out the borders
+                  fontSize: 14, // determines how large the text should appear within the input box
+                  backgroundColor: '#f9f9f9', // determines the color within the input box itself
+                  shadowOffset: { width: 10, height: 10 },
+                  // shadowRadius: 20,
+                }}
+                value={current_event.title || ''}
+                // placeholder="Enter event title"    // placeholder not needed atp
+                // NOTE : we only want to update the title portion of the currentEvent state
+                // all the other fields will remain unchanged
+                // onChangeText={(newUserInputTitle) =>
+                //   setCurrentEventData((prev) => ({
+                //     ...prev,
+                //     title: newUserInputTitle,
+                //   }))
+                // }
+
+                onChangeText={handleOnChangeTitle}
+              />
+            </View>
+            <View
+              style={{
+                marginBottom: 15,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  marginBottom: 5,
+                  color: '#555',
+                }}
+              >
+                Event Description
+              </Text>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  borderColor: '#ddd',
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 12,
+                  backgroundColor: '#f9f9f9',
+                  height: 80,
+                  textAlignVertical: 'bottom',
+                }}
+                // placeholder='Should not be neccessary'
+
+                // current_event prop should contain a property
+                // named description
+                value={current_event.description}
+                onChangeText={handleOnChangeDescription}
+                multiline={true}
+                numberOfLines={3}
+              />
+            </View>
+            <View
+              style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    marginTop: 7,
+                    color: '#555',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Start:
+                </Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  // NOTE : not entirely sure if this would work
+                  value={start_time}
+                  // value={startDate}
+                  // conditionally renders mode based on platform, setMode isn't being used
+                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                  is24Hour={true}
+                  onChange={handleOnChangeStart} // another prop to handle update in time
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                marginTop: 15,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    marginBottom: 5,
+                    color: '#666',
+                  }}
+                >
+                  Is this event recurring?
+                </Text>
+
+                <TouchableOpacity
+                  // checkbox styling
+                  // the checkboxChecked styling should only render
+                  // if isRecurring is set to true
+                  style={[
+                    checkboxStyling.checkbox,
+                    current_event.isRecurring && checkboxStyling.checkboxChecked,
+                  ]}
+                  onPress={handleOnPressRecurring}
+                >
+                  {
+                    // render a checkmark if isRecurring is set to true
+                    current_event.isRecurring && (
+                      <Ionicon name="checkmark" size={16} color="white" />
+                    )
+                  }
+                </TouchableOpacity>
+              </View>
+              {current_event.isRecurring && (
+                <Dropdown
+                  // TODO : continue here
+                  style={dropdownStyles.dropdown}
+                  placeholderStyle={dropdownStyles.placeholderStyle}
+                  selectedTextStyle={dropdownStyles.selectedTextStyle}
+                  inputSearchStyle={dropdownStyles.inputSearchStyle}
+                  iconStyle={dropdownStyles.iconStyle}
+                  // TODO : input the correct prop value
+                  data={dropdown_list}
+                  search
+                  maxHeight={180}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="Select item"
+                  searchPlaceholder="Search..."
+                  // this should come from the recurrence_frequency specified
+                  value={current_event.recurrence_frequency}
+                  onChange={handleDropdownFunction}
+                  renderLeftIcon={() => (
+                    <AntDesign style={dropdownStyles.icon} color="black" name="Safety" size={20} />
+                  )}
+                  // TODO : implement the appropriate reference function here
+                  renderItem={renderDropdownItem}
+                  dropdownPosition="top" // to prevent content from going outside of screen
+                />
+              )}
+            </View>
+            <View style={eventColorStyling.colorSection}>
+              <Text style={eventColorStyling.label}>Color:</Text>
+              <View style={eventColorStyling.colorOptions}>
+                {['#4285F4', '#0F9D58', '#F4B400', '#DB4437', '#7B1FA2'].map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      eventColorStyling.colorOption,
+                      { backgroundColor: color },
+                      current_event.color === color && eventColorStyling.selectedColor,
+                    ]}
+                    // onFocus={}
+                    onPress={handleChangeEventColor}
+                  />
+                ))}
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                style={[ButtonStyling.button, ButtonStyling.buttonSave]}
+                onPress={handleSaveEditedEvent}
+              >
+                <Text style={ButtonStyling.buttonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                onPress={handleCancelEditedEvent}
+              >
+                <Text style={ButtonStyling.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+};
 
 export default function Schedule() {
   const dropdownData = [
@@ -61,7 +450,7 @@ export default function Schedule() {
 
   // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
-
+  const [isModalEditable, setIsModalEditable] = useState(false);
   // this will determine the event that has been currently selected
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dropdownValue, setDropdownValue] = useState(null);
@@ -76,6 +465,8 @@ export default function Schedule() {
   // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
 
+  // TODO : This is something to consider later, but retrieve the user-locate and adjust according to the locale of the user
+  // this should be part of the feature that implements multilingual support in terms of languages to attract users from different location.
   const initialLocales: Record<string, Partial<LocaleConfigsProps>> = {
     en: {
       weekDayShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
@@ -99,6 +490,9 @@ export default function Schedule() {
     const currentDate = await selectedDate;
     // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
 
+    console.log(`current date that has been detected based on user input : ${currentDate}`);
+
+    // NOTE : needs to be converted into ISO string
     const updatedDatetime = {
       dateTime: currentDate,
     };
@@ -146,7 +540,7 @@ export default function Schedule() {
   // 1. once a new event has been created (meaning the save button within the modal has been clicked)
   // 2. once an existing event has been modified (a seperate modal will be used for this)
   // 3. once an event has been deleted (the same modal that has been used for editing an event can be reused)
-  const [eventsList, setEventList] = useState([]);
+  const [eventsList, setEventList] = useState<any>([]);
 
   // define the function for saving newly created event
   // assign a new random id for the current event
@@ -205,13 +599,6 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
-  // useCallback hook is being used as a wrapper around this reference function
-  const handlePressEvent = useCallback((event) => {
-    console.log(`Pressed event : ${event}`); // TODO : delete this statement, this is just to check if the event update is working as intended
-    setSelectedEvent(event);
-    setShowExistingEventModal(true);
-  }, []);
-
   const renderDropdownItem = (item) => {
     return (
       <View style={dropdownStyles.item}>
@@ -223,6 +610,18 @@ export default function Schedule() {
     );
   };
 
+  // useCallback hook is being used as a wrapper around this reference function
+  const handlePressEvent = useCallback((event) => {
+    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+    setSelectedEvent(event);
+    setShowExistingEventModal(true);
+  }, []);
+
+  // prototype of the data that needs to be sent out to the datbase
+  const events_payload = {
+    email: 'user email goes here',
+    events_data: 'information regarding new events goes here',
+  };
   // useEffect hook to test if sample event is working as intended
   // TODO : delete this useState hooks (and console.log statements within it)
   useEffect(() => {
@@ -273,6 +672,8 @@ export default function Schedule() {
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
       </TouchableOpacity>
       <CalendarContainer
+        // TODO : define a function that will dynamically, this will require adjustment to the initialLocales variable.
+        locale="en"
         initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
@@ -281,30 +682,73 @@ export default function Schedule() {
         numberOfDays={3}
         scrollByDay={true}
         events={eventsList}
+        overlapType="overlap" // events should overlap, similar to google calendar
+        // defines the minimum start time difference in minutes for events to be considered overlapping
+        minStartDifference={15}
         // to prevent unneccessary re-renders
         // the event handler function will be memoized using useCallback hook
         // refer to the function definition
         onPressEvent={handlePressEvent}
-        // to determine the current event that has been selected
-        // NOTE : the event doesn't seem to be created correctly if the onPressEvent prop is present
-        // this could be due to the component re-rendering again leading to loss of data
-        // r
-        // events={[
-        //   {
-        //     id: '1',
-        //     title: 'Meeting with Team and additional stuff like this and that',
-        //     start: { dateTime: '2025-03-24T10:00:00Z' },
-        //     end: { dateTime: '2025-03-24T11:00:00Z' },
-        //     color: '#4285F4',
-        //   },
-        // ]}
       >
+        {showExistingEventModal && (
+          <ExistingEventModal
+            start_time={startDate} // pass in the start and end date for the date time picker
+            current_event={selectedEvent}
+            visibillity_state={showExistingEventModal}
+            onRequestClose={() => setShowExistingEventModal(false)}
+            isEditable={isModalEditable}
+            onRequestEdit={() => setIsModalEditable(true)}
+            // NOTE : this can be changed to be reused as a reference function insted
+            handleOnChangeTitle={(newUserInputTitle: any) =>
+              setCurrentEventData((prev) => ({
+                ...prev,
+                title: newUserInputTitle,
+              }))
+            }
+            // TODO : change to a reference function for reusabillity
+            handleOnChangeDescription={(newUserInputTitle: any) =>
+              setCurrentEventData((prev) => ({
+                ...prev,
+                title: newUserInputTitle,
+              }))
+            }
+            handleOnChangeStart={onChangeStart} // we can reuse the same function
+            // TODO : change this to a reference function instead
+            handleOnPressRecurring={() =>
+              setCurrentEventData((previousData) => ({
+                ...previousData,
+                isRecurring: !previousData.isRecurring, // toggle logic
+              }))
+            }
+            dropdown_list={dropdownData}
+            handleDropdownFunction={() => {
+              console.log('Do something');
+            }}
+            renderDropdownItem={renderDropdownItem}
+            handleChangeEventColor={(selectedColor: any) => {
+              setCurrentEventData((prev) => ({
+                ...prev,
+                selectedColor, // TODO : fix this
+              }));
+            }}
+            handleSaveEditedEvent={() => {
+              // ideally, we would have to do less work
+              setEventList([...eventsList, currentEventData]);
+            }}
+            handleCancelEditedEvent={() => setShowExistingEventModal(false)}
+            onRequestDelete={() => {
+              // remove the event within the list whose current id matches the id of the currently selected event
+              const updatedEvents = eventsList.filter((event) => event.id === selectedEvent.id);
+
+              // set the newly updated event
+              setEventList(updatedEvents);
+              setShowExistingEventModal(false); // close the event
+            }}
+          />
+        )}
         <CalendarHeader />
         <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
-
-      {/**if newEventModal is set to true, render the content of the modal*/}
-      {/* {newEventModal && ( */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -382,11 +826,14 @@ export default function Schedule() {
                   // upon clicking on the delete button, modal should close
                   // no data should be saved in reagrds to this modal
                   // in this case, no eventhas been created so we simply need to discard the data by closing the modal
+                  // we don't need to make additional modficaitions here, since the event's data hasn't been saved in the first place
+                  // we do however need to make this modification on the existing modal where the data needs to be deleted based on the id specified
                   onPress={() => {
                     setNewEventModal(false);
                   }}
                 >
                   <AntDesign name="delete" size={20} color="red" />
+                  {/* <AntDesign name="edit" size={20} color={'black'} /> */}
                 </TouchableOpacity>
               </View>
 
@@ -504,26 +951,13 @@ export default function Schedule() {
                   >
                     Start:
                   </Text>
-                  {/* {/* <Button title="open" onPress={() => setOpen(true)} />
-                   * conditionally render the date and time picker
-
-                  {Platform.OS === 'ios' ? (
-                    <Button onPress={showDateTimePicker} title="Show datetime picker!" />
-                  ) : (
-                    <View>
-                      <Button onPress={showDatePicker} title="Show date picker!" />
-                      <Button onPress={showDatePicker} title="Show date picker!" />
-                    </View>
-                  )}
-                   <Button onPress={showDatePicker} title="Show date picker!" />
-                  <Button onPress={showTimePicker} title="Show time picker!" />
-
-                  {/**Text that dynamically renders the date and time that has been selected by the user
-                  <Text>selected: {date.toLocaleString()}</Text> */}
                   <DateTimePicker
                     // style={{}}
                     testID="dateTimePicker"
+                    // if value prop doesn't recieve a useState hook
+                    // will throw an error
                     value={startDate}
+                    // value={startDate}
                     // conditionally renders mode based on platform, setMode isn't being used
                     mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                     is24Hour={true}
@@ -679,46 +1113,18 @@ export default function Schedule() {
                 {/* <Button title="Save" />
                 <Button title="Cancel" /> */}
                 <TouchableOpacity
+                  style={[ButtonStyling.button, ButtonStyling.buttonSave]}
                   onPress={handleCreateSaveNewEvent}
-                  // onPress={() => {
-                  //   // NOTE : rather than updating the state twice
-                  //   // given the nature of state updates being asynchronous
-                  //   // update only once the state instead
-                  //   const new_generated_id = Math.floor(Math.random() * 100 + 1);
-
-                  //   // check if id exists within list of events
-                  //   const id_existence = eventsList.findIndex((e: any) => e.id === new_id);
-                  //   const updatedEvent = {
-                  //     ...currentEventData,
-                  //     id: new_generated_id,
-                  //   };
-
-                  //   setEventList([...eventsList, updatedEvent]);
-                  //   setNewEventModal(false); // close modal at the end of the function execution
-
-                  //   // // TODO : look into why the id value isn't updating here
-                  //   // // if (id_existence === -1) {
-                  //   // setCurrentEventData((prev) => ({
-                  //   //   ...prev,
-                  //   //   id,
-                  //   // }));
-                  //   // // }
-
-                  //   // console.log(`current event related data : ${JSON.stringify(currentEventData)}`);
-                  //   // // possible fix to the current issue
-                  //   // setEventList([...eventsList, currentEventData]);
-                  //   // console.log(JSON.stringify(eventsList));
-                  //   // setNewEventModal(false); // close modal at the end of the function execution
-                  // }}
                 >
-                  <Text>Save</Text>
+                  <Text style={ButtonStyling.buttonText}>Save</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setNewEventModal(false)}>
-                  <Text>Cancel</Text>
+                <TouchableOpacity
+                  style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                  onPress={() => setNewEventModal(false)}
+                >
+                  <Text style={ButtonStyling.buttonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
-              {/**Anchor point to determine where the actual content should be positioned */}
-              <Text>Testing</Text>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -817,5 +1223,32 @@ const eventColorStyling = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: '#555',
+  },
+});
+
+const ButtonStyling = StyleSheet.create({
+  // general style for button that is shared between the "save" and "cancel" button
+  button: {
+    padding: 12,
+    borderRadius: 5,
+    width: '48%',
+    alignItems: 'center',
+  },
+
+  // styling for the save button (only the background color varies)
+  buttonSave: {
+    backgroundColor: '#3498db',
+  },
+
+  // styling for the cancel button
+  buttonCancel: {
+    backgroundColor: '#e74c3c',
+  },
+
+  // styling for text within the button itself
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
