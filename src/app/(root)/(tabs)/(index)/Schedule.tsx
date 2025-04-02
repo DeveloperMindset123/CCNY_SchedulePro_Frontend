@@ -28,6 +28,7 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
+import { ShowerHeadIcon } from 'lucide-react-native';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 
@@ -51,6 +52,8 @@ interface ExistingEventModal {
   // the parameter that needs to be passed in is the current_event prop
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 
+  start_time: any;
+
   // This function will handle how the modal's data will be edited
   // when the edit icon is selected
   onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
@@ -59,6 +62,13 @@ interface ExistingEventModal {
   handleOnChangeDescription: any;
   handleOnChangeStart: any;
   handleOnPressRecurring: any;
+  dropdown_list: any;
+  handleDropdownFunction: any;
+  renderDropdownItem: any;
+
+  handleChangeEventColor: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleSaveEditedEvent: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleCancelEditedEvent: any;
 }
 const ExistingEventModal = ({
   // TODO : define the relevant props needed to be rendered
@@ -72,6 +82,13 @@ const ExistingEventModal = ({
   handleOnChangeDescription,
   handleOnChangeStart,
   handleOnPressRecurring,
+  dropdown_list,
+  handleDropdownFunction,
+  renderDropdownItem,
+  handleChangeEventColor,
+  handleSaveEditedEvent,
+  handleCancelEditedEvent,
+  start_time,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -144,18 +161,37 @@ const ExistingEventModal = ({
               >
                 <AntDesign name="delete" size={20} color="red" />
               </TouchableOpacity> */}
-              <TouchableOpacity
+              <View
                 style={{
                   position: 'absolute',
                   right: 0,
                   top: -2,
+                  flexDirection: 'row', // so that 2 items can be placed side by side
                 }}
-                // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
-                onPress={onRequestEdit} // we simply want isEditable state to be set to true if this button is pressed
               >
-                {/** Change it such that instead of delete icon, there's instead edit icon available */}
-                <AntDesign name="edit" size={20} color="black" />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    marginRight: 15,
+                  }}
+                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
+                  onPress={onRequestEdit} // we simply want isEditable state to be set to true if this button is pressed
+                >
+                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
+                  <AntDesign name="edit" size={20} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={
+                    {
+                      // marginRight: 15,
+                    }
+                  }
+                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
+                  onPress={onRequestDelete} // we simply want isEditable state to be set to true if this button is pressed
+                >
+                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
+                  <AntDesign name="delete" size={20} color="red" />
+                </TouchableOpacity>
+              </View>
             </View>
             <View
               style={{
@@ -259,9 +295,7 @@ const ExistingEventModal = ({
                 <DateTimePicker
                   testID="dateTimePicker"
                   // NOTE : not entirely sure if this would work
-                  // if this doesn't work, I will need to create two seperate props for the start and end time
-                  // TODO : too many props can make the component bloated
-                  value={current_event.start.datetime}
+                  value={start_time}
                   // value={startDate}
                   // conditionally renders mode based on platform, setMode isn't being used
                   mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
@@ -311,7 +345,7 @@ const ExistingEventModal = ({
                   }
                 </TouchableOpacity>
               </View>
-              {currentEventData.isRecurring && (
+              {current_event.isRecurring && (
                 <Dropdown
                   // TODO : continue here
                   style={dropdownStyles.dropdown}
@@ -319,33 +353,62 @@ const ExistingEventModal = ({
                   selectedTextStyle={dropdownStyles.selectedTextStyle}
                   inputSearchStyle={dropdownStyles.inputSearchStyle}
                   iconStyle={dropdownStyles.iconStyle}
-                  data={dropdownData}
+                  // TODO : input the correct prop value
+                  data={dropdown_list}
                   search
                   maxHeight={180}
                   labelField="label"
                   valueField="value"
                   placeholder="Select item"
                   searchPlaceholder="Search..."
-                  value={dropdownValue}
-                  onChange={(item) => {
-                    // this is a bit confusing since it's updating the value which is an integer digit
-                    // but we want to update the label instead
-                    setDropdownValue(item.value);
-
-                    // note the syntax
-                    // update the recurrence frequency
-                    setCurrentEventData((previousStateData) => ({
-                      ...previousStateData,
-                      recurrence_frequency: item.label,
-                    }));
-                  }}
+                  // this should come from the recurrence_frequency specified
+                  value={current_event.recurrence_frequency}
+                  onChange={handleDropdownFunction}
                   renderLeftIcon={() => (
                     <AntDesign style={dropdownStyles.icon} color="black" name="Safety" size={20} />
                   )}
+                  // TODO : implement the appropriate reference function here
                   renderItem={renderDropdownItem}
                   dropdownPosition="top" // to prevent content from going outside of screen
                 />
               )}
+            </View>
+            <View style={eventColorStyling.colorSection}>
+              <Text style={eventColorStyling.label}>Color:</Text>
+              <View style={eventColorStyling.colorOptions}>
+                {['#4285F4', '#0F9D58', '#F4B400', '#DB4437', '#7B1FA2'].map((color) => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      eventColorStyling.colorOption,
+                      { backgroundColor: color },
+                      current_event.color === color && eventColorStyling.selectedColor,
+                    ]}
+                    // onFocus={}
+                    onPress={handleChangeEventColor}
+                  />
+                ))}
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 20,
+              }}
+            >
+              <TouchableOpacity
+                style={[ButtonStyling.button, ButtonStyling.buttonSave]}
+                onPress={handleSaveEditedEvent}
+              >
+                <Text style={ButtonStyling.buttonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                onPress={handleCancelEditedEvent}
+              >
+                <Text style={ButtonStyling.buttonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -387,7 +450,7 @@ export default function Schedule() {
 
   // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
-
+  const [isModalEditable, setIsModalEditable] = useState(false);
   // this will determine the event that has been currently selected
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dropdownValue, setDropdownValue] = useState(null);
@@ -536,13 +599,6 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
-  // useCallback hook is being used as a wrapper around this reference function
-  const handlePressEvent = useCallback((event) => {
-    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
-    setSelectedEvent(event);
-    setShowExistingEventModal(true);
-  }, []);
-
   const renderDropdownItem = (item) => {
     return (
       <View style={dropdownStyles.item}>
@@ -553,6 +609,13 @@ export default function Schedule() {
       </View>
     );
   };
+
+  // useCallback hook is being used as a wrapper around this reference function
+  const handlePressEvent = useCallback((event) => {
+    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+    setSelectedEvent(event);
+    setShowExistingEventModal(true);
+  }, []);
 
   // prototype of the data that needs to be sent out to the datbase
   const events_payload = {
@@ -627,6 +690,62 @@ export default function Schedule() {
         // refer to the function definition
         onPressEvent={handlePressEvent}
       >
+        {showExistingEventModal && (
+          <ExistingEventModal
+            start_time={startDate} // pass in the start and end date for the date time picker
+            current_event={selectedEvent}
+            visibillity_state={showExistingEventModal}
+            onRequestClose={() => setShowExistingEventModal(false)}
+            isEditable={isModalEditable}
+            onRequestEdit={() => setIsModalEditable(true)}
+            // NOTE : this can be changed to be reused as a reference function insted
+            handleOnChangeTitle={(newUserInputTitle: any) =>
+              setCurrentEventData((prev) => ({
+                ...prev,
+                title: newUserInputTitle,
+              }))
+            }
+            // TODO : change to a reference function for reusabillity
+            handleOnChangeDescription={(newUserInputTitle: any) =>
+              setCurrentEventData((prev) => ({
+                ...prev,
+                title: newUserInputTitle,
+              }))
+            }
+            handleOnChangeStart={onChangeStart} // we can reuse the same function
+            // TODO : change this to a reference function instead
+            handleOnPressRecurring={() =>
+              setCurrentEventData((previousData) => ({
+                ...previousData,
+                isRecurring: !previousData.isRecurring, // toggle logic
+              }))
+            }
+            dropdown_list={dropdownData}
+            handleDropdownFunction={() => {
+              console.log('Do something');
+            }}
+            renderDropdownItem={renderDropdownItem}
+            handleChangeEventColor={(selectedColor: any) => {
+              setCurrentEventData((prev) => ({
+                ...prev,
+                selectedColor, // TODO : fix this
+              }));
+            }}
+            handleSaveEditedEvent={() => {
+              // ideally, we would have to do less work
+              setEventList([...eventsList, currentEventData]);
+            }}
+            handleCancelEditedEvent={() => setShowExistingEventModal(false)}
+            onRequestDelete={() => {
+              // remove the event within the list whose current id matches the id of the currently selected event
+              const updatedEvents = eventsList.filter((event) => event.id === selectedEvent.id);
+
+              // set the newly updated event
+              setEventList(updatedEvents);
+              setShowExistingEventModal(false); // close the event
+            }}
+          />
+        )}
         <CalendarHeader />
         <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
@@ -996,36 +1115,6 @@ export default function Schedule() {
                 <TouchableOpacity
                   style={[ButtonStyling.button, ButtonStyling.buttonSave]}
                   onPress={handleCreateSaveNewEvent}
-                  // onPress={() => {
-                  //   // NOTE : rather than updating the state twice
-                  //   // given the nature of state updates being asynchronous
-                  //   // update only once the state instead
-                  //   const new_generated_id = Math.floor(Math.random() * 100 + 1);
-
-                  //   // check if id exists within list of events
-                  //   const id_existence = eventsList.findIndex((e: any) => e.id === new_id);
-                  //   const updatedEvent = {
-                  //     ...currentEventData,
-                  //     id: new_generated_id,
-                  //   };
-
-                  //   setEventList([...eventsList, updatedEvent]);
-                  //   setNewEventModal(false); // close modal at the end of the function execution
-
-                  //   // // TODO : look into why the id value isn't updating here
-                  //   // // if (id_existence === -1) {
-                  //   // setCurrentEventData((prev) => ({
-                  //   //   ...prev,
-                  //   //   id,
-                  //   // }));
-                  //   // // }
-
-                  //   // console.log(`current event related data : ${JSON.stringify(currentEventData)}`);
-                  //   // // possible fix to the current issue
-                  //   // setEventList([...eventsList, currentEventData]);
-                  //   // console.log(JSON.stringify(eventsList));
-                  //   // setNewEventModal(false); // close modal at the end of the function execution
-                  // }}
                 >
                   <Text style={ButtonStyling.buttonText}>Save</Text>
                 </TouchableOpacity>
