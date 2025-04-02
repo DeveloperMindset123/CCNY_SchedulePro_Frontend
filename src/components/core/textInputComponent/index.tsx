@@ -207,9 +207,20 @@ import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 
 // Signup button component
-import { SignupButton } from '../signupButton';
+// import { SignupButton } from '../customButton';
+import { CustomButton } from '../customButton';
 // import { hashPassword } from '@/utils/passwordHash';
 import { hashPassword } from '@/utils/passwordHash';
+
+// define the prop type for the input component
+interface TextInputArrayType {
+  id: number;
+  placeholderText: string;
+  onChangeText: (text: any) => void;
+  value: string;
+  isPassword: boolean;
+  blur: boolean;
+}
 
 export const TextInputComponent = () => {
   // returns 4 values in total in the form of an object
@@ -312,7 +323,7 @@ export const TextInputComponent = () => {
     */
   };
 
-  const TextInputArray = [
+  const TextInputArray: TextInputArrayType[] = [
     {
       id: 1,
       placeholderText: 'Enter Your Email',
@@ -359,7 +370,12 @@ export const TextInputComponent = () => {
           />
         ))}
         <View style={styles.buttonContainer}>
-          <SignupButton width={width * 0.9} height={height * 0.06} handleOnPress={handleSignUp} />
+          <CustomButton
+            width={width * 0.9}
+            height={height * 0.06}
+            handleOnPress={handleSignUp}
+            button_content="Sign Up"
+          />
         </View>
       </Animated.View>
     </TouchableWithoutFeedback>

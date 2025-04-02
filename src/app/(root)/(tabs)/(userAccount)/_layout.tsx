@@ -1,3 +1,5 @@
+// TODO : This screen should be the account string only
+
 import { MaterialTopTabsTest } from '@/layouts/material-top-tabs';
 
 export default function IndexTopTabsLayoutVersion2() {
