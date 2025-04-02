@@ -148,19 +148,6 @@ const ExistingEventModal = ({
               >
                 Event Details
               </Text>
-              {/*
-              * TODO : figure out how to place the two items side by side next to one another
-
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  right: 5,
-                  // top: -2,
-                }}
-                onPress={onRequestDelete}
-              >
-                <AntDesign name="delete" size={20} color="red" />
-              </TouchableOpacity> */}
               <View
                 style={{
                   position: 'absolute',
@@ -217,7 +204,10 @@ const ExistingEventModal = ({
                   borderRadius: 5, // determines the curvature of the edges around the squares
                   padding: 10, // determines how much extra space should be added to push out the borders
                   fontSize: 14, // determines how large the text should appear within the input box
-                  backgroundColor: '#f9f9f9', // determines the color within the input box itself
+
+                  // gray out is isEditable is set to false
+                  backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
+                  color: isEditable ? '#000000' : '#888888',
                   shadowOffset: { width: 10, height: 10 },
                   // shadowRadius: 20,
                 }}
@@ -257,7 +247,10 @@ const ExistingEventModal = ({
                   borderRadius: 5,
                   padding: 10,
                   fontSize: 12,
-                  backgroundColor: '#f9f9f9',
+
+                  // example of conditional rendering and modification of text color and text input background color
+                  backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
+                  color: isEditable ? '#000000' : '#888888',
                   height: 80,
                   textAlignVertical: 'bottom',
                 }}
@@ -265,6 +258,7 @@ const ExistingEventModal = ({
 
                 // current_event prop should contain a property
                 // named description
+                editable={isEditable}
                 value={current_event.description}
                 onChangeText={handleOnChangeDescription}
                 multiline={true}
@@ -691,6 +685,7 @@ export default function Schedule() {
         onPressEvent={handlePressEvent}
       >
         {showExistingEventModal && (
+          // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
           <ExistingEventModal
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
@@ -699,19 +694,29 @@ export default function Schedule() {
             isEditable={isModalEditable}
             onRequestEdit={() => setIsModalEditable(true)}
             // NOTE : this can be changed to be reused as a reference function insted
-            handleOnChangeTitle={(newUserInputTitle: any) =>
-              setCurrentEventData((prev) => ({
-                ...prev,
-                title: newUserInputTitle,
-              }))
-            }
+            handleOnChangeTitle={(newUserInputTitle: any) => {
+              // we only want the edit to take place if the modal happens to be editable
+              if (isModalEditable) {
+                setCurrentEventData((prev) => ({
+                  ...prev,
+                  title: newUserInputTitle,
+                }));
+
+                // this wouldn't work due to asynchronous nature of the code
+                // setSelectedEvent(currentEventData);
+              }
+            }}
             // TODO : change to a reference function for reusabillity
-            handleOnChangeDescription={(newUserInputTitle: any) =>
-              setCurrentEventData((prev) => ({
-                ...prev,
-                title: newUserInputTitle,
-              }))
-            }
+            // TODO : fix this, the incorrect state is being updated here
+            // change from setCurrentEventData -> setSelectedEvent(prev => ...prev, { title : newUserInputTitle}) instead
+            handleOnChangeDescription={(newUserInputTitle: any) => {
+              if (isModalEditable) {
+                setCurrentEventData((prev) => ({
+                  ...prev,
+                  title: newUserInputTitle,
+                }));
+              }
+            }}
             handleOnChangeStart={onChangeStart} // we can reuse the same function
             // TODO : change this to a reference function instead
             handleOnPressRecurring={() =>
@@ -721,6 +726,7 @@ export default function Schedule() {
               }))
             }
             dropdown_list={dropdownData}
+            // TODO : figure out why this isn't working
             handleDropdownFunction={() => {
               console.log('Do something');
             }}
@@ -735,10 +741,19 @@ export default function Schedule() {
               // ideally, we would have to do less work
               setEventList([...eventsList, currentEventData]);
             }}
-            handleCancelEditedEvent={() => setShowExistingEventModal(false)}
-            onRequestDelete={() => {
+            handleCancelEditedEvent={() => {
+              // change the modal back to not being editable
+              setIsModalEditable(false);
+              setShowExistingEventModal(false);
+            }}
+            onRequestDelete={async () => {
               // remove the event within the list whose current id matches the id of the currently selected event
-              const updatedEvents = eventsList.filter((event) => event.id === selectedEvent.id);
+              const updatedEvents = await eventsList.filter(
+                (event) => event.id === selectedEvent.id
+              );
+
+              // TODO : delete later, this is to experiment to check if the current event has been deleted or not
+              console.log(`The updated events are : ${updatedEvents}`);
 
               // set the newly updated event
               setEventList(updatedEvents);
