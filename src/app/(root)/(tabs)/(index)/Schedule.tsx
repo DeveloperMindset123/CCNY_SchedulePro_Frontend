@@ -620,14 +620,20 @@ export default function Schedule() {
   // TODO : delete this useState hooks (and console.log statements within it)
   useEffect(() => {
     console.log(`List of available events : ${JSON.stringify(eventsList)}`);
-    console.log('Detected changes to start date : ', startDate.toISOString());
-    console.log('Detected changes to end date : ', endDate.toISOString());
+    // console.log('Detected changes to start date : ', startDate.toISOString());
+    // console.log('Detected changes to end date : ', endDate.toISOString());
 
-    console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
-    console.log(`current status of event modal display : ${showExistingEventModal}`);
+    // console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
+    // console.log(`current status of event modal display : ${showExistingEventModal}`);
     // console.log(currentEventData);
     // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [eventsList, startDate, endDate, selectedEvent, showExistingEventModal]);
+  }, [
+    eventsList,
+    // startDate,
+    // endDate,
+    // selectedEvent,
+    // showExistingEventModal
+  ]);
   return (
     <View
       style={{
@@ -697,7 +703,8 @@ export default function Schedule() {
             handleOnChangeTitle={(newUserInputTitle: any) => {
               // we only want the edit to take place if the modal happens to be editable
               if (isModalEditable) {
-                setCurrentEventData((prev) => ({
+                console.log(`Detected changes to user input : ${newUserInputTitle}`);
+                setSelectedEvent((prev) => ({
                   ...prev,
                   title: newUserInputTitle,
                 }));
@@ -709,12 +716,16 @@ export default function Schedule() {
             // TODO : change to a reference function for reusabillity
             // TODO : fix this, the incorrect state is being updated here
             // change from setCurrentEventData -> setSelectedEvent(prev => ...prev, { title : newUserInputTitle}) instead
-            handleOnChangeDescription={(newUserInputTitle: any) => {
+            handleOnChangeDescription={(newUserInputDescription: any) => {
               if (isModalEditable) {
-                setCurrentEventData((prev) => ({
-                  ...prev,
-                  title: newUserInputTitle,
+                setSelectedEvent((prevTitle) => ({
+                  ...prevTitle,
+                  description: newUserInputDescription,
                 }));
+                // setCurrentEventData((prev) => ({
+                //   ...prev,
+                //   title: newUserInputTitle,
+                // }));
               }
             }}
             handleOnChangeStart={onChangeStart} // we can reuse the same function
@@ -737,9 +748,14 @@ export default function Schedule() {
                 selectedColor, // TODO : fix this
               }));
             }}
-            handleSaveEditedEvent={() => {
-              // ideally, we would have to do less work
-              setEventList([...eventsList, currentEventData]);
+            handleSaveEditedEvent={async () => {
+              // first we remove the old data by matching based on id
+              const updatedEventList = await eventsList.filter(
+                (event) => event.id !== selectedEvent.id
+              );
+              console.log(`Updated event list is : ${JSON.stringify(updatedEventList)}`);
+              // then set the current selectedEvent related data to the updatedEventList instead
+              setEventList([...updatedEventList, selectedEvent]);
             }}
             handleCancelEditedEvent={() => {
               // change the modal back to not being editable
@@ -1144,7 +1160,6 @@ export default function Schedule() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      {/* )} */}
     </View>
   );
 }
