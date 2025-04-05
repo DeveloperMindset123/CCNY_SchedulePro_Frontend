@@ -38,7 +38,7 @@ interface ExistingEventModal {
 
   // useState variables that determines whether modal should be displayed or not
   visibillity_state: boolean;
-
+  delete_event_modal: boolean;
   // this is based on the docs, added any just in case the previous two types fail to work
   // this prop is intended to handle what will happen when modal is selected to be closed
   onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
@@ -53,7 +53,7 @@ interface ExistingEventModal {
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 
   start_time: any;
-
+  end_time: any;
   // This function will handle how the modal's data will be edited
   // when the edit icon is selected
   onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
@@ -61,6 +61,7 @@ interface ExistingEventModal {
   handleOnChangeTitle: any;
   handleOnChangeDescription: any;
   handleOnChangeStart: any;
+  handleOnChangeEnd: any;
   handleOnPressRecurring: any;
   dropdown_list: any;
   handleDropdownFunction: any;
@@ -69,6 +70,8 @@ interface ExistingEventModal {
   handleChangeEventColor: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
   handleSaveEditedEvent: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
   handleCancelEditedEvent: any;
+  handleOnPressDeleteConfirmation: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleOnPressDeleteCancellation: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 }
 const ExistingEventModal = ({
   // TODO : define the relevant props needed to be rendered
@@ -81,6 +84,7 @@ const ExistingEventModal = ({
   handleOnChangeTitle,
   handleOnChangeDescription,
   handleOnChangeStart,
+  handleOnChangeEnd,
   handleOnPressRecurring,
   dropdown_list,
   handleDropdownFunction,
@@ -89,6 +93,12 @@ const ExistingEventModal = ({
   handleSaveEditedEvent,
   handleCancelEditedEvent,
   start_time,
+  end_time,
+
+  // additional props to handle the confirmation/deletion of a particular event
+  handleOnPressDeleteConfirmation,
+  handleOnPressDeleteCancellation,
+  delete_event_modal,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -177,6 +187,72 @@ const ExistingEventModal = ({
                 >
                   {/** Change it such that instead of delete icon, there's instead edit icon available */}
                   <AntDesign name="delete" size={20} color="red" />
+                  {/** TODO : conditionally render a modal asking user if they want to delete this event, since it could also be a mistake */}
+
+                  <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
+                    <View
+                      style={{
+                        flex: 1,
+
+                        // to ensure that the modal is located within the middle of the screen
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: '65%',
+                          backgroundColor: 'white',
+                          borderRadius: 10,
+                          padding: 20,
+                          shadowColor: '#000',
+                          shadowOffset: {
+                            width: 0,
+                            height: 2,
+                          },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 4,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          elevation: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            marginBottom: 20,
+                            fontSize: 16,
+                          }}
+                        >
+                          Are You Sure You Want to Delete This Event?
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={[
+                              ButtonStyling.button,
+                              ButtonStyling.buttonSave,
+                              {
+                                marginRight: 10,
+                              },
+                            ]}
+                            onPress={handleOnPressDeleteConfirmation}
+                          >
+                            <Text style={ButtonStyling.buttonText}>Yes</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                            onPress={handleOnPressDeleteCancellation}
+                          >
+                            <Text style={ButtonStyling.buttonText}>No</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
                 </TouchableOpacity>
               </View>
             </View>
@@ -295,6 +371,34 @@ const ExistingEventModal = ({
                   mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                   is24Hour={true}
                   onChange={handleOnChangeStart} // another prop to handle update in time
+                />
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  // padding: -10,
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: '#555',
+                    marginTop: 8,
+                    marginRight: 7.5,
+                  }}
+                >
+                  End:
+                </Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  // NOTE : not entirely sure if this would work
+                  value={end_time}
+                  // value={startDate}
+                  // conditionally renders mode based on platform, setMode isn't being used
+                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                  is24Hour={true}
+                  onChange={handleOnChangeEnd} // another prop to handle update in time
                 />
               </View>
             </View>
@@ -444,6 +548,7 @@ export default function Schedule() {
 
   // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
+  const [deleteEventModal, setDeleteEventModal] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
   // this will determine the event that has been currently selected
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -540,13 +645,13 @@ export default function Schedule() {
   // assign a new random id for the current event
   // this function handles determining and assigning a new unique id to a calendar event
   // due to the asynchronous nature of state updates, it is ideal to only update one state at a time.
-  const handleCreateSaveNewEvent = () => {
+  const handleCreateSaveNewEvent = async () => {
     const random_generated_id = Math.floor(Math.random() * 100 + 1);
     console.log(random_generated_id);
 
     // check if the newly generated id happens to exist within the current event list
     const id_existence = eventsList.findIndex(
-      (current_event) => current_event.id === random_generated_id
+      (current_event: any) => current_event.id === random_generated_id
     );
 
     console.log(`id_existence value : ${id_existence}`);
@@ -566,7 +671,7 @@ export default function Schedule() {
       return;
     } else {
       // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
-      handleCreateSaveNewEvent();
+      await handleCreateSaveNewEvent();
     }
   };
 
@@ -693,6 +798,23 @@ export default function Schedule() {
         {showExistingEventModal && (
           // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
           <ExistingEventModal
+            handleOnPressDeleteCancellation={() => {
+              setDeleteEventModal(false);
+            }}
+            handleOnPressDeleteConfirmation={async () => {
+              // logic for deleting a particular event
+              const updatedEvents = await eventsList.filter(
+                (event) => event.id !== selectedEvent.id
+              );
+              // TODO : delete later, this is to experiment to check if the current event has been deleted or not
+              console.log(`The updated events are : ${updatedEvents}`);
+              // set the newly updated event
+              setEventList(updatedEvents);
+              setDeleteEventModal(false);
+              setShowExistingEventModal(false); // close the event
+            }}
+            delete_event_modal={deleteEventModal}
+            end_time={endDate}
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
             visibillity_state={showExistingEventModal}
@@ -729,6 +851,7 @@ export default function Schedule() {
               }
             }}
             handleOnChangeStart={onChangeStart} // we can reuse the same function
+            handleOnChangeEnd={onChangeEnd}
             // TODO : change this to a reference function instead
             handleOnPressRecurring={() =>
               setCurrentEventData((previousData) => ({
@@ -756,24 +879,26 @@ export default function Schedule() {
               console.log(`Updated event list is : ${JSON.stringify(updatedEventList)}`);
               // then set the current selectedEvent related data to the updatedEventList instead
               setEventList([...updatedEventList, selectedEvent]);
+              setShowExistingEventModal(false);
             }}
             handleCancelEditedEvent={() => {
               // change the modal back to not being editable
               setIsModalEditable(false);
               setShowExistingEventModal(false);
             }}
-            onRequestDelete={async () => {
-              // remove the event within the list whose current id matches the id of the currently selected event
-              const updatedEvents = await eventsList.filter(
-                (event) => event.id === selectedEvent.id
-              );
-
-              // TODO : delete later, this is to experiment to check if the current event has been deleted or not
-              console.log(`The updated events are : ${updatedEvents}`);
-
-              // set the newly updated event
-              setEventList(updatedEvents);
-              setShowExistingEventModal(false); // close the event
+            onRequestDelete={() => {
+              setDeleteEventModal(true);
+              // correct logic below for deleting a particular event
+              // // remove the event within the list whose current id matches the id of the currently selected event
+              // // include all other events except the current event containing matching id
+              // const updatedEvents = await eventsList.filter(
+              //   (event) => event.id !== selectedEvent.id
+              // );
+              // // TODO : delete later, this is to experiment to check if the current event has been deleted or not
+              // console.log(`The updated events are : ${updatedEvents}`);
+              // // set the newly updated event
+              // setEventList(updatedEvents);
+              // setShowExistingEventModal(false); // close the event
             }}
           />
         )}
