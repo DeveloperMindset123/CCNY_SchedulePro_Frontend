@@ -850,11 +850,37 @@ export default function Schedule() {
                 // }));
               }
             }}
-            handleOnChangeStart={onChangeStart} // we can reuse the same function
-            handleOnChangeEnd={onChangeEnd}
+            // the function logic for the datetimepicker needs to be slighlyt different
+            // rather than updating the currentEventsData useState hook
+            // instead the setSelectedEvent useState hook needs to be updated
+            handleOnChangeStart={async (_event: any, selectedDate: any) => {
+              const currentDate = await selectedDate;
+              const updatedDatetime = {
+                dateTime: currentDate,
+              };
+
+              setStartDate(currentDate);
+              setSelectedEvent((previousEventData) => ({
+                ...previousEventData,
+                start: updatedDatetime,
+              }));
+            }}
+            handleOnChangeEnd={async (_event: any, selectedDate: any) => {
+              const currentDate = await selectedDate;
+              const updatedDatetime = {
+                dateTime: currentDate,
+              };
+
+              setEndDate(currentDate);
+              setSelectedEvent((previousEventData) => ({
+                ...previousEventData,
+                end: updatedDatetime,
+              }));
+            }}
             // TODO : change this to a reference function instead
+            // TODO : replace setCurrentEventData with setSelectedEvent state
             handleOnPressRecurring={() =>
-              setCurrentEventData((previousData) => ({
+              setSelectedEvent((previousData) => ({
                 ...previousData,
                 isRecurring: !previousData.isRecurring, // toggle logic
               }))
