@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -23,12 +23,14 @@ import {
   DraggingEventProps,
   PackedEvent,
   LocaleConfigsProps,
+  CalendarKitHandle,
 } from '@howljs/calendar-kit';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
-import { ShowerHeadIcon } from 'lucide-react-native';
+// import { ShowerHeadIcon } from 'lucide-react-native';
+import CalendarModeSwitcher from '@/components/core/calendarModeSwitcher';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 
@@ -363,7 +365,9 @@ const ExistingEventModal = ({
                   Start:
                 </Text>
                 <DateTimePicker
+                  // should only be editable if the edit icon has been pressed
                   testID="dateTimePicker"
+                  disabled={isEditable ? false : true}
                   // NOTE : not entirely sure if this would work
                   value={start_time}
                   // value={startDate}
@@ -392,6 +396,7 @@ const ExistingEventModal = ({
                 </Text>
                 <DateTimePicker
                   testID="dateTimePicker"
+                  disabled={isEditable ? false : true}
                   // NOTE : not entirely sure if this would work
                   value={end_time}
                   // value={startDate}
@@ -516,16 +521,98 @@ const ExistingEventModal = ({
 };
 
 export default function Schedule() {
+  // supporting variables for the calendar mode switcher
+  // NOTE : useRef allows us to persist values between renders
+  /**
+   * @Documentation regarding the differentiation between some of the core react hooks
+   * @useMemo : is to memoize a calculation result between a function's calls and between renders
+   * @useCallback : is to memoize a callback itself (referential equality) between renders
+   * @useRef : is to keep data between renders (updating does not fire re-rendering) --> this is helpful for persisitng data
+   * @useState : is to keep data between renders (updating does fire re-rendering)
+   *
+   * Additional information:
+   * @param {Callback} - a callback is a function passed as an argument to another function (this is the most basic definition)
+   *
+   *
+   */
+
+  const calendarRef = useRef<CalendarKitHandle>(null);
+
+  // by default, the mode should be set to 3 days
+  const [calendarMode, setCalendarMode] = useState('3day');
+  const [numberOfDays, setNumberOfDays] = useState(3);
+
+  // function to handle different calendar modes
+  // the function should be wrapped around an useCallback hook
+  const handleModeChange = useCallback((mode, days) => {
+    setCalendarMode(mode);
+    setNumberOfDays(days);
+
+    // Month view isn't supported with the library
+    // instead, set the calendar view to a single week instead
+    if (mode === 'month') {
+      Alert.alert('Month View', 'Month view is not supported by the calendar kit library');
+      setCalendarMode('week');
+      setNumberOfDays(7);
+    }
+
+    calendarRef.current?.goToDate({
+      date: new Date().toISOString(),
+      animatedDate: true,
+      hourScroll: true,
+    });
+  }, []);
+
+  // dropdown data for recurring events
   const dropdownData = [
     { label: 'Daily', value: '1' },
     { label: 'Weekly', value: '2' },
     { label: 'Annually', value: '3' },
     { label: 'Every Weekday', value: '4' },
     { label: 'Every Weekend', value: '5' },
-
-    // TODO : this should be a feature post-mvp (as it would be more work to implement atm)
-    // { label : 'custom', value : '6' }
   ];
+
+  // function to calculate recurring events based on recurrence frequency
+  const calculateRecurringEvents = useCallback((event: any) => {
+    // handle the edge cases in which the event does not recur
+    // simply return an array containing a single element
+    // the element being the event itself
+    if (!event.isRecurring || !event.recurrence_frequency) {
+      return [event];
+    }
+
+    // otherwise, use spread operator to copy the original event
+    // and store it within originalEvent variable
+    const originalEvent = { ...event };
+
+    const additionalEvents = [];
+    const startDate = new Date(event.start.dateTime);
+    const endDate = new Date(event.end.dateTime);
+    const duration = endDate.getTime() - startDate.getTime();
+
+    // switch statement to handle the cases for event recurrence
+    switch (event.recurrence_frequency) {
+      // since we want the date to repeat each day
+      // TODO : i might need to be changed based on user input
+      case 'daily':
+        for (let i = 0; i <= 30; i++) {
+          // calculate the start
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // calculate the end
+          const newEnd = new Date(endDate);
+          endDate.setDate(endDate.getDate() + duration);
+
+          // add the events to the additional events array
+          // TODO : continue here
+          additionalEvents.push({
+            ...originalEvent,
+            id: -2, // placeholder to not run into errors
+          });
+        }
+    }
+  }, []);
 
   // define the function to render events
   const renderEvent = useCallback(
@@ -779,6 +866,7 @@ export default function Schedule() {
       <CalendarContainer
         // TODO : define a function that will dynamically, this will require adjustment to the initialLocales variable.
         locale="en"
+        allowPinchToZoom={true}
         initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
@@ -788,6 +876,7 @@ export default function Schedule() {
         scrollByDay={true}
         events={eventsList}
         overlapType="overlap" // events should overlap, similar to google calendar
+        rightEdgeSpacing={1} // supporting prop related to event overlappping
         // defines the minimum start time difference in minutes for events to be considered overlapping
         minStartDifference={15}
         // to prevent unneccessary re-renders
@@ -928,7 +1017,7 @@ export default function Schedule() {
             }}
           />
         )}
-        <CalendarHeader />
+        <CalendarHeader dayBarHeight={60} />
         <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
       <Modal

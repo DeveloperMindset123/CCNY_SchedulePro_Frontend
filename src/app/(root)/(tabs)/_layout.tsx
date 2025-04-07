@@ -18,9 +18,11 @@ export default function TabLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: 'black',
+          // backgroundColor: 'transparent',
         },
         tabBarStyle: {
           backgroundColor: 'black',
+          // backgroundColor: 'transparent',
         },
         // tabBarActiveTintColor: iconColor,
       }}
