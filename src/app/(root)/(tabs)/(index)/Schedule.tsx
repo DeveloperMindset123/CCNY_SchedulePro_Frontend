@@ -24,6 +24,7 @@ import {
   PackedEvent,
   LocaleConfigsProps,
   CalendarKitHandle,
+  EventItem,
 } from '@howljs/calendar-kit';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
@@ -31,8 +32,25 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
 // import { ShowerHeadIcon } from 'lucide-react-native';
 import CalendarModeSwitcher from '@/components/core/calendarModeSwitcher';
+import { number } from 'prop-types';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
+
+// TODO : add an interface referencing the event useState hook
+interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  start: { dateTime: string };
+  end: { dateTime: string };
+  color: string;
+  location: string;
+  isRecurring: boolean;
+  recurrence_frequency: any | string | undefined; // not entirely sure of the type
+  isRecurringInstance?: boolean;
+  parentEventId?: string | any;
+}
+// expriment with the extension logic alongside a seperate independent interface to see which raises errors
 
 interface ExistingEventModal {
   // input data for the current event related information the modal should render
@@ -69,11 +87,17 @@ interface ExistingEventModal {
   handleDropdownFunction: any;
   renderDropdownItem: any;
 
-  handleChangeEventColor: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-  handleSaveEditedEvent: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
+  handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleCancelEditedEvent: any;
-  handleOnPressDeleteConfirmation: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-  handleOnPressDeleteCancellation: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleOnPressDeleteConfirmation:
+    | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
+    | undefined
+    | any;
+  handleOnPressDeleteCancellation:
+    | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
+    | undefined
+    | any;
 }
 const ExistingEventModal = ({
   // TODO : define the relevant props needed to be rendered
@@ -599,19 +623,119 @@ export default function Schedule() {
           // calculate the start
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
+          console.log(`new start (daily) : ${newStart}`);
 
           // calculate the end
           const newEnd = new Date(endDate);
           endDate.setDate(endDate.getDate() + duration);
 
           // add the events to the additional events array
-          // TODO : continue here
+          // NOTE : observe the 2 new properties being added here [and the other switch statement cases] (isRecurringInstance, parentEventId)
           additionalEvents.push({
             ...originalEvent,
-            id: -2, // placeholder to not run into errors
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
           });
         }
+        break;
+
+      // similar logic to daily
+      // primary differentiation is that i is being multiplied by 7
+      // for the newStart date calculation
+      case 'Weekly':
+        for (let i = 1; i <= 12; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i * 7);
+          console.log(`new start (weekly) : ${newStart}`);
+
+          const newEnd = new Date(newStart.getTime() + duration);
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      case 'Every Weekday':
+        for (let i = 1; i <= 30; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // TODO : this logic might cause issues
+          if (newStart.getDay() === 0 || newStart.getDay() === 6) {
+            continue;
+          }
+
+          const newEnd = new Date(newStart.getTime() + duration);
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+
+          console.log(`Current additional events array data : ${JSON.stringify(additionalEvents)}`);
+        }
+        break;
+
+      case 'Every Weekend':
+        for (let i = 0; i <= 30; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // avoid weekdays?
+          // not entirely sure of this logic
+          if (newStart.getDay() !== 0 && newStart.getDay() !== 6) {
+            continue;
+          }
+
+          const newEnd = new Date(newStart.getTime() + duration); // observe the recurring logic
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      case 'Annually':
+        for (let i = 1; i <= 5; i++) {
+          const newStart = new Date(startDate);
+          newStart.setFullYear(startDate.getFullYear() + i);
+
+          console.log('new start value (annually) : ', JSON.stringify(newStart));
+          const newEnd = new Date(newStart.getTime() + duration);
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      default:
+        break; // do nothing
     }
+
+    return [originalEvent, ...additionalEvents];
   }, []);
 
   // define the function to render events
@@ -626,9 +750,21 @@ export default function Schedule() {
       >
         <Ionicons name="calendar" size={10} color="white" />
         <Text style={{ color: 'white', fontSize: 10 }}>{event.title}</Text>
+        {event.isRecurringInstance && (
+          <Ionicon
+            name="repeat"
+            size={8}
+            color={'white'}
+            style={{
+              position: 'absolute',
+              right: 2,
+              top: 2,
+            }}
+          />
+        )}
       </View>
     ),
-    []
+    [] // no dependencies required
   );
 
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
@@ -732,13 +868,37 @@ export default function Schedule() {
   // assign a new random id for the current event
   // this function handles determining and assigning a new unique id to a calendar event
   // due to the asynchronous nature of state updates, it is ideal to only update one state at a time.
-  const handleCreateSaveNewEvent = async () => {
-    const random_generated_id = Math.floor(Math.random() * 100 + 1);
-    console.log(random_generated_id);
+  const handleCreateSaveNewEvent = useCallback(async () => {
+    // implement logic for handling empty user input
+    // for title and time (description for event should be optional)
+    /**
+     * @param {Alert} defintiion
+     * @param {title} - Missing Information (represents the title of this particular alert in the event that title input is empty)
+     * @param {message} - Corresponding message to be rendered in accordance to the particular alert
+     */
+    if (!currentEventData.title) {
+      Alert.alert('Missing Information', 'Please select title for your event.');
+      return;
+    }
+
+    if (!currentEventData.start.dateTime || !currentEventData.end.dateTime) {
+      Alert.alert(
+        'Missing Information',
+        'Please select appropriate start and end times for your event.'
+      );
+      return;
+    }
+
+    const uniqueId = `event_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    console.log(`generated unique id : ${uniqueId}`);
+    // replaced with string based value for easier identification
+    // const random_generated_id = Math.floor(Math.random() * 100 + 1);
+    // console.log(random_generated_id);
 
     // check if the newly generated id happens to exist within the current event list
+    // TODO : Handle issue regarding existence of potential duplicate generated events as well
     const id_existence = eventsList.findIndex(
-      (current_event: any) => current_event.id === random_generated_id
+      (current_event: any) => current_event.id === uniqueId
     );
 
     console.log(`id_existence value : ${id_existence}`);
@@ -747,30 +907,58 @@ export default function Schedule() {
     // that means we can attach the current event's data with the new id that has been found
     // save it into the list (which will then be sent to the database based on the email of the user)
     // treating this also as a form of base case
-    if (id_existence === -1) {
-      const updatedEvent = {
-        ...currentEventData,
-        id: random_generated_id,
-      };
+    // if (id_existence === -1) {
+    //   const updatedEvent = {
+    //     ...currentEventData,
+    //     id: uniqueId,
+    //   };
+    const newEvent = {
+      ...currentEventData,
+      id: uniqueId,
+    };
 
-      setEventList([...eventsList, updatedEvent]);
-      setNewEventModal(false);
-      return;
+    let eventsToAdd = [];
+
+    // if user wants an event to be recurring based on a specific selected frequency
+    if (newEvent.isRecurring && newEvent.recurrence_frequency) {
+      eventsToAdd = calculateRecurringEvents(newEvent);
     } else {
-      // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
-      await handleCreateSaveNewEvent();
+      // otherwise, simply add a single instance copy of the particular event
+      eventsToAdd = [newEvent];
     }
-  };
+
+    // double spread opearator
+    // since eventsToAdd can be more than one depending on recurrence frequency
+    setEventList([...eventsList, ...eventsToAdd]);
+    setNewEventModal(false);
+
+    // reset current state data so we don't have to worry about it later
+    // NOTE : this would replace the logic for the handleCreateNewEvent function
+    setCurrentEventData({
+      id: -1,
+      title: '',
+      description: '',
+      start: { dateTime: '' },
+      end: { dateTime: '' },
+      color: '#4285F4',
+      location: 'Not Specified',
+      isRecurring: false,
+      recurrence_frequency: null,
+    });
+  }, [currentEventData, calculateRecurringEvents, eventsList]);
 
   // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
   // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
   // define the function that will handle the creation of new events
   // note that the modal for this should be different from the existing event modal
   // NOTE : it would be more appropriate to call this functon "renderNewEventModal"
+
+  // TLDR : this function gets triggered when the "+" icon gets selected
   const handleCreateNewEvent = () => {
     // for now the only behavior we want is for the useState hook variable
     // when this modal view is set to true, the modal will be displayed
     // reset all the previous relevant data (so that the modal doesn't render old data that was previously entered by user)
+    // TODO : issue with DRY, fix this
     setCurrentEventData({
       id: -1,
       title: '',
@@ -797,11 +985,30 @@ export default function Schedule() {
   };
 
   // useCallback hook is being used as a wrapper around this reference function
-  const handlePressEvent = useCallback((event) => {
-    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
-    setSelectedEvent(event);
-    setShowExistingEventModal(true);
-  }, []);
+  // simple logic for handling recurring ev
+  const handlePressEvent = useCallback(
+    (event: CalendarEvent | any) => {
+      // NOTE : the properties isRecurringInstance and parentEventId comes from the calculateRecurringEvents function
+      // refer to the defintition of calculateRecurringEvents definition for reference
+      if (event.isRecurringInstance && event.parentEventId) {
+        // parentEvent : simply the original event set to be recurring
+        const parentEvent = eventsList.find((e: CalendarEvent) => e.id === event.parentEventId);
+
+        if (parentEvent) {
+          setSelectedEvent(parentEvent);
+        } else {
+          setSelectedEvent(event); // otherwise, the original event should be set to selected
+        }
+      } else {
+        // TODO : this seems somewhat repetitive, find a fix for this
+        setSelectedEvent(event);
+      }
+      // console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+      // setSelectedEvent(event);
+      setShowExistingEventModal(true);
+    },
+    [eventsList]
+  );
 
   // prototype of the data that needs to be sent out to the datbase
   const events_payload = {
@@ -834,6 +1041,10 @@ export default function Schedule() {
         position: 'relative',
       }}
     >
+      {/*
+      TODO : the view isn't entirely functional
+      *Calendar mode switcher is intended to be added at the top */}
+      <CalendarModeSwitcher currentMode={calendarMode} onModeChange={handleModeChange} />
       <TouchableOpacity
         // TODO : convert this into tailwindcss based styling for uniformity
         // the css here ensures that the button is positioned within the bottom right portion of the screen
@@ -859,6 +1070,7 @@ export default function Schedule() {
           shadowRadius: 3, // sets the drop shadow blur radius
           elevation: 5, // sets the elevation of android
         }}
+        // TODO : this requires some additioanl modifications
         onPress={handleCreateNewEvent}
       >
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
@@ -872,8 +1084,8 @@ export default function Schedule() {
         minDate="2025-01-01"
         maxDate="2026-12-31"
         initialDate={new Date().toISOString().split('T')[0]}
-        numberOfDays={3}
-        scrollByDay={true}
+        numberOfDays={numberOfDays} // changed from 3 (static value)
+        scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
         events={eventsList}
         overlapType="overlap" // events should overlap, similar to google calendar
         rightEdgeSpacing={1} // supporting prop related to event overlappping
