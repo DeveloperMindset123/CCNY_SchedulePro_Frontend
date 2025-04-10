@@ -314,16 +314,6 @@ const ExistingEventModal = ({
                   // shadowRadius: 20,
                 }}
                 value={current_event.title || ''}
-                // placeholder="Enter event title"    // placeholder not needed atp
-                // NOTE : we only want to update the title portion of the currentEvent state
-                // all the other fields will remain unchanged
-                // onChangeText={(newUserInputTitle) =>
-                //   setCurrentEventData((prev) => ({
-                //     ...prev,
-                //     title: newUserInputTitle,
-                //   }))
-                // }
-
                 onChangeText={handleOnChangeTitle}
               />
             </View>
@@ -613,12 +603,15 @@ export default function Schedule() {
     const startDate = new Date(event.start.dateTime);
     const endDate = new Date(event.end.dateTime);
     const duration = endDate.getTime() - startDate.getTime();
+    console.log(
+      `value of duration : ${duration}, value of start time : ${startDate}, value of end date : ${endDate}`
+    );
 
     // switch statement to handle the cases for event recurrence
     switch (event.recurrence_frequency) {
       // since we want the date to repeat each day
       // TODO : i might need to be changed based on user input
-      case 'daily':
+      case 'Daily': // NOTE the case sensitivity
         for (let i = 0; i <= 30; i++) {
           // calculate the start
           const newStart = new Date(startDate);
@@ -690,7 +683,8 @@ export default function Schedule() {
         break;
 
       case 'Every Weekend':
-        for (let i = 0; i <= 30; i++) {
+        // let weekendCount = 0
+        for (let i = 0; i <= 365; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
 
@@ -973,7 +967,7 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
-  const renderDropdownItem = (item) => {
+  const renderDropdownItem = (item: any) => {
     return (
       <View style={dropdownStyles.item}>
         <Text style={dropdownStyles.textItem}>{item.label}</Text>
@@ -1105,7 +1099,7 @@ export default function Schedule() {
             handleOnPressDeleteConfirmation={async () => {
               // logic for deleting a particular event
               const updatedEvents = await eventsList.filter(
-                (event) => event.id !== selectedEvent.id
+                (event: any) => event.id !== selectedEvent.id
               );
               // TODO : delete later, this is to experiment to check if the current event has been deleted or not
               console.log(`The updated events are : ${updatedEvents}`);
