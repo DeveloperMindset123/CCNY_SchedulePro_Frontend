@@ -8,7 +8,6 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-
   // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
   TouchableWithoutFeedback,
   Platform,
@@ -30,9 +29,7 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
-// import { ShowerHeadIcon } from 'lucide-react-native';
 import CalendarModeSwitcher from '@/components/core/calendarModeSwitcher';
-import { number } from 'prop-types';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 
@@ -558,7 +555,7 @@ export default function Schedule() {
 
   // function to handle different calendar modes
   // the function should be wrapped around an useCallback hook
-  const handleModeChange = useCallback((mode, days) => {
+  const handleModeChange = useCallback((mode: string, days: number) => {
     setCalendarMode(mode);
     setNumberOfDays(days);
 
@@ -584,6 +581,10 @@ export default function Schedule() {
     { label: 'Annually', value: '3' },
     { label: 'Every Weekday', value: '4' },
     { label: 'Every Weekend', value: '5' },
+
+    // TODO : this should render radio button similar to google calendar
+    // where users can determine how many days the event should repeat and for how long the event should repeat
+    { label: 'Custom', value: '6' },
   ];
 
   // function to calculate recurring events based on recurrence frequency
@@ -610,16 +611,16 @@ export default function Schedule() {
     // switch statement to handle the cases for event recurrence
     switch (event.recurrence_frequency) {
       // since we want the date to repeat each day
-      // TODO : i might need to be changed based on user input
-      case 'Daily': // NOTE the case sensitivity
-        for (let i = 0; i <= 30; i++) {
+      // NOTE : i = 1 so that the same event doesn't repeat twice
+      case 'Daily':
+        for (let i = 1; i <= 120; i++) {
           // calculate the start
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
-          console.log(`new start (daily) : ${newStart}`);
 
           // calculate the end
-          const newEnd = new Date(endDate);
+          const newEnd = new Date(newStart.getTime() + duration);
+          // const newEnd = new Date(endDate);
           endDate.setDate(endDate.getDate() + duration);
 
           // add the events to the additional events array
@@ -639,11 +640,9 @@ export default function Schedule() {
       // primary differentiation is that i is being multiplied by 7
       // for the newStart date calculation
       case 'Weekly':
-        for (let i = 1; i <= 12; i++) {
+        for (let i = 1; i <= 112; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i * 7);
-          console.log(`new start (weekly) : ${newStart}`);
-
           const newEnd = new Date(newStart.getTime() + duration);
 
           additionalEvents.push({
@@ -658,11 +657,10 @@ export default function Schedule() {
         break;
 
       case 'Every Weekday':
-        for (let i = 1; i <= 30; i++) {
+        // last for 4 months (since each semester spans 4 month timeframe)
+        for (let i = 1; i <= 120; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
-
-          // TODO : this logic might cause issues
           if (newStart.getDay() === 0 || newStart.getDay() === 6) {
             continue;
           }
@@ -677,14 +675,12 @@ export default function Schedule() {
             isRecurringInstance: true,
             parentEventId: originalEvent.id,
           });
-
-          console.log(`Current additional events array data : ${JSON.stringify(additionalEvents)}`);
         }
         break;
 
       case 'Every Weekend':
         // let weekendCount = 0
-        for (let i = 0; i <= 365; i++) {
+        for (let i = 1; i <= 120; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
 
@@ -1121,7 +1117,7 @@ export default function Schedule() {
               // we only want the edit to take place if the modal happens to be editable
               if (isModalEditable) {
                 console.log(`Detected changes to user input : ${newUserInputTitle}`);
-                setSelectedEvent((prev) => ({
+                setSelectedEvent((prev: CalendarEvent) => ({
                   ...prev,
                   title: newUserInputTitle,
                 }));
@@ -1135,8 +1131,8 @@ export default function Schedule() {
             // change from setCurrentEventData -> setSelectedEvent(prev => ...prev, { title : newUserInputTitle}) instead
             handleOnChangeDescription={(newUserInputDescription: any) => {
               if (isModalEditable) {
-                setSelectedEvent((prevTitle) => ({
-                  ...prevTitle,
+                setSelectedEvent((prevData: CalendarEvent) => ({
+                  ...prevData,
                   description: newUserInputDescription,
                 }));
                 // setCurrentEventData((prev) => ({
@@ -1155,7 +1151,7 @@ export default function Schedule() {
               };
 
               setStartDate(currentDate);
-              setSelectedEvent((previousEventData) => ({
+              setSelectedEvent((previousEventData: CalendarEvent) => ({
                 ...previousEventData,
                 start: updatedDatetime,
               }));
@@ -1167,7 +1163,7 @@ export default function Schedule() {
               };
 
               setEndDate(currentDate);
-              setSelectedEvent((previousEventData) => ({
+              setSelectedEvent((previousEventData: CalendarEvent) => ({
                 ...previousEventData,
                 end: updatedDatetime,
               }));
@@ -1175,7 +1171,7 @@ export default function Schedule() {
             // TODO : change this to a reference function instead
             // TODO : replace setCurrentEventData with setSelectedEvent state
             handleOnPressRecurring={() =>
-              setSelectedEvent((previousData) => ({
+              setSelectedEvent((previousData: CalendarEvent) => ({
                 ...previousData,
                 isRecurring: !previousData.isRecurring, // toggle logic
               }))
