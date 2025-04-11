@@ -1,5 +1,5 @@
 // Component to handle switching modes for the calendar
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 /**
@@ -18,7 +18,6 @@ const CalendarModeSwitcher = ({ currentMode, onModeChange }) => {
     { id: 'week', label: 'Week', days: 7 },
     { id: 'month', label: 'Month', days: 30 },
   ];
-
   return (
     <View style={styles.container}>
       {modes.map((mode) => (

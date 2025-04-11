@@ -13,6 +13,7 @@ import {
   Platform,
   Button,
   NativeSyntheticEvent,
+  ActivityIndicator,
 } from 'react-native';
 import {
   CalendarBody,
@@ -32,7 +33,6 @@ import { Dropdown } from 'react-native-element-dropdown';
 import CalendarModeSwitcher from '@/components/core/calendarModeSwitcher';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
-
 // TODO : add an interface referencing the event useState hook
 interface CalendarEvent {
   id: string;
@@ -47,7 +47,7 @@ interface CalendarEvent {
   isRecurringInstance?: boolean;
   parentEventId?: string | any;
 }
-// expriment with the extension logic alongside a seperate independent interface to see which raises errors
+// experiment with the extension logic alongside a seperate independent interface to see which raises errors
 
 interface ExistingEventModal {
   // input data for the current event related information the modal should render
@@ -205,13 +205,9 @@ const ExistingEventModal = ({
                       // marginRight: 15,
                     }
                   }
-                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
-                  onPress={onRequestDelete} // we simply want isEditable state to be set to true if this button is pressed
+                  onPress={onRequestDelete}
                 >
-                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
                   <AntDesign name="delete" size={20} color="red" />
-                  {/** TODO : conditionally render a modal asking user if they want to delete this event, since it could also be a mistake */}
-
                   <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
                     <View
                       style={{
@@ -553,24 +549,41 @@ export default function Schedule() {
   const [calendarMode, setCalendarMode] = useState('3day');
   const [numberOfDays, setNumberOfDays] = useState(3);
 
+  // useState hook for AcitivityIndicator
+  // AcitivityIndicator is intended to display circular loading indicator
+  const [isLoading, setIsLoading] = useState(false);
+
   // function to handle different calendar modes
   // the function should be wrapped around an useCallback hook
   const handleModeChange = useCallback((mode: string, days: number) => {
+    setIsLoading(true); // start loading animation
+
+    // update state values to adjust mode and days
     setCalendarMode(mode);
     setNumberOfDays(days);
 
-    // Month view isn't supported with the library
-    // instead, set the calendar view to a single week instead
+    // Handle month view special case
     if (mode === 'month') {
-      Alert.alert('Month View', 'Month view is not supported by the calendar kit library');
+      Alert.alert('Month View', 'Month View is not supported yet.');
       setCalendarMode('week');
       setNumberOfDays(7);
     }
 
-    calendarRef.current?.goToDate({
-      date: new Date().toISOString(),
-      animatedDate: true,
-      hourScroll: true,
+    // a js native api
+    // tells the browser that I wish to perform an animation
+    // accepts a callback function (aka the animation logic)
+    requestAnimationFrame(() => {
+      calendarRef.current?.goToDate({
+        date: new Date().toISOString(),
+        animatedDate: true,
+        hourScroll: true,
+      });
+
+      // add a small delay to finish the transition before stopping the loading state
+      // TODO : see if alternative workaround can be implemented, since this kind of logic isn't the most ideal
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 700);
     });
   }, []);
 
@@ -1035,6 +1048,16 @@ export default function Schedule() {
       TODO : the view isn't entirely functional
       *Calendar mode switcher is intended to be added at the top */}
       <CalendarModeSwitcher currentMode={calendarMode} onModeChange={handleModeChange} />
+
+      {/*
+       * insert acitivity Indicator animation loading logic here
+       * through conditional rendering
+       */}
+      {isLoading && (
+        <View style={calendarStyling.loadingOverlay}>
+          <ActivityIndicator size="large" color="#3498db" />
+        </View>
+      )}
       <TouchableOpacity
         // TODO : convert this into tailwindcss based styling for uniformity
         // the css here ensures that the button is positioned within the bottom right portion of the screen
@@ -1605,6 +1628,22 @@ export default function Schedule() {
     </View>
   );
 }
+
+const calendarStyling = StyleSheet.create({
+  // styling for the loading animation
+  // to be displayed when there's a switch in the calendar
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+});
 
 const checkboxStyling = StyleSheet.create({
   checkbox: {
