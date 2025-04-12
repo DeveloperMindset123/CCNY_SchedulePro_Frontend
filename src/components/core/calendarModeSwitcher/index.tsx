@@ -66,3 +66,41 @@ const styles = StyleSheet.create({
 });
 
 export default CalendarModeSwitcher;
+
+// seperate modal component for custom event recurrence logic
+
+export const CustomRecurrenceModal = ({
+  visible,
+  onClose,
+  onSave,
+  initialSelection,
+}: {
+  visible: boolean; // useState hook boolean type variable that will handle whether a modal should be displayed or not
+
+  // unsure of the types of these
+  onClose: any;
+  onSave: any;
+  initialSelection: string[] | any;
+}) => {
+  const days_of_week = [
+    { id: 0, name: 'Sunday' },
+    { id: 1, name: 'Monday' },
+    { id: 2, name: 'Tuesday' },
+    { id: 3, name: 'Wednesday' },
+    { id: 4, name: 'Thursday' },
+    { id: 5, name: 'Friday' },
+    { id: 6, name: 'Saturday' },
+  ];
+
+  const [selectedDays, setSelectedDays] = useState(initialSelection || []);
+  const toggleDelay = (dayId) => {
+    if (selectedDays.includes(dayId)) {
+      setSelectedDays(selectedDays.filter((id) => id !== dayId));
+    } else {
+      setSelectedDays([...selectedDays, dayId]);
+    }
+
+    // TODO : continue here
+    // reference link : https://claude.ai/chat/ca41a962-0577-44af-987d-9e4320d828eb
+  };
+};

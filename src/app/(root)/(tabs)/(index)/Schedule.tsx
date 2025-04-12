@@ -30,7 +30,9 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
-import CalendarModeSwitcher from '@/components/core/calendarModeSwitcher';
+import CalendarModeSwitcher, {
+  CustomRecurrenceModal,
+} from '@/components/core/calendarModeSwitcher';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
@@ -722,6 +724,37 @@ export default function Schedule() {
           newStart.setFullYear(startDate.getFullYear() + i);
 
           console.log('new start value (annually) : ', JSON.stringify(newStart));
+          const newEnd = new Date(newStart.getTime() + duration);
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      // add logic for rendering custom event modal
+      case 'Custom':
+        // get selected days from custom recurrence
+        // TODO : the original event may need customRecurrenceDays field added to it
+        // eslint-disable-next-line no-case-declarations
+        const customDays = event.customRecurrenceDays || [];
+        if (customDays.length === 0) break; // if no custom days has been provided, nothing to repeat
+
+        // create events for next 52 weeks
+        // TODO : adjust this value accordingly
+        for (let i = 1; i <= 365; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // only create events for selected days of the week
+          if (!customDays.includes(newStart.getDay())) {
+            continue;
+          }
+
           const newEnd = new Date(newStart.getTime() + duration);
           additionalEvents.push({
             ...originalEvent,
