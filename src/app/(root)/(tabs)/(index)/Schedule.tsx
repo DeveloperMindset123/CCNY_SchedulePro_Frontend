@@ -582,7 +582,6 @@ export default function Schedule() {
       });
 
       // add a small delay to finish the transition before stopping the loading state
-      // TODO : see if alternative workaround can be implemented, since this kind of logic isn't the most ideal
       setTimeout(() => {
         setIsLoading(false);
       }, 700);
@@ -819,6 +818,10 @@ export default function Schedule() {
   const [endDate, setEndDate] = useState(new Date());
   const [show, setShow] = useState(true); // determines whether the datetime-picker modal should open or remain closed
 
+  // hook to handle displaying custom recurrence modals
+  const [showCustomRecurrenceModal, setShowCustomRecurrenceModal] = useState(false);
+  const [customSelectedDays, setCustomSelectedDays] = useState([]); // stores the custom days the event should be repeated
+
   // this is just an example of how to add hours to the current time
   // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
@@ -893,7 +896,9 @@ export default function Schedule() {
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
 
+  // TODO : check if this needs to be used in the first place, otherwise, remove as part of cleanup
   const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
+
   // TODO : Reference to this useState hook --> this array should be updated in the following conditions:
   // 1. once a new event has been created (meaning the save button within the modal has been clicked)
   // 2. once an existing event has been modified (a seperate modal will be used for this)
@@ -937,7 +942,7 @@ export default function Schedule() {
       (current_event: any) => current_event.id === uniqueId
     );
 
-    console.log(`id_existence value : ${id_existence}`);
+    // console.log(`id_existence value : ${id_existence}`);
 
     // in the event that this conditional is true, that means the id doesn't exist
     // that means we can attach the current event's data with the new id that has been found
@@ -1590,12 +1595,17 @@ export default function Schedule() {
                       // but we want to update the label instead
                       setDropdownValue(item.value);
 
-                      // note the syntax
-                      // update the recurrence frequency
-                      setCurrentEventData((previousStateData) => ({
-                        ...previousStateData,
-                        recurrence_frequency: item.label,
-                      }));
+                      // modified slightly to add a conditional check to handle custom days
+                      if (item.label === 'Custom') {
+                        setShowCustomRecurrenceModal(true);
+                      } else {
+                        // note the syntax
+                        // update the recurrence frequency
+                        setCurrentEventData((previousStateData) => ({
+                          ...previousStateData,
+                          recurrence_frequency: item.label,
+                        }));
+                      }
                     }}
                     renderLeftIcon={() => (
                       <AntDesign
@@ -1658,6 +1668,20 @@ export default function Schedule() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <CustomRecurrenceModal
+        visible={showCustomRecurrenceModal}
+        onClose={() => setShowCustomRecurrenceModal(false)}
+        initialSelection={customSelectedDays}
+        onSave={(selectedDays: any) => {
+          setCustomSelectedDays(selectedDays);
+          setCurrentEventData((prev: any) => ({
+            ...prev,
+            recurrence_frequency: 'Custom',
+            customRecurrenceDays: selectedDays, // this is a new field being added?
+          }));
+          setShowCustomRecurrenceModal(false);
+        }}
+      />
     </View>
   );
 }
