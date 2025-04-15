@@ -134,8 +134,10 @@ export const TabBarIcon = ({
     <Icon
       className={className}
       name={name}
-      size={isActive ? 32 : 28}
-      color={isActive ? color.activeTintColor : color.inactiveTintColor}
+      // size={isActive ? 32 : 28}
+      size={28}
+      // color={isActive ? color.activeTintColor : color.inactiveTintColor}
+      color={color.inactiveTintColor}
       style={{ marginBottom: -3 }}
     />
   );

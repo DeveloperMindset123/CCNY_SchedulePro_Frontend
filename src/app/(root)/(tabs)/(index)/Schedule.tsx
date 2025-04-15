@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-
   // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
   TouchableWithoutFeedback,
   Platform,
   Button,
   NativeSyntheticEvent,
+  ActivityIndicator,
 } from 'react-native';
 import {
   CalendarBody,
@@ -23,14 +23,33 @@ import {
   DraggingEventProps,
   PackedEvent,
   LocaleConfigsProps,
+  CalendarKitHandle,
+  EventItem,
 } from '@howljs/calendar-kit';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Dropdown } from 'react-native-element-dropdown';
-import { ShowerHeadIcon } from 'lucide-react-native';
+import CalendarModeSwitcher, {
+  CustomRecurrenceModal,
+} from '@/components/core/calendarModeSwitcher';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
+// TODO : add an interface referencing the event useState hook
+interface CalendarEvent {
+  id: string;
+  title: string;
+  description?: string;
+  start: { dateTime: string };
+  end: { dateTime: string };
+  color: string;
+  location: string;
+  isRecurring: boolean;
+  recurrence_frequency: any | string | undefined; // not entirely sure of the type
+  isRecurringInstance?: boolean;
+  parentEventId?: string | any;
+}
+// experiment with the extension logic alongside a seperate independent interface to see which raises errors
 
 interface ExistingEventModal {
   // input data for the current event related information the modal should render
@@ -38,7 +57,7 @@ interface ExistingEventModal {
 
   // useState variables that determines whether modal should be displayed or not
   visibillity_state: boolean;
-
+  delete_event_modal: boolean;
   // this is based on the docs, added any just in case the previous two types fail to work
   // this prop is intended to handle what will happen when modal is selected to be closed
   onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
@@ -53,7 +72,7 @@ interface ExistingEventModal {
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 
   start_time: any;
-
+  end_time: any;
   // This function will handle how the modal's data will be edited
   // when the edit icon is selected
   onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
@@ -61,17 +80,27 @@ interface ExistingEventModal {
   handleOnChangeTitle: any;
   handleOnChangeDescription: any;
   handleOnChangeStart: any;
+  handleOnChangeEnd: any;
   handleOnPressRecurring: any;
   dropdown_list: any;
   handleDropdownFunction: any;
   renderDropdownItem: any;
 
-  handleChangeEventColor: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-  handleSaveEditedEvent: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
+  handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
+  handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleCancelEditedEvent: any;
+  handleOnPressDeleteConfirmation:
+    | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
+    | undefined
+    | any;
+  handleOnPressDeleteCancellation:
+    | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
+    | undefined
+    | any;
 }
+
+// TODO : Integrate logic for event deletion of existng event.
 const ExistingEventModal = ({
-  // TODO : define the relevant props needed to be rendered
   current_event,
   visibillity_state,
   onRequestClose,
@@ -81,6 +110,7 @@ const ExistingEventModal = ({
   handleOnChangeTitle,
   handleOnChangeDescription,
   handleOnChangeStart,
+  handleOnChangeEnd,
   handleOnPressRecurring,
   dropdown_list,
   handleDropdownFunction,
@@ -89,6 +119,12 @@ const ExistingEventModal = ({
   handleSaveEditedEvent,
   handleCancelEditedEvent,
   start_time,
+  end_time,
+
+  // additional props to handle the confirmation/deletion of a particular event
+  handleOnPressDeleteConfirmation,
+  handleOnPressDeleteCancellation,
+  delete_event_modal,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -148,19 +184,6 @@ const ExistingEventModal = ({
               >
                 Event Details
               </Text>
-              {/*
-              * TODO : figure out how to place the two items side by side next to one another
-
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  right: 5,
-                  // top: -2,
-                }}
-                onPress={onRequestDelete}
-              >
-                <AntDesign name="delete" size={20} color="red" />
-              </TouchableOpacity> */}
               <View
                 style={{
                   position: 'absolute',
@@ -185,11 +208,73 @@ const ExistingEventModal = ({
                       // marginRight: 15,
                     }
                   }
-                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
-                  onPress={onRequestDelete} // we simply want isEditable state to be set to true if this button is pressed
+                  onPress={onRequestDelete}
                 >
-                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
                   <AntDesign name="delete" size={20} color="red" />
+                  <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
+                    <View
+                      style={{
+                        flex: 1,
+
+                        // to ensure that the modal is located within the middle of the screen
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: '65%',
+                          backgroundColor: 'white',
+                          borderRadius: 10,
+                          padding: 20,
+                          shadowColor: '#000',
+                          shadowOffset: {
+                            width: 0,
+                            height: 2,
+                          },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 4,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          elevation: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            marginBottom: 20,
+                            fontSize: 16,
+                          }}
+                        >
+                          Are You Sure You Want to Delete This Event?
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={[
+                              ButtonStyling.button,
+                              ButtonStyling.buttonSave,
+                              {
+                                marginRight: 10,
+                              },
+                            ]}
+                            onPress={handleOnPressDeleteConfirmation}
+                          >
+                            <Text style={ButtonStyling.buttonText}>Yes</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                            onPress={handleOnPressDeleteCancellation}
+                          >
+                            <Text style={ButtonStyling.buttonText}>No</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
                 </TouchableOpacity>
               </View>
             </View>
@@ -217,21 +302,14 @@ const ExistingEventModal = ({
                   borderRadius: 5, // determines the curvature of the edges around the squares
                   padding: 10, // determines how much extra space should be added to push out the borders
                   fontSize: 14, // determines how large the text should appear within the input box
-                  backgroundColor: '#f9f9f9', // determines the color within the input box itself
+
+                  // gray out is isEditable is set to false
+                  backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
+                  color: isEditable ? '#000000' : '#888888',
                   shadowOffset: { width: 10, height: 10 },
                   // shadowRadius: 20,
                 }}
                 value={current_event.title || ''}
-                // placeholder="Enter event title"    // placeholder not needed atp
-                // NOTE : we only want to update the title portion of the currentEvent state
-                // all the other fields will remain unchanged
-                // onChangeText={(newUserInputTitle) =>
-                //   setCurrentEventData((prev) => ({
-                //     ...prev,
-                //     title: newUserInputTitle,
-                //   }))
-                // }
-
                 onChangeText={handleOnChangeTitle}
               />
             </View>
@@ -257,7 +335,8 @@ const ExistingEventModal = ({
                   borderRadius: 5,
                   padding: 10,
                   fontSize: 12,
-                  backgroundColor: '#f9f9f9',
+                  backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
+                  color: isEditable ? '#000000' : '#888888',
                   height: 80,
                   textAlignVertical: 'bottom',
                 }}
@@ -265,6 +344,7 @@ const ExistingEventModal = ({
 
                 // current_event prop should contain a property
                 // named description
+                editable={isEditable}
                 value={current_event.description}
                 onChangeText={handleOnChangeDescription}
                 multiline={true}
@@ -293,7 +373,9 @@ const ExistingEventModal = ({
                   Start:
                 </Text>
                 <DateTimePicker
+                  // should only be editable if the edit icon has been pressed
                   testID="dateTimePicker"
+                  disabled={isEditable ? false : true}
                   // NOTE : not entirely sure if this would work
                   value={start_time}
                   // value={startDate}
@@ -301,6 +383,35 @@ const ExistingEventModal = ({
                   mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                   is24Hour={true}
                   onChange={handleOnChangeStart} // another prop to handle update in time
+                />
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  // padding: -10,
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    color: '#555',
+                    marginTop: 8,
+                    marginRight: 7.5,
+                  }}
+                >
+                  End:
+                </Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  disabled={isEditable ? false : true}
+                  // NOTE : not entirely sure if this would work
+                  value={end_time}
+                  // value={startDate}
+                  // conditionally renders mode based on platform, setMode isn't being used
+                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                  is24Hour={true}
+                  onChange={handleOnChangeEnd} // another prop to handle update in time
                 />
               </View>
             </View>
@@ -359,7 +470,7 @@ const ExistingEventModal = ({
                   maxHeight={180}
                   labelField="label"
                   valueField="value"
-                  placeholder="Select item"
+                  placeholder={current_event.recurrence_frequency || 'Select item'}
                   searchPlaceholder="Search..."
                   // this should come from the recurrence_frequency specified
                   value={current_event.recurrence_frequency}
@@ -418,16 +529,245 @@ const ExistingEventModal = ({
 };
 
 export default function Schedule() {
+  // supporting variables for the calendar mode switcher
+  // NOTE : useRef allows us to persist values between renders
+  /**
+   * @Documentation regarding the differentiation between some of the core react hooks
+   * @useMemo : is to memoize a calculation result between a function's calls and between renders
+   * @useCallback : is to memoize a callback itself (referential equality) between renders
+   * @useRef : is to keep data between renders (updating does not fire re-rendering) --> this is helpful for persisitng data
+   * @useState : is to keep data between renders (updating does fire re-rendering)
+   *
+   * Additional information:
+   * @param {Callback} - a callback is a function passed as an argument to another function (this is the most basic definition)
+   *
+   *
+   */
+
+  const calendarRef = useRef<CalendarKitHandle>(null);
+
+  // by default, the mode should be set to 3 days
+  const [calendarMode, setCalendarMode] = useState('3day');
+  const [numberOfDays, setNumberOfDays] = useState(3);
+
+  // useState hook for AcitivityIndicator
+  // AcitivityIndicator is intended to display circular loading indicator
+  const [isLoading, setIsLoading] = useState(false);
+
+  // function to handle different calendar modes
+  // the function should be wrapped around an useCallback hook
+  const handleModeChange = useCallback((mode: string, days: number) => {
+    setIsLoading(true); // start loading animation
+
+    // update state values to adjust mode and days
+    setCalendarMode(mode);
+    setNumberOfDays(days);
+
+    // Handle month view special case
+    if (mode === 'month') {
+      Alert.alert('Month View', 'Month View is not supported yet.');
+      setCalendarMode('week');
+      setNumberOfDays(7);
+    }
+
+    // a js native api
+    // tells the browser that I wish to perform an animation
+    // accepts a callback function (aka the animation logic)
+    requestAnimationFrame(() => {
+      calendarRef.current?.goToDate({
+        date: new Date().toISOString(),
+        animatedDate: true,
+        hourScroll: true,
+      });
+
+      // add a small delay to finish the transition before stopping the loading state
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 600);
+    });
+  }, []);
+
+  // dropdown data for recurring events
   const dropdownData = [
     { label: 'Daily', value: '1' },
     { label: 'Weekly', value: '2' },
     { label: 'Annually', value: '3' },
     { label: 'Every Weekday', value: '4' },
     { label: 'Every Weekend', value: '5' },
-
-    // TODO : this should be a feature post-mvp (as it would be more work to implement atm)
-    // { label : 'custom', value : '6' }
+    { label: 'Custom', value: '6' },
   ];
+
+  // function to calculate recurring events based on recurrence frequency
+  const calculateRecurringEvents = useCallback((event: any) => {
+    // handle the edge cases in which the event does not recur
+    // simply return an array containing a single element
+    // the element being the event itself
+    if (!event.isRecurring || !event.recurrence_frequency) {
+      return [event];
+    }
+
+    // otherwise, use spread operator to copy the original event
+    // and store it within originalEvent variable
+    const originalEvent = { ...event };
+
+    const additionalEvents = [];
+    const startDate = new Date(event.start.dateTime);
+    const endDate = new Date(event.end.dateTime);
+    const duration = endDate.getTime() - startDate.getTime();
+    console.log(
+      `value of duration : ${duration}, value of start time : ${startDate}, value of end date : ${endDate}`
+    );
+
+    // switch statement to handle the cases for event recurrence
+    switch (event.recurrence_frequency) {
+      // since we want the date to repeat each day
+      // NOTE : i = 1 so that the same event doesn't repeat twice
+      case 'Daily':
+        for (let i = 1; i <= 120; i++) {
+          // calculate the start
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // calculate the end
+          const newEnd = new Date(newStart.getTime() + duration);
+          // const newEnd = new Date(endDate);
+          endDate.setDate(endDate.getDate() + duration);
+
+          // add the events to the additional events array
+          // NOTE : observe the 2 new properties being added here [and the other switch statement cases] (isRecurringInstance, parentEventId)
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      // similar logic to daily
+      // primary differentiation is that i is being multiplied by 7
+      // for the newStart date calculation
+      case 'Weekly':
+        for (let i = 1; i <= 112; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i * 7);
+          const newEnd = new Date(newStart.getTime() + duration);
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      case 'Every Weekday':
+        // last for 4 months (since each semester spans 4 month timeframe)
+        for (let i = 1; i <= 120; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+          if (newStart.getDay() === 0 || newStart.getDay() === 6) {
+            continue;
+          }
+
+          const newEnd = new Date(newStart.getTime() + duration);
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      case 'Every Weekend':
+        // let weekendCount = 0
+        for (let i = 1; i <= 120; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // avoid weekdays?
+          // not entirely sure of this logic
+          if (newStart.getDay() !== 0 && newStart.getDay() !== 6) {
+            continue;
+          }
+
+          const newEnd = new Date(newStart.getTime() + duration); // observe the recurring logic
+
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      case 'Annually':
+        for (let i = 1; i <= 5; i++) {
+          const newStart = new Date(startDate);
+          newStart.setFullYear(startDate.getFullYear() + i);
+
+          console.log('new start value (annually) : ', JSON.stringify(newStart));
+          const newEnd = new Date(newStart.getTime() + duration);
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      // add logic for rendering custom event modal
+      case 'Custom':
+        // get selected days from custom recurrence
+        // TODO : the original event may need customRecurrenceDays field added to it
+        // eslint-disable-next-line no-case-declarations
+        const customDays = event.customRecurrenceDays || [];
+        if (customDays.length === 0) break; // if no custom days has been provided, nothing to repeat
+
+        // create events for next 52 weeks
+        // TODO : adjust this value accordingly
+        for (let i = 1; i <= 365; i++) {
+          const newStart = new Date(startDate);
+          newStart.setDate(startDate.getDate() + i);
+
+          // only create events for selected days of the week
+          if (!customDays.includes(newStart.getDay())) {
+            continue;
+          }
+
+          const newEnd = new Date(newStart.getTime() + duration);
+          additionalEvents.push({
+            ...originalEvent,
+            id: `${originalEvent.id}_recurring_${i}`,
+            start: { dateTime: newStart.toISOString() },
+            end: { dateTime: newEnd.toISOString() },
+            isRecurringInstance: true,
+            parentEventId: originalEvent.id,
+          });
+        }
+        break;
+
+      default:
+        break; // do nothing
+    }
+
+    return [originalEvent, ...additionalEvents];
+  }, []);
 
   // define the function to render events
   const renderEvent = useCallback(
@@ -441,15 +781,28 @@ export default function Schedule() {
       >
         <Ionicons name="calendar" size={10} color="white" />
         <Text style={{ color: 'white', fontSize: 10 }}>{event.title}</Text>
+        {event.isRecurringInstance && (
+          <Ionicon
+            name="repeat"
+            size={8}
+            color={'white'}
+            style={{
+              position: 'absolute',
+              right: 2,
+              top: 2,
+            }}
+          />
+        )}
       </View>
     ),
-    []
+    [] // no dependencies required
   );
 
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
 
   // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
+  const [deleteEventModal, setDeleteEventModal] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
   // this will determine the event that has been currently selected
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -460,6 +813,10 @@ export default function Schedule() {
   const [startDate, setStartDate] = useState(new Date()); // default should be current date
   const [endDate, setEndDate] = useState(new Date());
   const [show, setShow] = useState(true); // determines whether the datetime-picker modal should open or remain closed
+
+  // hook to handle displaying custom recurrence modals
+  const [showCustomRecurrenceModal, setShowCustomRecurrenceModal] = useState(false);
+  const [customSelectedDays, setCustomSelectedDays] = useState([]); // stores the custom days the event should be repeated
 
   // this is just an example of how to add hours to the current time
   // this variable is intended to be a reference, it is not being used
@@ -535,7 +892,9 @@ export default function Schedule() {
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
 
+  // TODO : check if this needs to be used in the first place, otherwise, remove as part of cleanup
   const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
+
   // TODO : Reference to this useState hook --> this array should be updated in the following conditions:
   // 1. once a new event has been created (meaning the save button within the modal has been clicked)
   // 2. once an existing event has been modified (a seperate modal will be used for this)
@@ -546,45 +905,97 @@ export default function Schedule() {
   // assign a new random id for the current event
   // this function handles determining and assigning a new unique id to a calendar event
   // due to the asynchronous nature of state updates, it is ideal to only update one state at a time.
-  const handleCreateSaveNewEvent = () => {
-    const random_generated_id = Math.floor(Math.random() * 100 + 1);
-    console.log(random_generated_id);
+  const handleCreateSaveNewEvent = useCallback(async () => {
+    // implement logic for handling empty user input
+    // for title and time (description for event should be optional)
+    /**
+     * @param {Alert} defintiion
+     * @param {title} - Missing Information (represents the title of this particular alert in the event that title input is empty)
+     * @param {message} - Corresponding message to be rendered in accordance to the particular alert
+     */
+    if (!currentEventData.title) {
+      Alert.alert('Missing Information', 'Please select title for your event.');
+      return;
+    }
+
+    if (!currentEventData.start.dateTime || !currentEventData.end.dateTime) {
+      Alert.alert(
+        'Missing Information',
+        'Please select appropriate start and end times for your event.'
+      );
+      return;
+    }
+
+    const uniqueId = `event_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    console.log(`generated unique id : ${uniqueId}`);
+    // replaced with string based value for easier identification
+    // const random_generated_id = Math.floor(Math.random() * 100 + 1);
+    // console.log(random_generated_id);
 
     // check if the newly generated id happens to exist within the current event list
+    // TODO : Handle issue regarding existence of potential duplicate generated events as well
     const id_existence = eventsList.findIndex(
-      (current_event) => current_event.id === random_generated_id
+      (current_event: any) => current_event.id === uniqueId
     );
 
-    console.log(`id_existence value : ${id_existence}`);
+    // console.log(`id_existence value : ${id_existence}`);
 
     // in the event that this conditional is true, that means the id doesn't exist
     // that means we can attach the current event's data with the new id that has been found
     // save it into the list (which will then be sent to the database based on the email of the user)
     // treating this also as a form of base case
-    if (id_existence === -1) {
-      const updatedEvent = {
-        ...currentEventData,
-        id: random_generated_id,
-      };
+    // if (id_existence === -1) {
+    //   const updatedEvent = {
+    //     ...currentEventData,
+    //     id: uniqueId,
+    //   };
+    const newEvent = {
+      ...currentEventData,
+      id: uniqueId,
+    };
 
-      setEventList([...eventsList, updatedEvent]);
-      setNewEventModal(false);
-      return;
+    let eventsToAdd = [];
+
+    // if user wants an event to be recurring based on a specific selected frequency
+    if (newEvent.isRecurring && newEvent.recurrence_frequency) {
+      eventsToAdd = calculateRecurringEvents(newEvent);
     } else {
-      // make a recursive call onto the function (this is experimental, not entirely sure if it will work)
-      handleCreateSaveNewEvent();
+      // otherwise, simply add a single instance copy of the particular event
+      eventsToAdd = [newEvent];
     }
-  };
+
+    // double spread opearator
+    // since eventsToAdd can be more than one depending on recurrence frequency
+    setEventList([...eventsList, ...eventsToAdd]);
+    setNewEventModal(false);
+
+    // reset current state data so we don't have to worry about it later
+    // NOTE : this would replace the logic for the handleCreateNewEvent function
+    setCurrentEventData({
+      id: -1,
+      title: '',
+      description: '',
+      start: { dateTime: '' },
+      end: { dateTime: '' },
+      color: '#4285F4',
+      location: 'Not Specified',
+      isRecurring: false,
+      recurrence_frequency: null,
+    });
+  }, [currentEventData, calculateRecurringEvents, eventsList]);
 
   // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
   // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
   // define the function that will handle the creation of new events
   // note that the modal for this should be different from the existing event modal
   // NOTE : it would be more appropriate to call this functon "renderNewEventModal"
+
+  // TLDR : this function gets triggered when the "+" icon gets selected
   const handleCreateNewEvent = () => {
     // for now the only behavior we want is for the useState hook variable
     // when this modal view is set to true, the modal will be displayed
     // reset all the previous relevant data (so that the modal doesn't render old data that was previously entered by user)
+    // TODO : issue with DRY, fix this
     setCurrentEventData({
       id: -1,
       title: '',
@@ -599,7 +1010,7 @@ export default function Schedule() {
     setNewEventModal(true);
   };
 
-  const renderDropdownItem = (item) => {
+  const renderDropdownItem = (item: any) => {
     return (
       <View style={dropdownStyles.item}>
         <Text style={dropdownStyles.textItem}>{item.label}</Text>
@@ -611,11 +1022,30 @@ export default function Schedule() {
   };
 
   // useCallback hook is being used as a wrapper around this reference function
-  const handlePressEvent = useCallback((event) => {
-    console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
-    setSelectedEvent(event);
-    setShowExistingEventModal(true);
-  }, []);
+  // simple logic for handling recurring ev
+  const handlePressEvent = useCallback(
+    (event: CalendarEvent | any) => {
+      // NOTE : the properties isRecurringInstance and parentEventId comes from the calculateRecurringEvents function
+      // refer to the defintition of calculateRecurringEvents definition for reference
+      if (event.isRecurringInstance && event.parentEventId) {
+        // parentEvent : simply the original event set to be recurring
+        const parentEvent = eventsList.find((e: CalendarEvent) => e.id === event.parentEventId);
+
+        if (parentEvent) {
+          setSelectedEvent(parentEvent);
+        } else {
+          setSelectedEvent(event); // otherwise, the original event should be set to selected
+        }
+      } else {
+        // TODO : this seems somewhat repetitive, find a fix for this
+        setSelectedEvent(event);
+      }
+      // console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+      // setSelectedEvent(event);
+      setShowExistingEventModal(true);
+    },
+    [eventsList]
+  );
 
   // prototype of the data that needs to be sent out to the datbase
   const events_payload = {
@@ -624,16 +1054,27 @@ export default function Schedule() {
   };
   // useEffect hook to test if sample event is working as intended
   // TODO : delete this useState hooks (and console.log statements within it)
-  useEffect(() => {
-    console.log(`List of available events : ${JSON.stringify(eventsList)}`);
-    console.log('Detected changes to start date : ', startDate.toISOString());
-    console.log('Detected changes to end date : ', endDate.toISOString());
+  // useEffect(() => {
+  //   console.log(`List of available events : ${JSON.stringify(eventsList)}`);
+  //   // console.log('Detected changes to start date : ', startDate.toISOString());
+  //   // console.log('Detected changes to end date : ', endDate.toISOString());
 
-    console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
-    console.log(`current status of event modal display : ${showExistingEventModal}`);
-    // console.log(currentEventData);
-    // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [eventsList, startDate, endDate, selectedEvent, showExistingEventModal]);
+  //   // console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
+  //   // console.log(`current status of event modal display : ${showExistingEventModal}`);
+  //   // console.log(currentEventData);
+  //   // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
+  // }, [
+  //   eventsList,
+  //   // startDate,
+  //   // endDate,
+  //   // selectedEvent,
+  //   // showExistingEventModal
+  // ]);
+
+  // useEffect hook to check if recurrence modal state is being updated
+  useEffect(() => {
+    console.log('showCustomRecurrencModal : ', showCustomRecurrenceModal);
+  }, [showCustomRecurrenceModal]);
   return (
     <View
       style={{
@@ -642,6 +1083,20 @@ export default function Schedule() {
         position: 'relative',
       }}
     >
+      {/*
+      TODO : the view isn't entirely functional
+      *Calendar mode switcher is intended to be added at the top */}
+      <CalendarModeSwitcher currentMode={calendarMode} onModeChange={handleModeChange} />
+
+      {/*
+       * insert acitivity Indicator animation loading logic here
+       * through conditional rendering
+       */}
+      {isLoading && (
+        <View style={calendarStyling.loadingOverlay}>
+          <ActivityIndicator size="large" color="#3498db" />
+        </View>
+      )}
       <TouchableOpacity
         // TODO : convert this into tailwindcss based styling for uniformity
         // the css here ensures that the button is positioned within the bottom right portion of the screen
@@ -667,6 +1122,7 @@ export default function Schedule() {
           shadowRadius: 3, // sets the drop shadow blur radius
           elevation: 5, // sets the elevation of android
         }}
+        // TODO : this requires some additioanl modifications
         onPress={handleCreateNewEvent}
       >
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
@@ -674,15 +1130,18 @@ export default function Schedule() {
       <CalendarContainer
         // TODO : define a function that will dynamically, this will require adjustment to the initialLocales variable.
         locale="en"
+        allowPinchToZoom={true}
         initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
         maxDate="2026-12-31"
         initialDate={new Date().toISOString().split('T')[0]}
-        numberOfDays={3}
+        numberOfDays={numberOfDays} // changed from 3 (static value)
+        // scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
         scrollByDay={true}
         events={eventsList}
         overlapType="overlap" // events should overlap, similar to google calendar
+        rightEdgeSpacing={1} // supporting prop related to event overlappping
         // defines the minimum start time difference in minutes for events to be considered overlapping
         minStartDifference={15}
         // to prevent unneccessary re-renders
@@ -691,7 +1150,25 @@ export default function Schedule() {
         onPressEvent={handlePressEvent}
       >
         {showExistingEventModal && (
+          // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
           <ExistingEventModal
+            handleOnPressDeleteCancellation={() => {
+              setDeleteEventModal(false);
+            }}
+            handleOnPressDeleteConfirmation={async () => {
+              // logic for deleting a particular event
+              const updatedEvents = await eventsList.filter(
+                (event: any) => event.id !== selectedEvent.id
+              );
+              // TODO : delete later, this is to experiment to check if the current event has been deleted or not
+              console.log(`The updated events are : ${updatedEvents}`);
+              // set the newly updated event
+              setEventList(updatedEvents);
+              setDeleteEventModal(false);
+              setShowExistingEventModal(false); // close the event
+            }}
+            delete_event_modal={deleteEventModal}
+            end_time={endDate}
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
             visibillity_state={showExistingEventModal}
@@ -699,28 +1176,71 @@ export default function Schedule() {
             isEditable={isModalEditable}
             onRequestEdit={() => setIsModalEditable(true)}
             // NOTE : this can be changed to be reused as a reference function insted
-            handleOnChangeTitle={(newUserInputTitle: any) =>
-              setCurrentEventData((prev) => ({
-                ...prev,
-                title: newUserInputTitle,
-              }))
-            }
+            handleOnChangeTitle={(newUserInputTitle: any) => {
+              // we only want the edit to take place if the modal happens to be editable
+              if (isModalEditable) {
+                console.log(`Detected changes to user input : ${newUserInputTitle}`);
+                setSelectedEvent((prev: CalendarEvent) => ({
+                  ...prev,
+                  title: newUserInputTitle,
+                }));
+
+                // this wouldn't work due to asynchronous nature of the code
+                // setSelectedEvent(currentEventData);
+              }
+            }}
             // TODO : change to a reference function for reusabillity
-            handleOnChangeDescription={(newUserInputTitle: any) =>
-              setCurrentEventData((prev) => ({
-                ...prev,
-                title: newUserInputTitle,
-              }))
-            }
-            handleOnChangeStart={onChangeStart} // we can reuse the same function
+            // TODO : fix this, the incorrect state is being updated here
+            // change from setCurrentEventData -> setSelectedEvent(prev => ...prev, { title : newUserInputTitle}) instead
+            handleOnChangeDescription={(newUserInputDescription: any) => {
+              if (isModalEditable) {
+                setSelectedEvent((prevData: CalendarEvent) => ({
+                  ...prevData,
+                  description: newUserInputDescription,
+                }));
+                // setCurrentEventData((prev) => ({
+                //   ...prev,
+                //   title: newUserInputTitle,
+                // }));
+              }
+            }}
+            // the function logic for the datetimepicker needs to be slighlyt different
+            // rather than updating the currentEventsData useState hook
+            // instead the setSelectedEvent useState hook needs to be updated
+            handleOnChangeStart={async (_event: any, selectedDate: any) => {
+              const currentDate = await selectedDate;
+              const updatedDatetime = {
+                dateTime: currentDate,
+              };
+
+              setStartDate(currentDate);
+              setSelectedEvent((previousEventData: CalendarEvent) => ({
+                ...previousEventData,
+                start: updatedDatetime,
+              }));
+            }}
+            handleOnChangeEnd={async (_event: any, selectedDate: any) => {
+              const currentDate = await selectedDate;
+              const updatedDatetime = {
+                dateTime: currentDate,
+              };
+
+              setEndDate(currentDate);
+              setSelectedEvent((previousEventData: CalendarEvent) => ({
+                ...previousEventData,
+                end: updatedDatetime,
+              }));
+            }}
             // TODO : change this to a reference function instead
+            // TODO : replace setCurrentEventData with setSelectedEvent state
             handleOnPressRecurring={() =>
-              setCurrentEventData((previousData) => ({
+              setSelectedEvent((previousData: CalendarEvent) => ({
                 ...previousData,
                 isRecurring: !previousData.isRecurring, // toggle logic
               }))
             }
             dropdown_list={dropdownData}
+            // TODO : figure out why this isn't working
             handleDropdownFunction={() => {
               console.log('Do something');
             }}
@@ -731,22 +1251,38 @@ export default function Schedule() {
                 selectedColor, // TODO : fix this
               }));
             }}
-            handleSaveEditedEvent={() => {
-              // ideally, we would have to do less work
-              setEventList([...eventsList, currentEventData]);
+            handleSaveEditedEvent={async () => {
+              // first we remove the old data by matching based on id
+              const updatedEventList = await eventsList.filter(
+                (event) => event.id !== selectedEvent.id
+              );
+              console.log(`Updated event list is : ${JSON.stringify(updatedEventList)}`);
+              // then set the current selectedEvent related data to the updatedEventList instead
+              setEventList([...updatedEventList, selectedEvent]);
+              setShowExistingEventModal(false);
             }}
-            handleCancelEditedEvent={() => setShowExistingEventModal(false)}
+            handleCancelEditedEvent={() => {
+              // change the modal back to not being editable
+              setIsModalEditable(false);
+              setShowExistingEventModal(false);
+            }}
             onRequestDelete={() => {
-              // remove the event within the list whose current id matches the id of the currently selected event
-              const updatedEvents = eventsList.filter((event) => event.id === selectedEvent.id);
-
-              // set the newly updated event
-              setEventList(updatedEvents);
-              setShowExistingEventModal(false); // close the event
+              setDeleteEventModal(true);
+              // correct logic below for deleting a particular event
+              // // remove the event within the list whose current id matches the id of the currently selected event
+              // // include all other events except the current event containing matching id
+              // const updatedEvents = await eventsList.filter(
+              //   (event) => event.id !== selectedEvent.id
+              // );
+              // // TODO : delete later, this is to experiment to check if the current event has been deleted or not
+              // console.log(`The updated events are : ${updatedEvents}`);
+              // // set the newly updated event
+              // setEventList(updatedEvents);
+              // setShowExistingEventModal(false); // close the event
             }}
           />
         )}
-        <CalendarHeader />
+        <CalendarHeader dayBarHeight={60} />
         <CalendarBody hourFormat="hh:mm a" renderEvent={renderEvent} />
       </CalendarContainer>
       <Modal
@@ -1059,14 +1595,25 @@ export default function Schedule() {
                     onChange={(item) => {
                       // this is a bit confusing since it's updating the value which is an integer digit
                       // but we want to update the label instead
+
+                      // TODO : delete later, just to check if dropdown value is being selected correctly
+                      console.log('Dropdown changed to : ', item.label);
                       setDropdownValue(item.value);
 
-                      // note the syntax
-                      // update the recurrence frequency
-                      setCurrentEventData((previousStateData) => ({
-                        ...previousStateData,
-                        recurrence_frequency: item.label,
-                      }));
+                      // modified slightly to add a conditional check to handle custom days
+                      if (item.label === 'Custom') {
+                        console.log(
+                          'This function is being triggered, should display the custom modal.'
+                        );
+                        setShowCustomRecurrenceModal(true);
+                      } else {
+                        // note the syntax
+                        // update the recurrence frequency
+                        setCurrentEventData((previousStateData) => ({
+                          ...previousStateData,
+                          recurrence_frequency: item.label,
+                        }));
+                      }
                     }}
                     renderLeftIcon={() => (
                       <AntDesign
@@ -1126,13 +1673,45 @@ export default function Schedule() {
                 </TouchableOpacity>
               </View>
             </View>
+            {/**Conditionally render the custom recurrence modal component */}
+            {showCustomRecurrenceModal && (
+              <CustomRecurrenceModal
+                visible={showCustomRecurrenceModal}
+                onClose={() => setShowCustomRecurrenceModal(false)}
+                initialSelection={customSelectedDays}
+                onSave={(selectedDays: any) => {
+                  setCustomSelectedDays(selectedDays);
+                  setCurrentEventData((prev: any) => ({
+                    ...prev,
+                    recurrence_frequency: 'Custom',
+                    customRecurrenceDays: selectedDays, // this is a new field being added?
+                  }));
+                  setShowCustomRecurrenceModal(false);
+                }}
+              />
+            )}
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      {/* )} */}
     </View>
   );
 }
+
+const calendarStyling = StyleSheet.create({
+  // styling for the loading animation
+  // to be displayed when there's a switch in the calendar
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+});
 
 const checkboxStyling = StyleSheet.create({
   checkbox: {
