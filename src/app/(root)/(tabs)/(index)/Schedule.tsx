@@ -1054,25 +1054,6 @@ export default function Schedule() {
     email: 'user email goes here',
     events_data: 'information regarding new events goes here',
   };
-  // useEffect hook to test if sample event is working as intended
-  // TODO : delete this useState hooks (and console.log statements within it)
-  // useEffect(() => {
-  //   console.log(`List of available events : ${JSON.stringify(eventsList)}`);
-  //   // console.log('Detected changes to start date : ', startDate.toISOString());
-  //   // console.log('Detected changes to end date : ', endDate.toISOString());
-
-  //   // console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
-  //   // console.log(`current status of event modal display : ${showExistingEventModal}`);
-  //   // console.log(currentEventData);
-  //   // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  // }, [
-  //   eventsList,
-  //   // startDate,
-  //   // endDate,
-  //   // selectedEvent,
-  //   // showExistingEventModal
-  // ]);
-
   // useEffect hook to check if recurrence modal state is being updated
   useEffect(() => {
     console.log('showCustomRecurrencModal : ', showCustomRecurrenceModal);
@@ -1086,10 +1067,7 @@ export default function Schedule() {
       }}
     >
       <CalendarModeSwitcher currentMode={calendarMode} onModeChange={handleModeChange} />
-      {/**TODO : should handle navigating between different date, month and year?
-       * NOTE : this is one of the navigation controls present, a bit crude and unstructured, lots of room for improvement
-       *
-       */}
+
       <CalendarNavigation
         currentDate={currentCalendarDate}
         onDateChange={handleCalendarDateChange}
@@ -1142,7 +1120,10 @@ export default function Schedule() {
         timeZone="America/New_York"
         minDate="2025-01-01"
         maxDate="2026-12-31"
-        initialDate={new Date().toISOString().split('T')[0]}
+        // initialDate={new Date().toISOString().split('T')[0]}
+
+        // this essentially represents the "current date", don't be confused by the prop name
+        initialDate={currentCalendarDate.split('T')[0]}
         numberOfDays={numberOfDays} // changed from 3 (static value)
         // scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
         scrollByDay={true}
@@ -1155,6 +1136,7 @@ export default function Schedule() {
         // the event handler function will be memoized using useCallback hook
         // refer to the function definition
         onPressEvent={handlePressEvent}
+        ref={calendarRef}
       >
         {showExistingEventModal && (
           // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
