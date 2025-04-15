@@ -470,7 +470,7 @@ const ExistingEventModal = ({
                   maxHeight={180}
                   labelField="label"
                   valueField="value"
-                  placeholder="Select item"
+                  placeholder={current_event.recurrence_frequency || 'Select item'}
                   searchPlaceholder="Search..."
                   // this should come from the recurrence_frequency specified
                   value={current_event.recurrence_frequency}
@@ -583,7 +583,7 @@ export default function Schedule() {
       // add a small delay to finish the transition before stopping the loading state
       setTimeout(() => {
         setIsLoading(false);
-      }, 700);
+      }, 600);
     });
   }, []);
 
