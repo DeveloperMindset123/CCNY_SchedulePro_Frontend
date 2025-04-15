@@ -33,6 +33,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import CalendarModeSwitcher, {
   CustomRecurrenceModal,
 } from '@/components/core/calendarModeSwitcher';
+import CalendarNavigation from '@/components/core/calendarNavigation';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
@@ -818,6 +819,18 @@ export default function Schedule() {
   const [showCustomRecurrenceModal, setShowCustomRecurrenceModal] = useState(false);
   const [customSelectedDays, setCustomSelectedDays] = useState([]); // stores the custom days the event should be repeated
 
+  // useState hook variable for currentCalendarDate
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date().toISOString());
+
+  const handleCalendarDateChange = useCallback((newDate: string | any) => {
+    setCurrentCalendarDate(newDate);
+    calendarRef.current?.goToDate({
+      date: newDate,
+      animatedDate: true,
+      hourScroll: true,
+    });
+  }, []);
+
   // this is just an example of how to add hours to the current time
   // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
@@ -938,17 +951,6 @@ export default function Schedule() {
       (current_event: any) => current_event.id === uniqueId
     );
 
-    // console.log(`id_existence value : ${id_existence}`);
-
-    // in the event that this conditional is true, that means the id doesn't exist
-    // that means we can attach the current event's data with the new id that has been found
-    // save it into the list (which will then be sent to the database based on the email of the user)
-    // treating this also as a form of base case
-    // if (id_existence === -1) {
-    //   const updatedEvent = {
-    //     ...currentEventData,
-    //     id: uniqueId,
-    //   };
     const newEvent = {
       ...currentEventData,
       id: uniqueId,
@@ -1083,10 +1085,15 @@ export default function Schedule() {
         position: 'relative',
       }}
     >
-      {/*
-      TODO : the view isn't entirely functional
-      *Calendar mode switcher is intended to be added at the top */}
       <CalendarModeSwitcher currentMode={calendarMode} onModeChange={handleModeChange} />
+      {/**TODO : should handle navigating between different date, month and year?
+       * NOTE : this is one of the navigation controls present, a bit crude and unstructured, lots of room for improvement
+       *
+       */}
+      <CalendarNavigation
+        currentDate={currentCalendarDate}
+        onDateChange={handleCalendarDateChange}
+      />
 
       {/*
        * insert acitivity Indicator animation loading logic here
