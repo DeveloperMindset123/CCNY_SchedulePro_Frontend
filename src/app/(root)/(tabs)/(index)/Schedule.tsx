@@ -98,8 +98,9 @@ interface ExistingEventModal {
     | undefined
     | any;
 }
+
+// TODO : Integrate logic for event deletion of existng event.
 const ExistingEventModal = ({
-  // TODO : define the relevant props needed to be rendered
   current_event,
   visibillity_state,
   onRequestClose,

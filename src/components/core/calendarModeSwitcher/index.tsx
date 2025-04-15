@@ -1,10 +1,7 @@
 // Component to handle switching modes for the calendar
-import { DayItem } from '@howljs/calendar-kit';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { custom } from 'zod';
 import { Ionicon } from '../icon';
-import { Button } from '../button/button-default';
 /**
  * @CalendarModeSwitcher : A component to switch between different calendar events
  *
@@ -105,7 +102,7 @@ export const CustomRecurrenceModal = ({
    * If the day is already selected, it calls setSelectedDate to update the state.
    * It uses the .filter() method to create a new array that excludes the clicked dayId
    * This effectively deselects/removes the from the selected days list
-   * @returns
+   * @returns void function, doesn't return anything
    */
   const toggleDay = (dayId: number | any) => {
     if (selectedDays.includes(dayId)) {
@@ -113,62 +110,62 @@ export const CustomRecurrenceModal = ({
     } else {
       setSelectedDays([...selectedDays, dayId]);
     }
+  };
 
-    // TODO : continue here
-    // reference link : https://claude.ai/chat/ca41a962-0577-44af-987d-9e4320d828eb
+  // TODO : continue here
+  // reference link : https://claude.ai/chat/ca41a962-0577-44af-987d-9e4320d828eb
 
-    // component rendering logic
-    return (
-      <Modal
-        animationType="slide"
-        transparent={true} // sets background as transparent for the modal
-        visible={visible}
-        onRequestClose={onClose}
-      >
-        <View style={customRecurrenceStyles.centeredView}>
-          <View style={customRecurrenceStyles.modalView}>
-            <Text style={customRecurrenceStyles.modalTitle}>Custom:</Text>
-            <Text style={customRecurrenceStyles.modalSubtitle}>
-              Select days of the week you want the event to repeat
-            </Text>
-            {days_of_week.map((currentDay) => (
-              <TouchableOpacity
-                key={currentDay.id}
-                style={[customRecurrenceStyles.dayItem, selectedDays.includes(currentDay.id)]}
-                onPress={() => toggleDay(currentDay.id)}
+  // component rendering logic
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true} // sets background as transparent for the modal
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <View style={customRecurrenceStyles.centeredView}>
+        <View style={customRecurrenceStyles.modalView}>
+          <Text style={customRecurrenceStyles.modalTitle}>Custom:</Text>
+          <Text style={customRecurrenceStyles.modalSubtitle}>
+            Select days of the week you want the event to repeat
+          </Text>
+          {days_of_week.map((currentDay) => (
+            <TouchableOpacity
+              key={currentDay.id}
+              style={[customRecurrenceStyles.dayItem, selectedDays.includes(currentDay.id)]}
+              onPress={() => toggleDay(currentDay.id)}
+            >
+              <Text
+                style={[
+                  customRecurrenceStyles.dayText,
+                  selectedDays.includes(currentDay.id) && customRecurrenceStyles.selectedDayText,
+                ]}
               >
-                <Text
-                  style={[
-                    customRecurrenceStyles.dayText,
-                    selectedDays.includes(currentDay.id) && customRecurrenceStyles.selectedDayText,
-                  ]}
-                >
-                  {currentDay.name}
-                </Text>
-                {selectedDays.includes(currentDay.id) && (
-                  <Ionicon name="checkmark" size={18} color="white" />
-                )}
-              </TouchableOpacity>
-            ))}
-            <View style={customRecurrenceStyles.buttonContainer}>
-              <TouchableOpacity
-                style={[ButtonStyling.button, ButtonStyling.buttonCancel, { width: '48%' }]}
-                onPress={onClose} // logic same as any other modal, just set from true -> false using the setter
-              >
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[ButtonStyling.button, ButtonStyling.buttonSave, { width: '48%' }]}
-                onPress={() => onSave(selectedDays)}
-              >
-                <Text style={ButtonStyling.buttonSave}>Save</Text>
-              </TouchableOpacity>
-            </View>
+                {currentDay.name}
+              </Text>
+              {selectedDays.includes(currentDay.id) && (
+                <Ionicon name="checkmark" size={18} color="white" />
+              )}
+            </TouchableOpacity>
+          ))}
+          <View style={customRecurrenceStyles.buttonContainer}>
+            <TouchableOpacity
+              style={[ButtonStyling.button, ButtonStyling.buttonCancel, { width: '48%' }]}
+              onPress={onClose} // logic same as any other modal, just set from true -> false using the setter
+            >
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[ButtonStyling.button, ButtonStyling.buttonSave, { width: '48%' }]}
+              onPress={() => onSave(selectedDays)}
+            >
+              <Text style={ButtonStyling.buttonSave}>Save</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    );
-  };
+      </View>
+    </Modal>
+  );
 };
 
 // define styles for the view component
