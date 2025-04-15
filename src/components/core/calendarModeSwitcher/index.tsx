@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { Ionicon } from '../icon';
+import { Button } from '../button/button-default';
 /**
  * @CalendarModeSwitcher : A component to switch between different calendar events
  *
@@ -132,7 +133,10 @@ export const CustomRecurrenceModal = ({
           {days_of_week.map((currentDay) => (
             <TouchableOpacity
               key={currentDay.id}
-              style={[customRecurrenceStyles.dayItem, selectedDays.includes(currentDay.id)]}
+              style={[
+                customRecurrenceStyles.dayItem,
+                selectedDays.includes(currentDay.id) && customRecurrenceStyles.selectedDay,
+              ]}
               onPress={() => toggleDay(currentDay.id)}
             >
               <Text
@@ -153,13 +157,13 @@ export const CustomRecurrenceModal = ({
               style={[ButtonStyling.button, ButtonStyling.buttonCancel, { width: '48%' }]}
               onPress={onClose} // logic same as any other modal, just set from true -> false using the setter
             >
-              <Text>Cancel</Text>
+              <Text style={ButtonStyling.buttonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[ButtonStyling.button, ButtonStyling.buttonSave, { width: '48%' }]}
               onPress={() => onSave(selectedDays)}
             >
-              <Text style={ButtonStyling.buttonSave}>Save</Text>
+              <Text style={ButtonStyling.buttonText}>Save</Text>
             </TouchableOpacity>
           </View>
         </View>

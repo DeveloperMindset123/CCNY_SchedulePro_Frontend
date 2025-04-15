@@ -335,8 +335,6 @@ const ExistingEventModal = ({
                   borderRadius: 5,
                   padding: 10,
                   fontSize: 12,
-
-                  // example of conditional rendering and modification of text color and text input background color
                   backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
                   color: isEditable ? '#000000' : '#888888',
                   height: 80,
@@ -596,9 +594,6 @@ export default function Schedule() {
     { label: 'Annually', value: '3' },
     { label: 'Every Weekday', value: '4' },
     { label: 'Every Weekend', value: '5' },
-
-    // TODO : this should render radio button similar to google calendar
-    // where users can determine how many days the event should repeat and for how long the event should repeat
     { label: 'Custom', value: '6' },
   ];
 
@@ -1059,22 +1054,27 @@ export default function Schedule() {
   };
   // useEffect hook to test if sample event is working as intended
   // TODO : delete this useState hooks (and console.log statements within it)
-  useEffect(() => {
-    console.log(`List of available events : ${JSON.stringify(eventsList)}`);
-    // console.log('Detected changes to start date : ', startDate.toISOString());
-    // console.log('Detected changes to end date : ', endDate.toISOString());
+  // useEffect(() => {
+  //   console.log(`List of available events : ${JSON.stringify(eventsList)}`);
+  //   // console.log('Detected changes to start date : ', startDate.toISOString());
+  //   // console.log('Detected changes to end date : ', endDate.toISOString());
 
-    // console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
-    // console.log(`current status of event modal display : ${showExistingEventModal}`);
-    // console.log(currentEventData);
-    // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
-  }, [
-    eventsList,
-    // startDate,
-    // endDate,
-    // selectedEvent,
-    // showExistingEventModal
-  ]);
+  //   // console.log(`current selected event : ${JSON.stringify(selectedEvent)}`);
+  //   // console.log(`current status of event modal display : ${showExistingEventModal}`);
+  //   // console.log(currentEventData);
+  //   // console.log(`current start and end date : \n${startDate}\n ${endDate}`);
+  // }, [
+  //   eventsList,
+  //   // startDate,
+  //   // endDate,
+  //   // selectedEvent,
+  //   // showExistingEventModal
+  // ]);
+
+  // useEffect hook to check if recurrence modal state is being updated
+  useEffect(() => {
+    console.log('showCustomRecurrencModal : ', showCustomRecurrenceModal);
+  }, [showCustomRecurrenceModal]);
   return (
     <View
       style={{
@@ -1137,7 +1137,8 @@ export default function Schedule() {
         maxDate="2026-12-31"
         initialDate={new Date().toISOString().split('T')[0]}
         numberOfDays={numberOfDays} // changed from 3 (static value)
-        scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
+        // scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
+        scrollByDay={true}
         events={eventsList}
         overlapType="overlap" // events should overlap, similar to google calendar
         rightEdgeSpacing={1} // supporting prop related to event overlappping
@@ -1594,10 +1595,16 @@ export default function Schedule() {
                     onChange={(item) => {
                       // this is a bit confusing since it's updating the value which is an integer digit
                       // but we want to update the label instead
+
+                      // TODO : delete later, just to check if dropdown value is being selected correctly
+                      console.log('Dropdown changed to : ', item.label);
                       setDropdownValue(item.value);
 
                       // modified slightly to add a conditional check to handle custom days
                       if (item.label === 'Custom') {
+                        console.log(
+                          'This function is being triggered, should display the custom modal.'
+                        );
                         setShowCustomRecurrenceModal(true);
                       } else {
                         // note the syntax
@@ -1666,23 +1673,26 @@ export default function Schedule() {
                 </TouchableOpacity>
               </View>
             </View>
+            {/**Conditionally render the custom recurrence modal component */}
+            {showCustomRecurrenceModal && (
+              <CustomRecurrenceModal
+                visible={showCustomRecurrenceModal}
+                onClose={() => setShowCustomRecurrenceModal(false)}
+                initialSelection={customSelectedDays}
+                onSave={(selectedDays: any) => {
+                  setCustomSelectedDays(selectedDays);
+                  setCurrentEventData((prev: any) => ({
+                    ...prev,
+                    recurrence_frequency: 'Custom',
+                    customRecurrenceDays: selectedDays, // this is a new field being added?
+                  }));
+                  setShowCustomRecurrenceModal(false);
+                }}
+              />
+            )}
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      <CustomRecurrenceModal
-        visible={showCustomRecurrenceModal}
-        onClose={() => setShowCustomRecurrenceModal(false)}
-        initialSelection={customSelectedDays}
-        onSave={(selectedDays: any) => {
-          setCustomSelectedDays(selectedDays);
-          setCurrentEventData((prev: any) => ({
-            ...prev,
-            recurrence_frequency: 'Custom',
-            customRecurrenceDays: selectedDays, // this is a new field being added?
-          }));
-          setShowCustomRecurrenceModal(false);
-        }}
-      />
     </View>
   );
 }
