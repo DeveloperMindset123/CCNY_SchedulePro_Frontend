@@ -1,9 +1,28 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 // component wrapper around Ionicons (refer to the definition of the component itself)
 import { Ionicon } from '../icon';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const CalendarNavigation = ({ currentDate, onDateChange }) => {
-  // Format the current date for display
+  // useState hook for DateTimePicker component enhancement
+  // reused logic from start and end date time from Schedule component
+  // determines whether datetimepicker component should be displayed or not
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [datePickerValue, setDatePickerValue] = useState(new Date());
+
+  // Function to handle date picker changes
+  const handleDatePickerChange = (event, selectedDate) => {
+    const currentDate = selectedDate || datePickerValue;
+    setDatePickerValue(currentDate);
+  };
+
+  // functon to confirm date selection
+  const confirmDateSelection = () => {
+    onDateChange(datePickerValue.toISOString());
+    setShowDatePickerModal(false);
+  };
+
   const FormatDisplayDate = (date) => {
     // @reference https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
     const options: any = {
@@ -36,20 +55,78 @@ const CalendarNavigation = ({ currentDate, onDateChange }) => {
     onDateChange(new Date().toISOString());
   };
   return (
-    <View style={navigationStyles.container}>
-      <View style={navigationStyles.dateControls}>
-        <TouchableOpacity onPress={goToPrevMonth} style={navigationStyles.navButton}>
-          <Ionicon name="chevron-back" size={18} color="#3498db" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={goToToday} style={navigationStyles.todayButton}>
-          <Text>Today</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={goToNextMonth} style={navigationStyles.navButton}>
-          <Ionicon name="chevron-forward" size={18} color="#3498db" />
+    <>
+      <View style={navigationStyles.container}>
+        <View style={navigationStyles.dateControls}>
+          <TouchableOpacity onPress={goToPrevMonth} style={navigationStyles.navButton}>
+            <Ionicon name="chevron-back" size={18} color="#3498db" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={goToToday} style={navigationStyles.todayButton}>
+            <Text>Today</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={goToNextMonth} style={navigationStyles.navButton}>
+            <Ionicon name="chevron-forward" size={18} color="#3498db" />
+          </TouchableOpacity>
+        </View>
+
+        {/*
+         * fine-tune the navigation logic
+         */}
+        <TouchableOpacity
+          onPress={() => setShowDatePickerModal(true)}
+          style={navigationStyles.dateTextContainer}
+        >
+          <Text style={navigationStyles.dateText}>{FormatDisplayDate(currentDate)}</Text>
+          <Ionicon
+            name="calendar-outline"
+            size={18}
+            color="#3498db"
+            style={navigationStyles.calendarIcon}
+          />
         </TouchableOpacity>
       </View>
-      <Text style={navigationStyles.dateText}>{FormatDisplayDate(currentDate)}</Text>
-    </View>
+
+      {/** Date time picker modal to navigate within different portion of the calendar */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showDatePickerModal}
+        onRequestClose={() => setShowDatePickerModal(false)}
+      >
+        {/**TouchableWithoutFeedback has the opposite behavior of TouchableOpacity and generally useful when something needs to be clicked but doesn't require any kind of animation present */}
+        <TouchableWithoutFeedback onPress={() => setShowDatePickerModal(true)}>
+          <View style={dateTimePickerStyles.centeredView}>
+            <TouchableWithoutFeedback>
+              <View style={dateTimePickerStyles.modalView}>
+                <Text>Select a Date</Text>
+                <DateTimePicker
+                  testID="datePicker"
+                  value={datePickerValue}
+                  // platform specific? (see how it looks like and modify as needed)
+                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={handleDatePickerChange}
+                />
+                <View style={dateTimePickerStyles.buttonContainer}>
+                  <TouchableOpacity
+                    style={[dateTimePickerStyles.button, dateTimePickerStyles.buttonCancel]}
+                    onPress={() => setShowDatePickerModal(false)}
+                  >
+                    <Text style={dateTimePickerStyles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[dateTimePickerStyles.button, dateTimePickerStyles.buttonConfirm]}
+                    onPress={confirmDateSelection}
+                  >
+                    <Text style={dateTimePickerStyles.buttonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 };
 
@@ -77,6 +154,7 @@ const navigationStyles = StyleSheet.create({
     paddingVertical: 5,
     marginHorizontal: 10,
     backgroundColor: '#e6f2ff',
+    borderRadius: 15,
   },
   todayText: {
     color: '#3498db',
@@ -87,6 +165,73 @@ const navigationStyles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#333',
+  },
+
+  // the styling here really doesn't make much of a difference to the text
+  // TODO : this styling might be unneccessary, so remove it
+  dateTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calendarIcon: {
+    marginLeft: 8,
+  },
+});
+
+// define styles for the DateTimePicker modal for fine-tuned navigation
+const dateTimePickerStyles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+
+  // reused modal style code (refer to Schedule.tsx)
+  modalView: {
+    width: '80%', // adjust as needed
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
+  },
+  button: {
+    padding: 12,
+    borderRadius: 5,
+    width: '45%',
+    alignItems: 'center',
+  },
+  buttonConfirm: {
+    backgroundColor: '#3498db',
+  },
+  buttonCancel: {
+    backgroundColor: '#e74c3c',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 
