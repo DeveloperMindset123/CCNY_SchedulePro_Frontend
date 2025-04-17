@@ -1,15 +1,26 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
-import { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Platform,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import { useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 // component wrapper around Ionicons (refer to the definition of the component itself)
 import { Ionicon } from '../icon';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 const CalendarNavigation = ({ currentDate, onDateChange }) => {
   // useState hook for DateTimePicker component enhancement
   // reused logic from start and end date time from Schedule component
   // determines whether datetimepicker component should be displayed or not
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
   const [datePickerValue, setDatePickerValue] = useState(new Date());
+
+  // For IOS, conditionally render the datetimepicker
+  const [showIOSDatePicker, setShowIOSDatePicker] = useState(false);
+  const [centerString, setCenterString] = useState('Today');
 
   // Function to handle date picker changes
   const handleDatePickerChange = (event, selectedDate) => {
@@ -21,6 +32,7 @@ const CalendarNavigation = ({ currentDate, onDateChange }) => {
   const confirmDateSelection = () => {
     onDateChange(datePickerValue.toISOString());
     setShowDatePickerModal(false);
+    setCenterString('Jump To Today');
   };
 
   const FormatDisplayDate = (date) => {
@@ -42,18 +54,37 @@ const CalendarNavigation = ({ currentDate, onDateChange }) => {
     // backtrack by a single month
     const date = new Date(currentDate);
     date.setMonth(date.getMonth() - 1);
+    setCenterString('Jump To Today');
     onDateChange(date.toISOString()); // update currentDate
   };
 
   const goToNextMonth = () => {
     const date = new Date(currentDate);
     date.setMonth(date.getMonth() + 1);
+    setCenterString('Jump To Today');
     onDateChange(date.toISOString()); // update currentDate
   };
 
   const goToToday = () => {
     onDateChange(new Date().toISOString());
+    setCenterString('Today');
   };
+
+  // handle opening date picker
+  const openDatePicker = () => {
+    if (Platform.OS === 'ios') {
+      setShowIOSDatePicker(true);
+      setShowDatePickerModal(true);
+    } else {
+      // handle every other platform
+      setShowDatePickerModal(true);
+    }
+  };
+  useEffect(() => {
+    console.log(
+      `current date prop value : ${FormatDisplayDate(currentDate)}, \n actual current date (should be today's date) : ${new Date().toDateString()} `
+    );
+  }, [currentDate]);
   return (
     <>
       <View style={navigationStyles.container}>
@@ -62,7 +93,7 @@ const CalendarNavigation = ({ currentDate, onDateChange }) => {
             <Ionicon name="chevron-back" size={18} color="#3498db" />
           </TouchableOpacity>
           <TouchableOpacity onPress={goToToday} style={navigationStyles.todayButton}>
-            <Text>Today</Text>
+            <Text>{centerString}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={goToNextMonth} style={navigationStyles.navButton}>
             <Ionicon name="chevron-forward" size={18} color="#3498db" />
@@ -91,26 +122,53 @@ const CalendarNavigation = ({ currentDate, onDateChange }) => {
         animationType="slide"
         transparent={true}
         visible={showDatePickerModal}
-        onRequestClose={() => setShowDatePickerModal(false)}
+        onRequestClose={() => {
+          setShowDatePickerModal(false);
+          setShowIOSDatePicker(false);
+        }}
       >
         {/**TouchableWithoutFeedback has the opposite behavior of TouchableOpacity and generally useful when something needs to be clicked but doesn't require any kind of animation present */}
-        <TouchableWithoutFeedback onPress={() => setShowDatePickerModal(true)}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            // not entirely sure why the state should be set to false here instead of true
+            setShowDatePickerModal(false);
+            setShowIOSDatePicker(false);
+            // setShowDatePickerModal(true)
+            // setShowIOSDatePicker(true)
+          }}
+        >
           <View style={dateTimePickerStyles.centeredView}>
             <TouchableWithoutFeedback>
               <View style={dateTimePickerStyles.modalView}>
-                <Text>Select a Date</Text>
-                <DateTimePicker
-                  testID="datePicker"
-                  value={datePickerValue}
-                  // platform specific? (see how it looks like and modify as needed)
-                  mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={handleDatePickerChange}
-                />
+                <Text style={dateTimePickerStyles.title}>Select a Date</Text>
+                {/**Conditionally render datetime pciker for IOS */}
+                {(Platform.OS === 'android' || (Platform.OS === 'ios' && showIOSDatePicker)) && (
+                  <DateTimePicker
+                    testID="datePicker"
+                    value={datePickerValue}
+                    // platform specific? (see how it looks like and modify as needed)
+                    mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={handleDatePickerChange}
+                  />
+                )}
+
+                {/**on IOS, show an explicit button to render the datepicker */}
+                {Platform.OS === 'ios' && !showIOSDatePicker && (
+                  <TouchableOpacity
+                    onPress={openDatePicker}
+                    style={dateTimePickerStyles.showPickerButton}
+                  >
+                    <Text style={dateTimePickerStyles.showPickerText}>Show Date Picker</Text>
+                  </TouchableOpacity>
+                )}
                 <View style={dateTimePickerStyles.buttonContainer}>
                   <TouchableOpacity
                     style={[dateTimePickerStyles.button, dateTimePickerStyles.buttonCancel]}
-                    onPress={() => setShowDatePickerModal(false)}
+                    onPress={() => {
+                      setShowDatePickerModal(false);
+                      setShowIOSDatePicker(false);
+                    }}
                   >
                     <Text style={dateTimePickerStyles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
@@ -232,6 +290,16 @@ const dateTimePickerStyles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  showPickerButton: {
+    backgroundColor: '#3498db',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 15,
+  },
+  showPickerText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
