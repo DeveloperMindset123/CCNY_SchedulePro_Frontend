@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useState, useRef } from 'react';
+// TODO : use react-native async storage instead to analyze the data
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -34,6 +36,7 @@ import CalendarModeSwitcher, {
   CustomRecurrenceModal,
 } from '@/components/core/calendarModeSwitcher';
 import CalendarNavigation from '@/components/core/calendarNavigation';
+import { useLocalSearchParams } from 'expo-router';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
@@ -530,6 +533,33 @@ const ExistingEventModal = ({
 };
 
 export default function Schedule() {
+  // function to improve json syntax highlighting for debugging purpose
+  // copied from stack overflow
+  function syntaxHighlight(json: any) {
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      function (match: any) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key';
+          } else {
+            cls = 'string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      }
+    );
+  }
+  const route_params = useLocalSearchParams();
+
+  // extract email (for payload)
+  const { email } = route_params;
   // supporting variables for the calendar mode switcher
   // NOTE : useRef allows us to persist values between renders
   /**
@@ -940,7 +970,6 @@ export default function Schedule() {
     }
 
     const uniqueId = `event_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    console.log(`generated unique id : ${uniqueId}`);
     // replaced with string based value for easier identification
     // const random_generated_id = Math.floor(Math.random() * 100 + 1);
     // console.log(random_generated_id);
@@ -960,7 +989,7 @@ export default function Schedule() {
 
     // if user wants an event to be recurring based on a specific selected frequency
     if (newEvent.isRecurring && newEvent.recurrence_frequency) {
-      eventsToAdd = calculateRecurringEvents(newEvent);
+      eventsToAdd = calculateRecurringEvents(newEvent); // append recurring events to eventsList
     } else {
       // otherwise, simply add a single instance copy of the particular event
       eventsToAdd = [newEvent];
@@ -1051,13 +1080,17 @@ export default function Schedule() {
 
   // prototype of the data that needs to be sent out to the datbase
   const events_payload = {
-    email: 'user email goes here',
-    events_data: 'information regarding new events goes here',
+    email: email,
+    events_data: eventsList,
   };
-  // useEffect hook to check if recurrence modal state is being updated
+
+  // console.log('Events Payload Data Retrieved : ', events_payload);
+
+  // TODO : fix this implementation
   useEffect(() => {
-    console.log('showCustomRecurrencModal : ', showCustomRecurrenceModal);
-  }, [showCustomRecurrenceModal]);
+    // console.log(`List of events : ${syntaxHighlight(JSON.stringify(eventsList))}`);
+    console.log(`List of events : ${JSON.stringify(eventsList)}`);
+  }, [eventsList]);
   return (
     <View
       style={{

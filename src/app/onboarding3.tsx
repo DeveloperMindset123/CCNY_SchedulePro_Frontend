@@ -192,6 +192,8 @@ const OnboardingScreen3: React.FC = () => {
         // old navigation route
         router.push({
           pathname: '/(root)/(tabs)/(index)/Schedule',
+
+          // router parameter data is being passed here, retrieve it within Schedule.tsx file
           params: { email: payload.email },
         }); // point the user to the correct path
       } else {
