@@ -37,6 +37,7 @@ import CalendarModeSwitcher, {
 } from '@/components/core/calendarModeSwitcher';
 import CalendarNavigation from '@/components/core/calendarNavigation';
 import { useLocalSearchParams } from 'expo-router';
+import DeleteSingleEvent from '@/components/core/deleteModals';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
@@ -215,7 +216,80 @@ const ExistingEventModal = ({
                   onPress={onRequestDelete}
                 >
                   <AntDesign name="delete" size={20} color="red" />
-                  <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
+                  {current_event.isRecurring ? (
+                    <DeleteSingleEvent
+                      visibillity={delete_event_modal}
+                      onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
+                      onPressDeleteCancellation={handleOnPressDeleteCancellation}
+                      buttonStyling={ButtonStyling}
+                    />
+                  ) : (
+                    <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
+                      <View
+                        style={{
+                          flex: 1,
+
+                          // to ensure that the modal is located within the middle of the screen
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: 'rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: '65%',
+                            backgroundColor: 'white',
+                            borderRadius: 10,
+                            padding: 20,
+                            shadowColor: '#000',
+                            shadowOffset: {
+                              width: 0,
+                              height: 2,
+                            },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 4,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            elevation: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              marginBottom: 20,
+                              fontSize: 16,
+                            }}
+                          >
+                            Delete Recurring Event?
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                            }}
+                          >
+                            <TouchableOpacity
+                              style={[
+                                ButtonStyling.button,
+                                ButtonStyling.buttonSave,
+                                {
+                                  marginRight: 10,
+                                },
+                              ]}
+                              onPress={handleOnPressDeleteConfirmation}
+                            >
+                              <Text style={ButtonStyling.buttonText}>Yes</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
+                              onPress={handleOnPressDeleteCancellation}
+                            >
+                              <Text style={ButtonStyling.buttonText}>No</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </View>
+                    </Modal>
+                  )}
+                  {/* <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
                     <View
                       style={{
                         flex: 1,
@@ -278,7 +352,7 @@ const ExistingEventModal = ({
                         </View>
                       </View>
                     </View>
-                  </Modal>
+                  </Modal> */}
                 </TouchableOpacity>
               </View>
             </View>
