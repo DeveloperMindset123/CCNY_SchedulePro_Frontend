@@ -1,6 +1,9 @@
 // requires 2 seperate imports
-import { Modal, View, Text, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
+import { Modal, View, Text, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { useEffect, useState } from 'react';
+import RadioButtonGroup, { RadioButtonItem } from 'expo-radio-button';
+import { CalendarEvent } from '@/app/(root)/(tabs)/(index)/Schedule';
+
 // interface for deleting single event
 interface DeleteSingleEventInterface {
   visibillity: boolean;
@@ -85,17 +88,59 @@ const DeleteSingleEvent = ({
 
 export default DeleteSingleEvent;
 
+interface DeleteRecurringEventsType {
+  visible: boolean;
+  onPressDeleteConfirmation: any;
+  onPressDeleteCancellation: any;
+  buttonStyling: any;
+  recurrenceEventStyles: any;
+  list_of_events: CalendarEvent[];
+  handleOnRequestModalClose: any;
+  selectedEvent: CalendarEvent;
+}
+
 // TODO : implement this
 export const DeleteRecurringEvents = ({
-  visibile,
+  visible,
   onPressDeleteConfirmation,
   onPressDeleteCancellation,
   buttonStyling,
   recurrenceEventStyles,
-}) => {
-  const [selectedValue, setSelectedValue] = useState();
+  list_of_events,
+  handleOnRequestModalClose,
+  selectedEvent,
+}: DeleteRecurringEventsType) => {
+  // useState hook to handle what has been currently selected by a particular user.
+  const [currentRadioButton, setCurrentRadioButton] = useState('all-event');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_radioButtonSelected, setRadioButtonSelected] = useState(false);
+
+  // helper functions to handle different instances of events that needs to be deleted
+  const deleteAllEvents = (originalEvent: any[], eventToDelete: any) => {
+    // const parentEventID = eventToDelete.id;
+    // NOTE the negation operator within the filter predicate
+    // TODO : the logic for this isn't entirely correct, needs to be fixed
+    return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
+  };
+
+  switch (currentRadioButton) {
+    // this means user wants to delete all subsequent events
+    // invoke the function to delete all the events corresponding to the id
+    case 'all-event':
+      deleteAllEvents(list_of_events, selectedEvent);
+  }
+  // check to see if radio button is being updated correctly
+  // TODO : delete later, this is primarily for debugging purposes
+  useEffect(() => {
+    console.log(`current selected radio-button : ${currentRadioButton}`);
+  }, [currentRadioButton]);
   return (
-    <Modal animationType="slide" transparent={true} visible={visibile}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={handleOnRequestModalClose}
+    >
       <View
         style={{
           flex: 1,
@@ -160,63 +205,91 @@ export const DeleteRecurringEvents = ({
             >
               <Text style={buttonStyling.buttonText}>All Events</Text>
             </TouchableOpacity> */}
-            <TouchableOpacity
-              // style={[
-              //   buttonStyling.button,
-              //   buttonStyling.buttonSave,
-              //   {
-              //     marginRight: 10,
-              //   },
-              // ]}
-              // onPress={onPressDeleteConfirmation}
+            <RadioButtonGroup
               style={{
                 width: 'auto',
                 borderRadius: 5,
-                backgroundColor: '#3498db',
+                // backgroundColor: '#0F9D58',
                 alignItems: 'center',
                 padding: 5,
                 marginBottom: 6,
               }}
-              onPress={(textInput) => {
-                console.log('selected all events : ', textInput);
+              containerStyle={{ marginBottom: 10 }}
+              selected={currentRadioButton}
+              onSelected={(value: string) => {
+                setCurrentRadioButton(value);
               }}
+              containerOptionStyle={{ margin: 5 }}
+              radioBackground="#3498db"
             >
-              <Text style={recurrenceEventStyles.textStyles}>All Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              // style={[buttonStyling.button, buttonStyling.buttonCancel]}
-              // onPress={onPressDeleteCancellation}
+              <RadioButtonItem
+                value="all-event"
+                label="All Events"
+                onSelected={() => {
+                  setRadioButtonSelected(true);
+                }}
+              />
+              <RadioButtonItem
+                value="subsequent"
+                onSelected={() => {
+                  setRadioButtonSelected(true);
+                }}
+                label={<Text style={{ color: 'black' }}>This and the following events</Text>}
+              />
+              <RadioButtonItem
+                value="current"
+                onSelected={() => {
+                  setRadioButtonSelected(true);
+                }}
+                label={<Text style={{ color: 'black' }}>This Event Only</Text>}
+              />
+            </RadioButtonGroup>
+            <View
               style={{
-                width: 'auto',
-                borderRadius: 5,
-                backgroundColor: '#0F9D58',
+                flexDirection: 'row',
                 alignItems: 'center',
-                padding: 5,
-                marginBottom: 6,
-              }}
-              onPress={(textInput) => {
-                console.log('selected subsequent events: ', textInput);
+                justifyContent: 'center',
               }}
             >
-              <Text style={recurrenceEventStyles.textStyles}>Subsequent Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              // style={[buttonStyling.button, buttonStyling.buttonCancel]}
-              // onPress={onPressDeleteCancellation}
-              style={{
-                width: 'auto',
-                borderRadius: 5,
-                backgroundColor: '#e74c3c',
-                alignItems: 'center',
-                padding: 5,
-                marginBottom: 6,
-              }}
-              onPress={(textInput) => {
-                console.log('selected this event only : ', textInput);
-              }}
-            >
-              <Text style={recurrenceEventStyles.textStyles}>This Event Only</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                // style={[buttonStyling.button, buttonStyling.buttonCancel]}
+                // onPress={onPressDeleteCancellation}
+                style={[
+                  recurrenceEventStyles.modifiedButtonStyling,
+                  buttonStyling.buttonCancel,
+                  {
+                    marginRight: 10,
+                  },
+                ]}
+                onPress={(textInput) => {
+                  console.log('selected this event only : ', textInput);
+                }}
+              >
+                <Text style={recurrenceEventStyles.textStyles}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                // style={[
+                //   buttonStyling.button,
+                //   buttonStyling.buttonSave,
+                //   {
+                //     marginRight: 10,
+                //   },
+                // ]}
+                // onPress={onPressDeleteConfirmation}
+                style={[
+                  recurrenceEventStyles.modifiedButtonStyling,
+                  buttonStyling.buttonSave,
+                  {
+                    marginRight: 10,
+                  },
+                ]}
+                onPress={(textInput) => {
+                  console.log('selected all events : ', textInput);
+                }}
+              >
+                <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -488,10 +561,10 @@ const deleteRecurringEvents = (originalEventsData: any[]) => {
  */
 const deleteSubsequentEvents = (originalEventsData: any[], event: any) => {
   const event_id = event.id;
-  console.log('Provided Event ID : ', event_id);
+  // console.log('Provided Event ID : ', event_id);
 
   const event_id_array = event_id.split('_');
-  console.log('Constructed array of event id : ', event_id_array);
+  // console.log('Constructed array of event id : ', event_id_array);
 
   // construct the ID of the original event, since we also need to check if the event matches
   // the 2nd and 3rd values wtihin the array will contain this information
@@ -500,9 +573,9 @@ const deleteSubsequentEvents = (originalEventsData: any[], event: any) => {
   // alternatively, the original event id can also be retrieved in the following method
   if (event.id.includes('recurring')) {
     const original_event_id = event.parentEventId;
-    console.log('retrieved parent event id : ', original_event_id);
+    // console.log('retrieved parent event id : ', original_event_id);
   }
-  console.log(`Retrieved original event id : ${original_event_id}`);
+  // console.log(`Retrieved original event id : ${original_event_id}`);
 
   // we want to check if the current event happens to be recurring
   if (event_id.includes('recurring')) {
@@ -511,7 +584,7 @@ const deleteSubsequentEvents = (originalEventsData: any[], event: any) => {
 
     // alternative
     const currentRecurrenceUnit = parseInt(event_id_array[event_id_array.length - 1]);
-    console.log(`Current Requccurence Unit : ${currentRecurrenceUnit}`);
+    // console.log(`Current Requccurence Unit : ${currentRecurrenceUnit}`);
 
     // filter logic
     // not entirely sure if this logic will work
@@ -529,12 +602,11 @@ const deleteSubsequentEvents = (originalEventsData: any[], event: any) => {
 
     // experimental check to remove the original event
     // const filtered_events_2 = filtered_events.filter((currentEvent) => currentEvent.id !== original_event_id);
-    console.log(filtered_events);
+    // console.log(filtered_events);
   } else {
     // assuming user chose the original event (which is the same as deleting all instances of the event)
-
     // otherwise, we simply delete all the events
-    console.log(deleteAllEvents(originalEventsData, event));
+    // console.log(deleteAllEvents(originalEventsData, event));
   }
 };
 

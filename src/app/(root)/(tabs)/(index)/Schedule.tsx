@@ -42,7 +42,7 @@ import { Delete } from 'lucide-react-native';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
-interface CalendarEvent {
+export interface CalendarEvent {
   id: string;
   title: string;
   description?: string;
@@ -1954,5 +1954,11 @@ const recurrenceEventStyling = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  modifiedButtonStyling: {
+    padding: 10,
+    borderRadius: 5,
+    width: '42%',
+    alignItems: 'center',
   },
 });

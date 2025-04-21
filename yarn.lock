@@ -4788,6 +4788,11 @@ expo-modules-core@2.2.3:
   dependencies:
     invariant "^2.2.4"
 
+expo-radio-button@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/expo-radio-button/-/expo-radio-button-1.0.8.tgz#5f5c411ae0a2da633ae4b56d87a59dfa23a47bae"
+  integrity sha512-sE+aCtq5/lL1Y24oVYMyGug0IPt0R3dXS6rSK2S+A+EFm6HYBj0ZKGA35ywSekS+/8lE9UwKS+ORwQlWsfXoUQ==
+
 expo-router@~4.0.17:
   version "4.0.19"
   resolved "https://registry.yarnpkg.com/expo-router/-/expo-router-4.0.19.tgz#b2c33c07f18c81af0692ee06b6f1e3dee50da979"
