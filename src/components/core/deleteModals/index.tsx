@@ -123,12 +123,24 @@ export const DeleteRecurringEvents = ({
     return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
   };
 
-  switch (currentRadioButton) {
-    // this means user wants to delete all subsequent events
-    // invoke the function to delete all the events corresponding to the id
-    case 'all-event':
-      deleteAllEvents(list_of_events, selectedEvent);
-  }
+  // TODO : needs wrapped around a function
+  const handleRecurringEventDeletion = async () => {
+    switch (currentRadioButton) {
+      // this means user wants to delete all subsequent events
+      // invoke the function to delete all the events corresponding to the id
+      case 'all-event':
+        deleteAllEvents(list_of_events, selectedEvent);
+        break;
+      case 'subsequent':
+        deleteSubsequentEvents(list_of_events, selectedEvent);
+        break;
+      case 'current':
+        deleteCurrentEvent(list_of_events, selectedEvent);
+        break;
+      default:
+        break;
+    }
+  };
   // check to see if radio button is being updated correctly
   // TODO : delete later, this is primarily for debugging purposes
   useEffect(() => {
@@ -181,30 +193,8 @@ export const DeleteRecurringEvents = ({
           <View
             style={{
               flexDirection: 'column',
-              // ma,
             }}
           >
-            {/* <TouchableOpacity
-              // style={[
-              //   buttonStyling.button,
-              //   buttonStyling.buttonSave,
-              //   {
-              //     marginRight: 10,
-              //   },
-              // ]}
-              // style={recurrenceEventStyles.eventsOptionStyle}
-              // style={{
-              //   padding: 0,
-              //   borderRadius: 5,
-              //   width: '100%',
-              //   marginBottom: 20,
-              //   alignItems: 'center',
-              // }}
-              style={recurrenceEventStyles.textStyles}
-              // onPress={onPressDeleteConfirmation}
-            >
-              <Text style={buttonStyling.buttonText}>All Events</Text>
-            </TouchableOpacity> */}
             <RadioButtonGroup
               style={{
                 width: 'auto',
@@ -261,9 +251,7 @@ export const DeleteRecurringEvents = ({
                     marginRight: 10,
                   },
                 ]}
-                onPress={(textInput) => {
-                  console.log('selected this event only : ', textInput);
-                }}
+                onPress={onPressDeleteCancellation}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Cancel</Text>
               </TouchableOpacity>
@@ -283,9 +271,7 @@ export const DeleteRecurringEvents = ({
                     marginRight: 10,
                   },
                 ]}
-                onPress={(textInput) => {
-                  console.log('selected all events : ', textInput);
-                }}
+                onPress={onPressDeleteConfirmation}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
               </TouchableOpacity>

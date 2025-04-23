@@ -64,23 +64,13 @@ interface ExistingEventModal {
   // useState variables that determines whether modal should be displayed or not
   visibillity_state: boolean;
   delete_event_modal: boolean;
-  // this is based on the docs, added any just in case the previous two types fail to work
-  // this prop is intended to handle what will happen when modal is selected to be closed
-  onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-
-  // this prop should be a useState hook that will handle whether the text input is edtiable
-  // ideally the text input should be editable when the edit button has been selected
+  delete_event_modal_recurring: boolean;
   isEditable: boolean;
-
-  // deletes the current event upon selecting the delete icon
-  // TODO : determine and filter out the event based on the id
-  // the parameter that needs to be passed in is the current_event prop
+  onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 
   start_time: any;
   end_time: any;
-  // This function will handle how the modal's data will be edited
-  // when the edit icon is selected
   onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
 
   handleOnChangeTitle: any;
@@ -103,9 +93,13 @@ interface ExistingEventModal {
     | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
     | undefined
     | any;
+  handleCloseRecurringDeleteModal:
+    | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
+    | undefined
+    | any;
 }
 
-// TODO : Integrate logic for event deletion of existng event.
+// TODO : requires lots of refactoring, badly written composition code
 const ExistingEventModal = ({
   current_event,
   visibillity_state,
@@ -131,6 +125,8 @@ const ExistingEventModal = ({
   handleOnPressDeleteConfirmation,
   handleOnPressDeleteCancellation,
   delete_event_modal,
+  delete_event_modal_recurring,
+  handleCloseRecurringDeleteModal, // this will handle the closing of the modal after recurring events have been chosen to be deleted or saved.
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -219,84 +215,18 @@ const ExistingEventModal = ({
                   <AntDesign name="delete" size={20} color="red" />
                   {current_event.isRecurring ? (
                     <DeleteRecurringEvents
-                      visibile={delete_event_modal}
+                      visible={delete_event_modal_recurring}
                       onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
                       buttonStyling={ButtonStyling}
                       recurrenceEventStyles={recurrenceEventStyling}
+                      list_of_events={[]}
+                      handleOnRequestModalClose={handleCloseRecurringDeleteModal}
+                      selectedEvent={current_event} // seems repetitive
                     />
                   ) : (
-                    // <DeleteSingleEvent
-                    //   visibillity={delete_event_modal}
-                    //   onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
-                    //   onPressDeleteCancellation={handleOnPressDeleteCancellation}
-                    //   buttonStyling={ButtonStyling}
-                    // />
-                    // <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
-                    //   <View
-                    //     style={{
-                    //       flex: 1,
-
-                    //       // to ensure that the modal is located within the middle of the screen
-                    //       justifyContent: 'center',
-                    //       alignItems: 'center',
-                    //       backgroundColor: 'rgba(0,0,0,0.5)',
-                    //     }}
-                    //   >
-                    //     <View
-                    //       style={{
-                    //         width: '65%',
-                    //         backgroundColor: 'white',
-                    //         borderRadius: 10,
-                    //         padding: 20,
-                    //         shadowColor: '#000',
-                    //         shadowOffset: {
-                    //           width: 0,
-                    //           height: 2,
-                    //         },
-                    //         shadowOpacity: 0.25,
-                    //         shadowRadius: 4,
-                    //         justifyContent: 'center',
-                    //         alignItems: 'center',
-                    //         elevation: 5,
-                    //       }}
-                    //     >
-                    //       <Text
-                    //         style={{
-                    //           marginBottom: 20,
-                    //           fontSize: 16,
-                    //         }}
-                    //       >
-                    //         Delete Recurring Event?
-                    //       </Text>
-                    //       <View
-                    //         style={{
-                    //           flexDirection: 'row',
-                    //         }}
-                    //       >
-                    //         <TouchableOpacity
-                    //           style={[
-                    //             ButtonStyling.button,
-                    //             ButtonStyling.buttonSave,
-                    //             {
-                    //               marginRight: 10,
-                    //             },
-                    //           ]}
-                    //           onPress={handleOnPressDeleteConfirmation}
-                    //         >
-                    //           <Text style={ButtonStyling.buttonText}>Yes</Text>
-                    //         </TouchableOpacity>
-                    //         <TouchableOpacity
-                    //           style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
-                    //           onPress={handleOnPressDeleteCancellation}
-                    //         >
-                    //           <Text style={ButtonStyling.buttonText}>No</Text>
-                    //         </TouchableOpacity>
-                    //       </View>
-                    //     </View>
-                    //   </View>
-                    // </Modal>
                     <DeleteSingleEvent
+                      // Important NOTE : delete_event_modal (prop for single event, and should only display the modal with specific content.)
                       visibillity={delete_event_modal}
                       onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
@@ -940,6 +870,9 @@ export default function Schedule() {
   // useState hook variable for currentCalendarDate
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date().toISOString());
 
+  // modal to handle rendering of recurrence modal
+  const [recurrenceDeleteModal, setRecurrenceDeleteModal] = useState(false);
+
   const handleCalendarDateChange = useCallback((newDate: string | any) => {
     setCurrentCalendarDate(newDate);
     calendarRef.current?.goToDate({
@@ -1277,7 +1210,10 @@ export default function Schedule() {
               setDeleteEventModal(false);
               setShowExistingEventModal(false); // close the event
             }}
+            // handles visibillity of single event modal
             delete_event_modal={deleteEventModal}
+            // handles visibillity of multiple event modal
+            delete_event_modal_recurring={recurrenceDeleteModal}
             end_time={endDate}
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
@@ -1390,6 +1326,7 @@ export default function Schedule() {
               // setEventList(updatedEvents);
               // setShowExistingEventModal(false); // close the event
             }}
+            handleCloseRecurringDeleteModal={() => setRecurrenceDeleteModal(false)}
           />
         )}
         <CalendarHeader dayBarHeight={60} />
