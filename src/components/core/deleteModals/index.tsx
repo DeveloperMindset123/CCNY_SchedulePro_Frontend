@@ -90,18 +90,22 @@ export default DeleteSingleEvent;
 
 interface DeleteRecurringEventsType {
   visible: boolean;
-  onPressDeleteConfirmation: any;
-  onPressDeleteCancellation: any;
+  onPressDeleteConfirmation?: any;
+  onPressDeleteCancellation?: any;
   buttonStyling: any;
   recurrenceEventStyles: any;
   list_of_events: CalendarEvent[];
   handleOnRequestModalClose: any;
   selectedEvent: CalendarEvent;
+  handleRadioButtonOnChange: any; // updates test-id of different radio buttons
+  handleOnSelectedRadioButtons: any; // updates status of whether a specific radio button has been selected (not really relevant)
+  handleRecurringEventDeletion: any; // TODO : prop drilling within ExistingEventModal needed
 }
 
 // TODO : implement this
 export const DeleteRecurringEvents = ({
   visible,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPressDeleteConfirmation,
   onPressDeleteCancellation,
   buttonStyling,
@@ -109,43 +113,81 @@ export const DeleteRecurringEvents = ({
   list_of_events,
   handleOnRequestModalClose,
   selectedEvent,
+  handleRadioButtonOnChange,
+  handleOnSelectedRadioButtons,
+  handleRecurringEventDeletion,
 }: DeleteRecurringEventsType) => {
   // useState hook to handle what has been currently selected by a particular user.
   const [currentRadioButton, setCurrentRadioButton] = useState('all-event');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_radioButtonSelected, setRadioButtonSelected] = useState(false);
+  const [radioButtonSelected, setRadioButtonSelected] = useState(false);
 
-  // helper functions to handle different instances of events that needs to be deleted
-  const deleteAllEvents = (originalEvent: any[], eventToDelete: any) => {
-    // const parentEventID = eventToDelete.id;
-    // NOTE the negation operator within the filter predicate
-    // TODO : the logic for this isn't entirely correct, needs to be fixed
-    return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
+  // // helper functions to handle different instances of events that needs to be deleted
+  // const deleteAllEvents = async (originalEvent: any[], eventToDelete: any) => {
+  //   // const parentEventID = eventToDelete.id;
+  //   // NOTE the negation operator within the filter predicate
+  //   // TODO : the logic for this isn't entirely correct, needs to be fixed
+  //   if (eventToDelete.id.includes('recurring')) {
+  //     const parentEventID = eventToDelete.parentId;
+  //     return await originalEvent.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
+  //   }
+
+  //   // otherwise, if it happens to be an original event itself rather than recurring one
+  //   return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
+  // };
+
+  const deleteCurrentEvent = async (listOfEvents: any[], eventToDelete: any) => {
+    return await listOfEvents.filter((event) => event.id !== eventToDelete.id);
+  };
+
+  /**
+   * @listOfEvents : the array of objects containing information about the events themselves.
+   * @event : the event to be deleted, which will be passed in as a parameter
+   */
+  const deleteSubsequentEvents = async (listOfEvents: any[], event: any) => {
+    // check if current event happens to be the recurring event
+    // otherwise, it's an original event (in which case we can go ahead and delete all events)
+    if (event.id.includes('recurring')) {
+      const event_id_array = event.id.split('_');
+      const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
+      return listOfEvents.filter(
+        (currentEvent) =>
+          !(
+            currentEvent.id.includes(event.parentEventId) &&
+            parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >
+              recurrence_unit
+          )
+      );
+    } else {
+      await deleteAllEvents(listOfEvents, event);
+    }
   };
 
   // TODO : needs wrapped around a function
-  const handleRecurringEventDeletion = async () => {
-    switch (currentRadioButton) {
-      // this means user wants to delete all subsequent events
-      // invoke the function to delete all the events corresponding to the id
-      case 'all-event':
-        deleteAllEvents(list_of_events, selectedEvent);
-        break;
-      case 'subsequent':
-        deleteSubsequentEvents(list_of_events, selectedEvent);
-        break;
-      case 'current':
-        deleteCurrentEvent(list_of_events, selectedEvent);
-        break;
-      default:
-        break;
-    }
-  };
+  // migrated to Schedule.tsx
+  // const handleRecurringEventDeletion = async () => {
+  //   switch (currentRadioButton) {
+  //     // this means user wants to delete all subsequent events
+  //     // invoke the function to delete all the events corresponding to the id
+  //     // all three function variation will
+  //     case 'all-event':
+  //       await deleteAllEvents(list_of_events, selectedEvent);
+  //       break;
+  //     case 'subsequent':
+  //       await deleteSubsequentEvents(list_of_events, selectedEvent);
+  //       break;
+  //     case 'current':
+  //       await deleteCurrentEvent(list_of_events, selectedEvent);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
   // check to see if radio button is being updated correctly
   // TODO : delete later, this is primarily for debugging purposes
-  useEffect(() => {
-    console.log(`current selected radio-button : ${currentRadioButton}`);
-  }, [currentRadioButton]);
+  // useEffect(() => {
+  //   console.log(`current selected radio-button : ${currentRadioButton}`);
+  // }, [currentRadioButton]);
   return (
     <Modal
       animationType="slide"
@@ -206,31 +248,33 @@ export const DeleteRecurringEvents = ({
               }}
               containerStyle={{ marginBottom: 10 }}
               selected={currentRadioButton}
-              onSelected={(value: string) => {
-                setCurrentRadioButton(value);
-              }}
+              // old handler logic for selecting radio button
+              // has been migrated to parent component
+              // onSelected={(value: string) => {
+              //   setCurrentRadioButton(value);
+              // }}
+              onSelected={handleRadioButtonOnChange}
               containerOptionStyle={{ margin: 5 }}
               radioBackground="#3498db"
             >
               <RadioButtonItem
                 value="all-event"
                 label="All Events"
-                onSelected={() => {
-                  setRadioButtonSelected(true);
-                }}
+                // old handler code logic
+                // onSelected={() => {
+                //   setRadioButtonSelected(true);
+                // }}
+
+                onSelected={handleOnSelectedRadioButtons}
               />
               <RadioButtonItem
                 value="subsequent"
-                onSelected={() => {
-                  setRadioButtonSelected(true);
-                }}
+                onSelected={handleOnSelectedRadioButtons}
                 label={<Text style={{ color: 'black' }}>This and the following events</Text>}
               />
               <RadioButtonItem
                 value="current"
-                onSelected={() => {
-                  setRadioButtonSelected(true);
-                }}
+                onSelected={handleOnSelectedRadioButtons}
                 label={<Text style={{ color: 'black' }}>This Event Only</Text>}
               />
             </RadioButtonGroup>
@@ -271,7 +315,8 @@ export const DeleteRecurringEvents = ({
                     marginRight: 10,
                   },
                 ]}
-                onPress={onPressDeleteConfirmation}
+                // onPress={async () => await handleRecurringEventDeletion()}
+                onPress={handleRecurringEventDeletion}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
               </TouchableOpacity>
@@ -541,60 +586,21 @@ const deleteRecurringEvents = (originalEventsData: any[]) => {
   console.log(JSON.stringify(filtered_data));
 };
 
-/**
- * @originalEventsData : the array of objects containing information about the events themselves.
- * @event : the event to be deleted, which will be passed in as a parameter
- */
-const deleteSubsequentEvents = (originalEventsData: any[], event: any) => {
-  const event_id = event.id;
-  // console.log('Provided Event ID : ', event_id);
-
-  const event_id_array = event_id.split('_');
-  // console.log('Constructed array of event id : ', event_id_array);
-
-  // construct the ID of the original event, since we also need to check if the event matches
-  // the 2nd and 3rd values wtihin the array will contain this information
-  const original_event_id = event_id_array[0] + '_' + event_id_array[1] + '_' + event_id_array[2];
-
-  // alternatively, the original event id can also be retrieved in the following method
-  if (event.id.includes('recurring')) {
-    const original_event_id = event.parentEventId;
-    // console.log('retrieved parent event id : ', original_event_id);
-  }
-  // console.log(`Retrieved original event id : ${original_event_id}`);
-
-  // we want to check if the current event happens to be recurring
-  if (event_id.includes('recurring')) {
-    // NOTE : indexing by -1 doesn't seem to work in typescript arrays
-    // const currentRecurrenceUnit = event_id_array[-1];   // contains information about the particular recurrence number of the event
-
-    // alternative
-    const currentRecurrenceUnit = parseInt(event_id_array[event_id_array.length - 1]);
-    // console.log(`Current Requccurence Unit : ${currentRecurrenceUnit}`);
-
-    // filter logic
-    // not entirely sure if this logic will work
-    // const filtered_events = originalEventsData.filter((currentEvent) => !(currentEvent.id.includes(original_event_id) && parseInt(currentEvent.id.split('_')[-1]) > currentRecurrenceUnit));
-
-    // first remove the subsequent events (feel free to mess around with it)
-    // NOTE : it should be "greater than", not "greater than or equal to"
-    const filtered_events = originalEventsData.filter(
-      (currentEvent) =>
-        !(
-          parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >
-          currentRecurrenceUnit
-        )
-    );
-
-    // experimental check to remove the original event
-    // const filtered_events_2 = filtered_events.filter((currentEvent) => currentEvent.id !== original_event_id);
-    // console.log(filtered_events);
-  } else {
-    // assuming user chose the original event (which is the same as deleting all instances of the event)
-    // otherwise, we simply delete all the events
-    // console.log(deleteAllEvents(originalEventsData, event));
-  }
-};
+// /**
+//  * @originalEventsData : the array of objects containing information about the events themselves.
+//  * @event : the event to be deleted, which will be passed in as a parameter
+//  */
+// const deleteSubsequentEvents = (listOfEvents: any[], event: any) => {
+//   // check if current event happens to be the recurring event
+//   // otherwise, it's an original event (in which case we can go ahead and delete all events)
+//   if (event.id.includes("recurring")) {
+//     const event_id_array = event.id.split("_");
+//     const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
+//     return listOfEvents.filter((currentEvent) => !(currentEvent.id.includes(event.parentEventId) && parseInt(currentEvent.id.split('_')[-1]) > recurrence_unit));
+//   } else {
+//     deleteAllEvents(listOfEvents, event);
+//   }
+// };
 
 // this function should execute if user wants to delete all instances of the original event and subsequent recurring events
 // first we need the parent id corresponding to the event
@@ -603,7 +609,6 @@ const deleteAllEvents = (originalEvent: any[], eventToDelete: any) => {
   // NOTE the negation operator within the filter predicate
   return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
 };
-// deleteRecurringEvents(sample_data);
 
 const subsequent_event_to_delete = {
   id: 'event_1744902168035_736_recurring_9',
@@ -638,4 +643,4 @@ const sample_original_event = {
   isRecurring: true,
   recurrence_frequency: 'Every Weekend',
 };
-deleteSubsequentEvents(sample_data, sample_original_event);
+// deleteSubsequentEvents(sample_data, sample_original_event);

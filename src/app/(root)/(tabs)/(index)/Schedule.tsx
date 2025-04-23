@@ -81,6 +81,8 @@ interface ExistingEventModal {
   dropdown_list: any;
   handleDropdownFunction: any;
   renderDropdownItem: any;
+  radioButtonChangeHandler: (() => void) | any;
+  radioButtonSelectorhandler: (() => void) | any;
 
   handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
@@ -97,9 +99,11 @@ interface ExistingEventModal {
     | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
     | undefined
     | any;
+  listOfEvents: any[];
 }
 
 // TODO : requires lots of refactoring, badly written composition code
+// TODO : see how you can replace prop drilling with context since there are quite a few repetitive props
 const ExistingEventModal = ({
   current_event,
   visibillity_state,
@@ -126,7 +130,12 @@ const ExistingEventModal = ({
   handleOnPressDeleteCancellation,
   delete_event_modal,
   delete_event_modal_recurring,
-  handleCloseRecurringDeleteModal, // this will handle the closing of the modal after recurring events have been chosen to be deleted or saved.
+  handleCloseRecurringDeleteModal,
+  listOfEvents,
+  radioButtonChangeHandler, // prop drilling for handleRadioButtonOnChange
+  radioButtonSelectorhandler, // prop drilling for handleOnSelectedRadioButtons
+
+  // this will handle the closing of the modal after recurring events have been chosen to be deleted or saved.
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -221,9 +230,11 @@ const ExistingEventModal = ({
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
                       buttonStyling={ButtonStyling}
                       recurrenceEventStyles={recurrenceEventStyling}
-                      list_of_events={[]}
+                      list_of_events={listOfEvents}
                       handleOnRequestModalClose={handleCloseRecurringDeleteModal}
                       selectedEvent={current_event} // seems repetitive
+                      handleRadioButtonOnChange={radioButtonChangeHandler}
+                      handleOnSelectedRadioButtons={radioButtonSelectorhandler}
                     />
                   ) : (
                     <DeleteSingleEvent
@@ -490,7 +501,8 @@ const ExistingEventModal = ({
 export default function Schedule() {
   // function to improve json syntax highlighting for debugging purpose
   // copied from stack overflow
-  function syntaxHighlight(json: any) {
+  // function not being used anymore
+  function _syntaxHighlight(json: any) {
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return json.replace(
       /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
@@ -511,6 +523,85 @@ export default function Schedule() {
       }
     );
   }
+
+  // relevant functions to handle deletion of events
+  /**
+   * @listOfEvents : the array of objects containing information about the events themselves.
+   * @event : the event to be deleted, which will be passed in as a parameter
+   */
+
+  // useState hook to keep track of which radio button has been selected
+  const [currentRadioButton, setCurrentRadioButton] = useState('all-event');
+  const [radioButtonSelected, setRadioButtonSelected] = useState(false);
+
+  // // helper functions to handle different instances of events that needs to be deleted
+  const deleteAllEvents = async (originalEvent: any[], eventToDelete: any) => {
+    // const parentEventID = eventToDelete.id;
+    // NOTE the negation operator within the filter predicate
+    // TODO : the logic for this isn't entirely correct, needs to be fixed
+    if (eventToDelete.id.includes('recurring')) {
+      const parentEventID = eventToDelete.parentId;
+      return await originalEvent.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
+    }
+
+    // otherwise, if it happens to be an original event itself rather than recurring one
+    return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
+  };
+
+  const deleteCurrentEvent = async (listOfEvents: any[], eventToDelete: any) => {
+    return await listOfEvents.filter((event) => event.id !== eventToDelete.id);
+  };
+  const deleteSubsequentEvents = async (listOfEvents: any[], event: any) => {
+    // check if current event happens to be the recurring event
+    // otherwise, it's an original event (in which case we can go ahead and delete all events)
+    if (event.id.includes('recurring')) {
+      const event_id_array = event.id.split('_');
+      const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
+      return listOfEvents.filter(
+        (currentEvent) =>
+          !(
+            currentEvent.id.includes(event.parentEventId) &&
+            parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >
+              recurrence_unit
+          )
+      );
+    } else {
+      await deleteAllEvents(listOfEvents, event);
+    }
+  };
+  // TODO : needs wrapped around a function
+  const handleRecurringEventDeletion = async () => {
+    switch (currentRadioButton) {
+      // this means user wants to delete all subsequent events
+      // invoke the function to delete all the events corresponding to the id
+      // all three function variation will
+      case 'all-event':
+        await deleteAllEvents(eventsList, selectedEvent);
+        break;
+      case 'subsequent':
+        await deleteSubsequentEvents(eventsList, selectedEvent);
+        break;
+      case 'current':
+        await deleteCurrentEvent(eventsList, selectedEvent);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleRadioButtonOnChange = (value: string) => {
+    setCurrentRadioButton(value);
+  };
+
+  const radioButtonSelectorUpdate = () => {
+    setRadioButtonSelected(true);
+  };
+
+  // TODO : delete after
+  useEffect(() => {
+    console.log('current selected radio button value : ', currentRadioButton);
+  }, [currentRadioButton]);
+
   const route_params = useLocalSearchParams();
 
   // extract email (for payload)
@@ -788,6 +879,7 @@ export default function Schedule() {
 
   // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
+
   const [deleteEventModal, setDeleteEventModal] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
   // this will determine the event that has been currently selected
@@ -1029,7 +1121,7 @@ export default function Schedule() {
         // TODO : this seems somewhat repetitive, find a fix for this
         setSelectedEvent(event);
       }
-      // console.log(`Pressed event : ${JSON.stringify(event)}`); // TODO : delete this statement, this is just to check if the event update is working as intended
+      // TODO : delete this statement, this is just to check if the event update is working as intended
       // setSelectedEvent(event);
       setShowExistingEventModal(true);
     },
@@ -1132,8 +1224,19 @@ export default function Schedule() {
         {showExistingEventModal && (
           // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
           <ExistingEventModal
+            // minor modification needed to determine whether to close single deletion modal
+            // or recurring modal
             handleOnPressDeleteCancellation={() => {
-              setDeleteEventModal(false);
+              // if (selectedEvent.isRecurring) {
+              //   setRecurrenceDeleteModal(false);
+              // } else {
+              //   setDeleteEventModal(false);
+              // }
+
+              // same thing
+              selectedEvent.isRecurring
+                ? setRecurrenceDeleteModal(false)
+                : setDeleteEventModal(false);
             }}
             handleOnPressDeleteConfirmation={async () => {
               // logic for deleting a particular event
@@ -1142,7 +1245,7 @@ export default function Schedule() {
               );
               // TODO : delete later, this is to experiment to check if the current event has been deleted or not
               console.log(`The updated events are : ${updatedEvents}`);
-              // set the newly updated event
+              // close the relevant modals after update has taken place
               setEventList(updatedEvents);
               setDeleteEventModal(false);
               setShowExistingEventModal(false); // close the event
@@ -1249,6 +1352,8 @@ export default function Schedule() {
               setIsModalEditable(false);
               setShowExistingEventModal(false);
             }}
+            // slight variation based on whether event is recurring or not
+            // due to the need for the modals that needs to be displayed being different from one another
             onRequestDelete={async () => {
               // need to conditionally handle which modal to set true
               if (await selectedEvent.isRecurring) {
@@ -1256,19 +1361,12 @@ export default function Schedule() {
               } else {
                 setDeleteEventModal(true);
               }
-              // correct logic below for deleting a particular event
-              // // remove the event within the list whose current id matches the id of the currently selected event
-              // // include all other events except the current event containing matching id
-              // const updatedEvents = await eventsList.filter(
-              //   (event) => event.id !== selectedEvent.id
-              // );
-              // // TODO : delete later, this is to experiment to check if the current event has been deleted or not
-              // console.log(`The updated events are : ${updatedEvents}`);
-              // // set the newly updated event
-              // setEventList(updatedEvents);
-              // setShowExistingEventModal(false); // close the event
             }}
             handleCloseRecurringDeleteModal={() => setRecurrenceDeleteModal(false)}
+            listOfEvents={eventsList}
+            // props for radio button selection
+            radioButtonChangeHandler={handleRadioButtonOnChange}
+            radioButtonSelectorhandler={radioButtonSelectorUpdate}
           />
         )}
         <CalendarHeader dayBarHeight={60} />
