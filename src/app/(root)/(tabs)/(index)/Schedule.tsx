@@ -210,6 +210,7 @@ const ExistingEventModal = ({
                       // marginRight: 15,
                     }
                   }
+                  // triggers the corresponding conditional rendering of non-recurring and recurring modals that needs to be deleted
                   onPress={onRequestDelete}
                 >
                   <AntDesign name="delete" size={20} color="red" />
@@ -233,70 +234,6 @@ const ExistingEventModal = ({
                       buttonStyling={ButtonStyling}
                     />
                   )}
-                  {/* <Modal animationType="slide" transparent={true} visible={delete_event_modal}>
-                    <View
-                      style={{
-                        flex: 1,
-
-                        // to ensure that the modal is located within the middle of the screen
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: '65%',
-                          backgroundColor: 'white',
-                          borderRadius: 10,
-                          padding: 20,
-                          shadowColor: '#000',
-                          shadowOffset: {
-                            width: 0,
-                            height: 2,
-                          },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 4,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          elevation: 5,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            marginBottom: 20,
-                            fontSize: 16,
-                          }}
-                        >
-                          Are You Sure You Want to Delete This Event?
-                        </Text>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                          }}
-                        >
-                          <TouchableOpacity
-                            style={[
-                              ButtonStyling.button,
-                              ButtonStyling.buttonSave,
-                              {
-                                marginRight: 10,
-                              },
-                            ]}
-                            onPress={handleOnPressDeleteConfirmation}
-                          >
-                            <Text style={ButtonStyling.buttonText}>Yes</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[ButtonStyling.button, ButtonStyling.buttonCancel]}
-                            onPress={handleOnPressDeleteCancellation}
-                          >
-                            <Text style={ButtonStyling.buttonText}>No</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </View>
-                  </Modal> */}
                 </TouchableOpacity>
               </View>
             </View>
@@ -1312,8 +1249,13 @@ export default function Schedule() {
               setIsModalEditable(false);
               setShowExistingEventModal(false);
             }}
-            onRequestDelete={() => {
-              setDeleteEventModal(true);
+            onRequestDelete={async () => {
+              // need to conditionally handle which modal to set true
+              if (await selectedEvent.isRecurring) {
+                setRecurrenceDeleteModal(true);
+              } else {
+                setDeleteEventModal(true);
+              }
               // correct logic below for deleting a particular event
               // // remove the event within the list whose current id matches the id of the currently selected event
               // // include all other events except the current event containing matching id
