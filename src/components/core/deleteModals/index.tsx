@@ -110,8 +110,10 @@ export const DeleteRecurringEvents = ({
   onPressDeleteCancellation,
   buttonStyling,
   recurrenceEventStyles,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   list_of_events,
   handleOnRequestModalClose,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   selectedEvent,
   handleRadioButtonOnChange,
   handleOnSelectedRadioButtons,
@@ -123,71 +125,48 @@ export const DeleteRecurringEvents = ({
   const [radioButtonSelected, setRadioButtonSelected] = useState(false);
 
   // // helper functions to handle different instances of events that needs to be deleted
-  // const deleteAllEvents = async (originalEvent: any[], eventToDelete: any) => {
-  //   // const parentEventID = eventToDelete.id;
-  //   // NOTE the negation operator within the filter predicate
-  //   // TODO : the logic for this isn't entirely correct, needs to be fixed
-  //   if (eventToDelete.id.includes('recurring')) {
-  //     const parentEventID = eventToDelete.parentId;
-  //     return await originalEvent.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
-  //   }
+  const deleteAllEvents = async () => {
+    // const parentEventID = eventToDelete.id;
+    // NOTE the negation operator within the filter predicate
+    // TODO : the logic for this isn't entirely correct, needs to be fixed
+    if (selectedEvent.id.includes('recurring')) {
+      const parentEventID = selectedEvent.parentEventId;
+      return await list_of_events.filter(
+        (currentEvent) => !currentEvent.id.includes(parentEventID)
+      );
+    }
 
-  //   // otherwise, if it happens to be an original event itself rather than recurring one
-  //   return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
-  // };
+    // otherwise, if it happens to be an original event itself rather than recurring one
+    return list_of_events.filter((currentEvent) => !currentEvent.id.includes(selectedEvent.id));
+  };
 
-  const deleteCurrentEvent = async (listOfEvents: any[], eventToDelete: any) => {
-    return await listOfEvents.filter((event) => event.id !== eventToDelete.id);
+  // remove params, replace with the id corresponding to the event itself
+  const deleteCurrentEvent = async () => {
+    return await list_of_events.filter((event) => event.id !== selectedEvent.id);
   };
 
   /**
    * @listOfEvents : the array of objects containing information about the events themselves.
    * @event : the event to be deleted, which will be passed in as a parameter
    */
-  const deleteSubsequentEvents = async (listOfEvents: any[], event: any) => {
+  const deleteSubsequentEvents = async () => {
     // check if current event happens to be the recurring event
     // otherwise, it's an original event (in which case we can go ahead and delete all events)
-    if (event.id.includes('recurring')) {
-      const event_id_array = event.id.split('_');
+    if (selectedEvent.id.includes('recurring')) {
+      const event_id_array = selectedEvent.id.split('_');
       const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
-      return listOfEvents.filter(
+      return list_of_events.filter(
         (currentEvent) =>
           !(
-            currentEvent.id.includes(event.parentEventId) &&
+            currentEvent.id.includes(selectedEvent.parentEventId) &&
             parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >
               recurrence_unit
           )
       );
     } else {
-      await deleteAllEvents(listOfEvents, event);
+      await deleteAllEvents();
     }
   };
-
-  // TODO : needs wrapped around a function
-  // migrated to Schedule.tsx
-  // const handleRecurringEventDeletion = async () => {
-  //   switch (currentRadioButton) {
-  //     // this means user wants to delete all subsequent events
-  //     // invoke the function to delete all the events corresponding to the id
-  //     // all three function variation will
-  //     case 'all-event':
-  //       await deleteAllEvents(list_of_events, selectedEvent);
-  //       break;
-  //     case 'subsequent':
-  //       await deleteSubsequentEvents(list_of_events, selectedEvent);
-  //       break;
-  //     case 'current':
-  //       await deleteCurrentEvent(list_of_events, selectedEvent);
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-  // check to see if radio button is being updated correctly
-  // TODO : delete later, this is primarily for debugging purposes
-  // useEffect(() => {
-  //   console.log(`current selected radio-button : ${currentRadioButton}`);
-  // }, [currentRadioButton]);
   return (
     <Modal
       animationType="slide"
@@ -248,11 +227,6 @@ export const DeleteRecurringEvents = ({
               }}
               containerStyle={{ marginBottom: 10 }}
               selected={currentRadioButton}
-              // old handler logic for selecting radio button
-              // has been migrated to parent component
-              // onSelected={(value: string) => {
-              //   setCurrentRadioButton(value);
-              // }}
               onSelected={handleRadioButtonOnChange}
               containerOptionStyle={{ margin: 5 }}
               radioBackground="#3498db"
