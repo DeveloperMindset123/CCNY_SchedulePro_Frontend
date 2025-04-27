@@ -82,7 +82,6 @@ interface ExistingEventModal {
   handleDropdownFunction: any;
   renderDropdownItem: any;
   radioButtonChangeHandler: (() => void) | any;
-  radioButtonSelectorhandler: (() => void) | any;
 
   handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
@@ -100,6 +99,7 @@ interface ExistingEventModal {
     | undefined
     | any;
   listOfEvents: any[];
+  currentSelectedRadioButton: string;
 }
 
 // TODO : requires lots of refactoring, badly written composition code
@@ -133,10 +133,15 @@ const ExistingEventModal = ({
   handleCloseRecurringDeleteModal,
   listOfEvents,
   radioButtonChangeHandler, // prop drilling for handleRadioButtonOnChange
-  radioButtonSelectorhandler, // prop drilling for handleOnSelectedRadioButtons
+
+  currentSelectedRadioButton,
 
   // this will handle the closing of the modal after recurring events have been chosen to be deleted or saved.
 }: ExistingEventModal) => {
+  const sample_event_data: string[] = ['This', 'is', 'an', 'array'];
+  const handleRecurringEventDeletionCallbackExperimental = async (updatedEventList: any[]) => {
+    console.log('asynchronous Callback function has been triggered');
+  };
   return (
     <Modal
       animationType="slide"
@@ -234,7 +239,10 @@ const ExistingEventModal = ({
                       handleOnRequestModalClose={handleCloseRecurringDeleteModal}
                       selectedEvent={current_event} // seems repetitive
                       handleRadioButtonOnChange={radioButtonChangeHandler}
-                      handleOnSelectedRadioButtons={radioButtonSelectorhandler}
+                      handleRecurringEventDeletionCallback={async () =>
+                        await handleRecurringEventDeletionCallbackExperimental(sample_event_data)
+                      }
+                      currentRadioButton={currentSelectedRadioButton}
                     />
                   ) : (
                     <DeleteSingleEvent
@@ -589,19 +597,15 @@ export default function Schedule() {
     }
   };
 
+  // reference to determine currently selected radio button
   const handleRadioButtonOnChange = (value: string) => {
     setCurrentRadioButton(value);
   };
 
+  // determines if current radio button has been selected
   const radioButtonSelectorUpdate = () => {
     setRadioButtonSelected(true);
   };
-
-  // TODO : delete after
-  useEffect(() => {
-    console.log('current selected radio button value : ', currentRadioButton);
-  }, [currentRadioButton]);
-
   const route_params = useLocalSearchParams();
 
   // extract email (for payload)
@@ -1365,6 +1369,7 @@ export default function Schedule() {
             handleCloseRecurringDeleteModal={() => setRecurrenceDeleteModal(false)}
             listOfEvents={eventsList}
             // props for radio button selection
+            currentSelectedRadioButton={currentRadioButton}
             radioButtonChangeHandler={handleRadioButtonOnChange}
             radioButtonSelectorhandler={radioButtonSelectorUpdate}
           />

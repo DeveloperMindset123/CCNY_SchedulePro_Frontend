@@ -98,8 +98,8 @@ interface DeleteRecurringEventsType {
   handleOnRequestModalClose: any;
   selectedEvent: CalendarEvent;
   handleRadioButtonOnChange: any; // updates test-id of different radio buttons
-  handleOnSelectedRadioButtons: any; // updates status of whether a specific radio button has been selected (not really relevant)
-  handleRecurringEventDeletion: any; // TODO : prop drilling within ExistingEventModal needed
+  handleRecurringEventDeletionCallback: any | undefined; // TODO : prop drilling within ExistingEventModal needed
+  currentRadioButton: string;
 }
 
 // TODO : implement this
@@ -116,14 +116,9 @@ export const DeleteRecurringEvents = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   selectedEvent,
   handleRadioButtonOnChange,
-  handleOnSelectedRadioButtons,
-  handleRecurringEventDeletion,
+  currentRadioButton,
+  handleRecurringEventDeletionCallback,
 }: DeleteRecurringEventsType) => {
-  // useState hook to handle what has been currently selected by a particular user.
-  const [currentRadioButton, setCurrentRadioButton] = useState('all-event');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [radioButtonSelected, setRadioButtonSelected] = useState(false);
-
   // // helper functions to handle different instances of events that needs to be deleted
   const deleteAllEvents = async () => {
     // const parentEventID = eventToDelete.id;
@@ -165,6 +160,32 @@ export const DeleteRecurringEvents = ({
       );
     } else {
       await deleteAllEvents();
+    }
+  };
+
+  const handleRecurringEventDeletionInternal = async () => {
+    try {
+      switch (currentRadioButton) {
+        case 'all-event':
+          await deleteAllEvents();
+          console.log('Interval function has been trieggered!');
+          break;
+
+        case 'subsequent':
+          await deleteSubsequentEvents();
+          console.log('Interval function has been trieggered!');
+          break;
+
+        case 'current':
+          await deleteCurrentEvent();
+          console.log('Interval function has been trieggered!');
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error('Error : ', error);
+      return error;
     }
   };
   return (
@@ -239,16 +260,22 @@ export const DeleteRecurringEvents = ({
                 //   setRadioButtonSelected(true);
                 // }}
 
-                onSelected={handleOnSelectedRadioButtons}
+                // onSelected={handleOnSelectedRadioButtons}
               />
               <RadioButtonItem
                 value="subsequent"
-                onSelected={handleOnSelectedRadioButtons}
+                // onSelected={() => {
+                //   setRadioButtonSelected(true);
+                // }}
+                // onSelected={handleOnSelectedRadioButtons}
                 label={<Text style={{ color: 'black' }}>This and the following events</Text>}
               />
               <RadioButtonItem
                 value="current"
-                onSelected={handleOnSelectedRadioButtons}
+                // onSelected={() => {
+                //   setRadioButtonSelected(true);
+                // }}
+                // onSelected={handleOnSelectedRadioButtons}
                 label={<Text style={{ color: 'black' }}>This Event Only</Text>}
               />
             </RadioButtonGroup>
@@ -290,7 +317,14 @@ export const DeleteRecurringEvents = ({
                   },
                 ]}
                 // onPress={async () => await handleRecurringEventDeletion()}
-                onPress={handleRecurringEventDeletion}
+                // onPress={handleRecurringEventDeletion}
+                onPress={async () => {
+                  const mutated_event = await handleRecurringEventDeletionInternal();
+
+                  // take in a parameter, and then return the update
+                  // mutated_event will be the output that is passed in as a parameter to the prop
+                  await handleRecurringEventDeletionCallback(mutated_event);
+                }}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
               </TouchableOpacity>
