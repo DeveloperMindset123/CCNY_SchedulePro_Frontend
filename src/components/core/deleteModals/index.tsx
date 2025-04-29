@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // requires 2 seperate imports
-import { Modal, View, Text, TouchableOpacity, GestureResponderEvent } from 'react-native';
-import { useEffect, useState } from 'react';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import RadioButtonGroup, { RadioButtonItem } from 'expo-radio-button';
 import { CalendarEvent } from '@/app/(root)/(tabs)/(index)/Schedule';
+import VisibleDateProvider from '@howljs/calendar-kit/lib/typescript/context/VisibleDateProvider';
 
 // interface for deleting single event
 interface DeleteSingleEventInterface {
@@ -23,8 +24,6 @@ const DeleteSingleEvent = ({
       <View
         style={{
           flex: 1,
-
-          // to ensure that the modal is located within the middle of the screen
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: 'rgba(0,0,0,0.5)',
@@ -90,21 +89,24 @@ export default DeleteSingleEvent;
 
 interface DeleteRecurringEventsType {
   visible: boolean;
+  setModalVisibillity: any;
   onPressDeleteConfirmation?: any;
   onPressDeleteCancellation?: any;
   buttonStyling: any;
   recurrenceEventStyles: any;
-  list_of_events: CalendarEvent[];
+  list_of_events: CalendarEvent[] | any[];
   handleOnRequestModalClose: any;
   selectedEvent: CalendarEvent;
   handleRadioButtonOnChange: any; // updates test-id of different radio buttons
   handleRecurringEventDeletionCallback: any | undefined; // TODO : prop drilling within ExistingEventModal needed
   currentRadioButton: string;
+  setEventsList: any;
 }
 
 // TODO : implement this
 export const DeleteRecurringEvents = ({
   visible,
+  setModalVisibillity,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPressDeleteConfirmation,
   onPressDeleteCancellation,
@@ -118,6 +120,7 @@ export const DeleteRecurringEvents = ({
   handleRadioButtonOnChange,
   currentRadioButton,
   handleRecurringEventDeletionCallback,
+  setEventsList,
 }: DeleteRecurringEventsType) => {
   // // helper functions to handle different instances of events that needs to be deleted
   const deleteAllEvents = async () => {
@@ -145,8 +148,6 @@ export const DeleteRecurringEvents = ({
    * @event : the event to be deleted, which will be passed in as a parameter
    */
   const deleteSubsequentEvents = async () => {
-    // check if current event happens to be the recurring event
-    // otherwise, it's an original event (in which case we can go ahead and delete all events)
     if (selectedEvent.id.includes('recurring')) {
       const event_id_array = selectedEvent.id.split('_');
       const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
@@ -159,26 +160,31 @@ export const DeleteRecurringEvents = ({
           )
       );
     } else {
+      // NOTE : logical error here potentially
       await deleteAllEvents();
     }
   };
 
   const handleRecurringEventDeletionInternal = async () => {
+    let updated_event: any = [];
     try {
       switch (currentRadioButton) {
         case 'all-event':
-          await deleteAllEvents();
-          console.log('Interval function has been trieggered!');
+          updated_event = await deleteAllEvents();
+          console.log('all-event case function has been trieggered!');
+          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
 
         case 'subsequent':
-          await deleteSubsequentEvents();
-          console.log('Interval function has been trieggered!');
+          updated_event = await deleteSubsequentEvents();
+          console.log('subsequent case function has been trieggered!');
+          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
 
         case 'current':
-          await deleteCurrentEvent();
-          console.log('Interval function has been trieggered!');
+          updated_event = await deleteCurrentEvent();
+          console.log('current case function has been trieggered!');
+          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
         default:
           break;
@@ -187,6 +193,9 @@ export const DeleteRecurringEvents = ({
       console.error('Error : ', error);
       return error;
     }
+
+    // return the updated event at the end
+    return updated_event;
   };
   return (
     <Modal
@@ -198,8 +207,6 @@ export const DeleteRecurringEvents = ({
       <View
         style={{
           flex: 1,
-
-          // to ensure that the modal is located within the middle of the screen
           justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: 'rgba(0,0,0,0.5)',
@@ -208,7 +215,6 @@ export const DeleteRecurringEvents = ({
         <View
           style={{
             width: '65%',
-            // height: '80%',
             backgroundColor: 'white',
             borderRadius: 10,
             padding: 10,
@@ -252,16 +258,7 @@ export const DeleteRecurringEvents = ({
               containerOptionStyle={{ margin: 5 }}
               radioBackground="#3498db"
             >
-              <RadioButtonItem
-                value="all-event"
-                label="All Events"
-                // old handler code logic
-                // onSelected={() => {
-                //   setRadioButtonSelected(true);
-                // }}
-
-                // onSelected={handleOnSelectedRadioButtons}
-              />
+              <RadioButtonItem value="all-event" label="All Events" />
               <RadioButtonItem
                 value="subsequent"
                 // onSelected={() => {
@@ -287,8 +284,6 @@ export const DeleteRecurringEvents = ({
               }}
             >
               <TouchableOpacity
-                // style={[buttonStyling.button, buttonStyling.buttonCancel]}
-                // onPress={onPressDeleteCancellation}
                 style={[
                   recurrenceEventStyles.modifiedButtonStyling,
                   buttonStyling.buttonCancel,
@@ -301,14 +296,6 @@ export const DeleteRecurringEvents = ({
                 <Text style={recurrenceEventStyles.textStyles}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                // style={[
-                //   buttonStyling.button,
-                //   buttonStyling.buttonSave,
-                //   {
-                //     marginRight: 10,
-                //   },
-                // ]}
-                // onPress={onPressDeleteConfirmation}
                 style={[
                   recurrenceEventStyles.modifiedButtonStyling,
                   buttonStyling.buttonSave,
@@ -316,14 +303,17 @@ export const DeleteRecurringEvents = ({
                     marginRight: 10,
                   },
                 ]}
-                // onPress={async () => await handleRecurringEventDeletion()}
-                // onPress={handleRecurringEventDeletion}
                 onPress={async () => {
+                  // passing in
+                  // internal component function
                   const mutated_event = await handleRecurringEventDeletionInternal();
 
-                  // take in a parameter, and then return the update
-                  // mutated_event will be the output that is passed in as a parameter to the prop
-                  await handleRecurringEventDeletionCallback(mutated_event);
+                  // NOTE : mutated event is returning undefined, something wrong with the code logic
+                  console.log('Retrieved mutated event is : ', JSON.stringify(mutated_event));
+                  // upadting the event list after update to the event has been made
+                  setEventsList(mutated_event);
+                  console.log(`Toggling modal visibillity within child component.`);
+                  setModalVisibillity(!visible);
                 }}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>

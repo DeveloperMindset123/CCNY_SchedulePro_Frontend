@@ -100,6 +100,8 @@ interface ExistingEventModal {
     | any;
   listOfEvents: any[];
   currentSelectedRadioButton: string;
+  setListOfEventsSecondChild: any;
+  set_delete_event_modal_recurring: any;
 }
 
 // TODO : requires lots of refactoring, badly written composition code
@@ -130,8 +132,10 @@ const ExistingEventModal = ({
   handleOnPressDeleteCancellation,
   delete_event_modal,
   delete_event_modal_recurring,
+  set_delete_event_modal_recurring,
   handleCloseRecurringDeleteModal,
   listOfEvents,
+  setListOfEventsSecondChild,
   radioButtonChangeHandler, // prop drilling for handleRadioButtonOnChange
 
   currentSelectedRadioButton,
@@ -140,7 +144,8 @@ const ExistingEventModal = ({
 }: ExistingEventModal) => {
   const sample_event_data: string[] = ['This', 'is', 'an', 'array'];
   const handleRecurringEventDeletionCallbackExperimental = async (updatedEventList: any[]) => {
-    console.log('asynchronous Callback function has been triggered');
+    console.log('Retrieved updated event:\n');
+    console.log(updatedEventList);
   };
   return (
     <Modal
@@ -229,8 +234,10 @@ const ExistingEventModal = ({
                 >
                   <AntDesign name="delete" size={20} color="red" />
                   {current_event.isRecurring ? (
+                    // NOTE : child component, passing data from child to parent component back up
                     <DeleteRecurringEvents
                       visible={delete_event_modal_recurring}
+                      setModalVisibillity={set_delete_event_modal_recurring}
                       onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
                       buttonStyling={ButtonStyling}
@@ -239,10 +246,14 @@ const ExistingEventModal = ({
                       handleOnRequestModalClose={handleCloseRecurringDeleteModal}
                       selectedEvent={current_event} // seems repetitive
                       handleRadioButtonOnChange={radioButtonChangeHandler}
-                      handleRecurringEventDeletionCallback={async () =>
-                        await handleRecurringEventDeletionCallbackExperimental(sample_event_data)
-                      }
+                      // TODO : Fix the logic here
+                      // handleRecurringEventDeletionCallback={async () =>
+                      //   // await handleRecurringEventDeletionCallbackExperimental(sample_event_data)
+                      // }
+
+                      handleRecurringEventDeletionCallback={undefined}
                       currentRadioButton={currentSelectedRadioButton}
+                      setEventsList={setListOfEventsSecondChild}
                     />
                   ) : (
                     <DeleteSingleEvent
@@ -1143,8 +1154,9 @@ export default function Schedule() {
   // TODO : fix this implementation
   useEffect(() => {
     // console.log(`List of events : ${syntaxHighlight(JSON.stringify(eventsList))}`);
-    console.log(`List of events : ${JSON.stringify(eventsList)}`);
-  }, [eventsList]);
+    console.log(`Changes to Event List Detected : ${JSON.stringify(eventsList)}`);
+    console.log(`Detected changes to recurrence event modal : ${recurrenceDeleteModal}`);
+  }, [eventsList, recurrenceDeleteModal]);
   return (
     <View
       style={{
@@ -1258,6 +1270,8 @@ export default function Schedule() {
             delete_event_modal={deleteEventModal}
             // handles visibillity of multiple event modal
             delete_event_modal_recurring={recurrenceDeleteModal}
+            // NOTE that theoretically I can just define a reference function that closes the modal as well within the parent component instead (and potentially wrap it around using useCallback to prevent unneccessary re-renders)
+            set_delete_event_modal_recurring={setRecurrenceDeleteModal}
             end_time={endDate}
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
@@ -1368,10 +1382,11 @@ export default function Schedule() {
             }}
             handleCloseRecurringDeleteModal={() => setRecurrenceDeleteModal(false)}
             listOfEvents={eventsList}
+            setListOfEventsSecondChild={setEventList}
             // props for radio button selection
             currentSelectedRadioButton={currentRadioButton}
             radioButtonChangeHandler={handleRadioButtonOnChange}
-            radioButtonSelectorhandler={radioButtonSelectorUpdate}
+            // radioButtonSelectorhandler={radioButtonSelectorUpdate as any}
           />
         )}
         <CalendarHeader dayBarHeight={60} />
