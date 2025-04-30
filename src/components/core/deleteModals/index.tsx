@@ -90,6 +90,7 @@ export default DeleteSingleEvent;
 interface DeleteRecurringEventsType {
   visible: boolean;
   setModalVisibillity: any;
+  setEventsLists: any;
   onPressDeleteConfirmation?: any;
   onPressDeleteCancellation?: any;
   buttonStyling: any;
@@ -97,8 +98,10 @@ interface DeleteRecurringEventsType {
   list_of_events: CalendarEvent[] | any[];
   handleOnRequestModalClose: any;
   selectedEvent: CalendarEvent;
-  handleRadioButtonOnChange: any; // updates test-id of different radio buttons
-  handleRecurringEventDeletionCallback: any | undefined; // TODO : prop drilling within ExistingEventModal needed
+  handleRadioButtonOnChange: any;
+
+  // TODO : prop drilling within ExistingEventModal needed
+  handleRecurringEventDeletionCallback: any | undefined;
   currentRadioButton: string;
   setEventsList: any;
 }
@@ -107,6 +110,7 @@ interface DeleteRecurringEventsType {
 export const DeleteRecurringEvents = ({
   visible,
   setModalVisibillity,
+  setEventsLists,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPressDeleteConfirmation,
   onPressDeleteCancellation,
@@ -122,36 +126,26 @@ export const DeleteRecurringEvents = ({
   handleRecurringEventDeletionCallback,
   setEventsList,
 }: DeleteRecurringEventsType) => {
-  // // helper functions to handle different instances of events that needs to be deleted
-  const deleteAllEvents = async () => {
-    // const parentEventID = eventToDelete.id;
-    // NOTE the negation operator within the filter predicate
+  const deleteAllEvents = () => {
     // TODO : the logic for this isn't entirely correct, needs to be fixed
     if (selectedEvent.id.includes('recurring')) {
       const parentEventID = selectedEvent.parentEventId;
-      return await list_of_events.filter(
-        (currentEvent) => !currentEvent.id.includes(parentEventID)
-      );
+      return list_of_events.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
     }
 
-    // otherwise, if it happens to be an original event itself rather than recurring one
     return list_of_events.filter((currentEvent) => !currentEvent.id.includes(selectedEvent.id));
   };
 
-  // remove params, replace with the id corresponding to the event itself
   const deleteCurrentEvent = async () => {
     return await list_of_events.filter((event) => event.id !== selectedEvent.id);
   };
 
-  /**
-   * @listOfEvents : the array of objects containing information about the events themselves.
-   * @event : the event to be deleted, which will be passed in as a parameter
-   */
   const deleteSubsequentEvents = async () => {
+    console.log(`Selected Event : ${JSON.stringify(selectedEvent)}`);
     if (selectedEvent.id.includes('recurring')) {
       const event_id_array = selectedEvent.id.split('_');
       const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
-      return list_of_events.filter(
+      const filtered_events = list_of_events.filter(
         (currentEvent) =>
           !(
             currentEvent.id.includes(selectedEvent.parentEventId) &&
@@ -159,43 +153,43 @@ export const DeleteRecurringEvents = ({
               recurrence_unit
           )
       );
+      console.log(`Data from filtered events : ${JSON.stringify(filtered_events)}`);
+      return filtered_events;
     } else {
-      // NOTE : logical error here potentially
-      await deleteAllEvents();
+      return await deleteAllEvents();
     }
   };
 
   const handleRecurringEventDeletionInternal = async () => {
-    let updated_event: any = [];
+    let updated_event_list: any = [];
     try {
       switch (currentRadioButton) {
         case 'all-event':
-          updated_event = await deleteAllEvents();
+          updated_event_list = await deleteAllEvents();
           console.log('all-event case function has been trieggered!');
-          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
 
         case 'subsequent':
-          updated_event = await deleteSubsequentEvents();
+          updated_event_list = await deleteSubsequentEvents();
           console.log('subsequent case function has been trieggered!');
-          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
 
         case 'current':
-          updated_event = await deleteCurrentEvent();
+          updated_event_list = await deleteCurrentEvent();
           console.log('current case function has been trieggered!');
-          console.log(`Updated Event Data : ${JSON.stringify(updated_event)}`);
           break;
         default:
           break;
       }
+
+      console.info(`Updated list of events : ${updated_event_list}`);
+      setEventsList(updated_event_list);
+      setModalVisibillity(!visible);
     } catch (error) {
       console.error('Error : ', error);
       return error;
     }
-
-    // return the updated event at the end
-    return updated_event;
+    return updated_event_list;
   };
   return (
     <Modal
@@ -303,18 +297,15 @@ export const DeleteRecurringEvents = ({
                     marginRight: 10,
                   },
                 ]}
-                onPress={async () => {
-                  // passing in
-                  // internal component function
-                  const mutated_event = await handleRecurringEventDeletionInternal();
+                // onPress={() => {
+                //   // const mutated_event = handleRecurringEventDeletionInternal();
+                //   // console.log('Retrieved mutated event is : ', JSON.stringify(mutated_event));
+                //   // setEventsList(mutated_event);
+                //   // console.log(`Toggling modal visibillity within child component.`);
+                //   // setModalVisibillity(!visible);
 
-                  // NOTE : mutated event is returning undefined, something wrong with the code logic
-                  console.log('Retrieved mutated event is : ', JSON.stringify(mutated_event));
-                  // upadting the event list after update to the event has been made
-                  setEventsList(mutated_event);
-                  console.log(`Toggling modal visibillity within child component.`);
-                  setModalVisibillity(!visible);
-                }}
+                // }}
+                onPress={handleRecurringEventDeletionInternal}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
               </TouchableOpacity>

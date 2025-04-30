@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// TODO : use react-native async storage instead to analyze the data
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import {
   View,
@@ -10,10 +8,8 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  // this is a wrapper around the modal, will ensure that modal is closed when the external area has been pressed
   TouchableWithoutFeedback,
   Platform,
-  Button,
   NativeSyntheticEvent,
   ActivityIndicator,
 } from 'react-native';
@@ -21,12 +17,9 @@ import {
   CalendarBody,
   CalendarContainer,
   CalendarHeader,
-  DraggingEvent,
-  DraggingEventProps,
   PackedEvent,
   LocaleConfigsProps,
   CalendarKitHandle,
-  EventItem,
 } from '@howljs/calendar-kit';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { Ionicon } from '@/components/core/icon';
@@ -38,7 +31,6 @@ import CalendarModeSwitcher, {
 import CalendarNavigation from '@/components/core/calendarNavigation';
 import { useLocalSearchParams } from 'expo-router';
 import DeleteSingleEvent, { DeleteRecurringEvents } from '@/components/core/deleteModals';
-import { Delete } from 'lucide-react-native';
 
 // TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
 // TODO : add an interface referencing the event useState hook
@@ -51,28 +43,23 @@ export interface CalendarEvent {
   color: string;
   location: string;
   isRecurring: boolean;
-  recurrence_frequency: any | string | undefined; // not entirely sure of the type
+  recurrence_frequency: any | string | undefined;
   isRecurringInstance?: boolean;
   parentEventId?: string | any;
 }
-// experiment with the extension logic alongside a seperate independent interface to see which raises errors
 
 interface ExistingEventModal {
-  // input data for the current event related information the modal should render
   current_event: any;
-
-  // useState variables that determines whether modal should be displayed or not
+  setEventListUseStateSetter: any;
   visibillity_state: boolean;
   delete_event_modal: boolean;
   delete_event_modal_recurring: boolean;
   isEditable: boolean;
   onRequestClose: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
   onRequestDelete: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-
   start_time: any;
   end_time: any;
   onRequestEdit: ((event: NativeSyntheticEvent<any>) => void) | undefined | any;
-
   handleOnChangeTitle: any;
   handleOnChangeDescription: any;
   handleOnChangeStart: any;
@@ -82,7 +69,6 @@ interface ExistingEventModal {
   handleDropdownFunction: any;
   renderDropdownItem: any;
   radioButtonChangeHandler: (() => void) | any;
-
   handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleCancelEditedEvent: any;
@@ -108,6 +94,7 @@ interface ExistingEventModal {
 // TODO : see how you can replace prop drilling with context since there are quite a few repetitive props
 const ExistingEventModal = ({
   current_event,
+  setEventListUseStateSetter,
   visibillity_state,
   onRequestClose,
   isEditable,
@@ -126,8 +113,6 @@ const ExistingEventModal = ({
   handleCancelEditedEvent,
   start_time,
   end_time,
-
-  // additional props to handle the confirmation/deletion of a particular event
   handleOnPressDeleteConfirmation,
   handleOnPressDeleteCancellation,
   delete_event_modal,
@@ -136,17 +121,9 @@ const ExistingEventModal = ({
   handleCloseRecurringDeleteModal,
   listOfEvents,
   setListOfEventsSecondChild,
-  radioButtonChangeHandler, // prop drilling for handleRadioButtonOnChange
-
+  radioButtonChangeHandler,
   currentSelectedRadioButton,
-
-  // this will handle the closing of the modal after recurring events have been chosen to be deleted or saved.
 }: ExistingEventModal) => {
-  const sample_event_data: string[] = ['This', 'is', 'an', 'array'];
-  const handleRecurringEventDeletionCallbackExperimental = async (updatedEventList: any[]) => {
-    console.log('Retrieved updated event:\n');
-    console.log(updatedEventList);
-  };
   return (
     <Modal
       animationType="slide"
@@ -156,7 +133,6 @@ const ExistingEventModal = ({
     >
       <TouchableWithoutFeedback>
         <View
-          // styling for modalView (reused)
           style={{
             flex: 1,
             justifyContent: 'center',
@@ -190,16 +166,12 @@ const ExistingEventModal = ({
               }}
             >
               <Text
-                // TODO : continue implementation logic here
                 style={{
                   fontSize: 18,
                   fontWeight: 'bold',
                   marginBottom: 15,
                   textAlign: 'center',
                   color: '#333',
-
-                  // conditional rendering of fonts
-                  // the fonts are quite generic
                   fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
                 }}
               >
@@ -210,33 +182,23 @@ const ExistingEventModal = ({
                   position: 'absolute',
                   right: 0,
                   top: -2,
-                  flexDirection: 'row', // so that 2 items can be placed side by side
+                  flexDirection: 'row',
                 }}
               >
                 <TouchableOpacity
                   style={{
                     marginRight: 15,
                   }}
-                  // this should simply result in !isEditable (although a function that asynchronous changes the isEditable value to true would be ideal)
-                  onPress={onRequestEdit} // we simply want isEditable state to be set to true if this button is pressed
+                  onPress={onRequestEdit}
                 >
-                  {/** Change it such that instead of delete icon, there's instead edit icon available */}
                   <AntDesign name="edit" size={20} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={
-                    {
-                      // marginRight: 15,
-                    }
-                  }
-                  // triggers the corresponding conditional rendering of non-recurring and recurring modals that needs to be deleted
-                  onPress={onRequestDelete}
-                >
+                <TouchableOpacity onPress={onRequestDelete}>
                   <AntDesign name="delete" size={20} color="red" />
                   {current_event.isRecurring ? (
-                    // NOTE : child component, passing data from child to parent component back up
                     <DeleteRecurringEvents
                       visible={delete_event_modal_recurring}
+                      setEventsLists={setEventListUseStateSetter}
                       setModalVisibillity={set_delete_event_modal_recurring}
                       onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
@@ -244,20 +206,14 @@ const ExistingEventModal = ({
                       recurrenceEventStyles={recurrenceEventStyling}
                       list_of_events={listOfEvents}
                       handleOnRequestModalClose={handleCloseRecurringDeleteModal}
-                      selectedEvent={current_event} // seems repetitive
+                      selectedEvent={current_event}
                       handleRadioButtonOnChange={radioButtonChangeHandler}
-                      // TODO : Fix the logic here
-                      // handleRecurringEventDeletionCallback={async () =>
-                      //   // await handleRecurringEventDeletionCallbackExperimental(sample_event_data)
-                      // }
-
                       handleRecurringEventDeletionCallback={undefined}
                       currentRadioButton={currentSelectedRadioButton}
                       setEventsList={setListOfEventsSecondChild}
                     />
                   ) : (
                     <DeleteSingleEvent
-                      // Important NOTE : delete_event_modal (prop for single event, and should only display the modal with specific content.)
                       visibillity={delete_event_modal}
                       onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
@@ -286,17 +242,14 @@ const ExistingEventModal = ({
               <TextInput
                 editable={isEditable}
                 style={{
-                  borderWidth: 1, // forms a square outline surrounding the text input
-                  borderColor: '#ddd', // determines the color of the outline
-                  borderRadius: 5, // determines the curvature of the edges around the squares
-                  padding: 10, // determines how much extra space should be added to push out the borders
-                  fontSize: 14, // determines how large the text should appear within the input box
-
-                  // gray out is isEditable is set to false
+                  borderWidth: 1,
+                  borderColor: '#ddd',
+                  borderRadius: 5,
+                  padding: 10,
+                  fontSize: 14,
                   backgroundColor: isEditable ? '#ffffff' : '#f5f5f5',
                   color: isEditable ? '#000000' : '#888888',
                   shadowOffset: { width: 10, height: 10 },
-                  // shadowRadius: 20,
                 }}
                 value={current_event.title || ''}
                 onChangeText={handleOnChangeTitle}
@@ -329,10 +282,6 @@ const ExistingEventModal = ({
                   height: 80,
                   textAlignVertical: 'bottom',
                 }}
-                // placeholder='Should not be neccessary'
-
-                // current_event prop should contain a property
-                // named description
                 editable={isEditable}
                 value={current_event.description}
                 onChangeText={handleOnChangeDescription}
@@ -362,22 +311,17 @@ const ExistingEventModal = ({
                   Start:
                 </Text>
                 <DateTimePicker
-                  // should only be editable if the edit icon has been pressed
                   testID="dateTimePicker"
                   disabled={isEditable ? false : true}
-                  // NOTE : not entirely sure if this would work
                   value={start_time}
-                  // value={startDate}
-                  // conditionally renders mode based on platform, setMode isn't being used
                   mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                   is24Hour={true}
-                  onChange={handleOnChangeStart} // another prop to handle update in time
+                  onChange={handleOnChangeStart}
                 />
               </View>
               <View
                 style={{
                   flexDirection: 'row',
-                  // padding: -10,
                   marginTop: 10,
                 }}
               >
@@ -394,13 +338,10 @@ const ExistingEventModal = ({
                 <DateTimePicker
                   testID="dateTimePicker"
                   disabled={isEditable ? false : true}
-                  // NOTE : not entirely sure if this would work
                   value={end_time}
-                  // value={startDate}
-                  // conditionally renders mode based on platform, setMode isn't being used
                   mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
                   is24Hour={true}
-                  onChange={handleOnChangeEnd} // another prop to handle update in time
+                  onChange={handleOnChangeEnd}
                 />
               </View>
             </View>
@@ -428,9 +369,6 @@ const ExistingEventModal = ({
                 </Text>
 
                 <TouchableOpacity
-                  // checkbox styling
-                  // the checkboxChecked styling should only render
-                  // if isRecurring is set to true
                   style={[
                     checkboxStyling.checkbox,
                     current_event.isRecurring && checkboxStyling.checkboxChecked,
@@ -469,7 +407,7 @@ const ExistingEventModal = ({
                   )}
                   // TODO : implement the appropriate reference function here
                   renderItem={renderDropdownItem}
-                  dropdownPosition="top" // to prevent content from going outside of screen
+                  dropdownPosition="top"
                 />
               )}
             </View>
@@ -484,7 +422,6 @@ const ExistingEventModal = ({
                       { backgroundColor: color },
                       current_event.color === color && eventColorStyling.selectedColor,
                     ]}
-                    // onFocus={}
                     onPress={handleChangeEventColor}
                   />
                 ))}
@@ -610,6 +547,7 @@ export default function Schedule() {
 
   // reference to determine currently selected radio button
   const handleRadioButtonOnChange = (value: string) => {
+    console.log(`Selected radio button : ${value}`);
     setCurrentRadioButton(value);
   };
 
@@ -1035,10 +973,6 @@ export default function Schedule() {
     }
 
     const uniqueId = `event_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    // replaced with string based value for easier identification
-    // const random_generated_id = Math.floor(Math.random() * 100 + 1);
-    // console.log(random_generated_id);
-
     // check if the newly generated id happens to exist within the current event list
     // TODO : Handle issue regarding existence of potential duplicate generated events as well
     const id_existence = eventsList.findIndex(
@@ -1051,22 +985,13 @@ export default function Schedule() {
     };
 
     let eventsToAdd = [];
-
-    // if user wants an event to be recurring based on a specific selected frequency
     if (newEvent.isRecurring && newEvent.recurrence_frequency) {
-      eventsToAdd = calculateRecurringEvents(newEvent); // append recurring events to eventsList
+      eventsToAdd = calculateRecurringEvents(newEvent);
     } else {
-      // otherwise, simply add a single instance copy of the particular event
       eventsToAdd = [newEvent];
     }
-
-    // double spread opearator
-    // since eventsToAdd can be more than one depending on recurrence frequency
     setEventList([...eventsList, ...eventsToAdd]);
     setNewEventModal(false);
-
-    // reset current state data so we don't have to worry about it later
-    // NOTE : this would replace the logic for the handleCreateNewEvent function
     setCurrentEventData({
       id: -1,
       title: '',
@@ -1117,27 +1042,29 @@ export default function Schedule() {
     );
   };
 
-  // useCallback hook is being used as a wrapper around this reference function
-  // simple logic for handling recurring ev
+  // set regardless
   const handlePressEvent = useCallback(
     (event: CalendarEvent | any) => {
       // NOTE : the properties isRecurringInstance and parentEventId comes from the calculateRecurringEvents function
       // refer to the defintition of calculateRecurringEvents definition for reference
-      if (event.isRecurringInstance && event.parentEventId) {
-        // parentEvent : simply the original event set to be recurring
-        const parentEvent = eventsList.find((e: CalendarEvent) => e.id === event.parentEventId);
+      // if (event.isRecurringInstance && event.parentEventId) {
+      //   // parentEvent : simply the original event set to be recurring
 
-        if (parentEvent) {
-          setSelectedEvent(parentEvent);
-        } else {
-          setSelectedEvent(event); // otherwise, the original event should be set to selected
-        }
-      } else {
-        // TODO : this seems somewhat repetitive, find a fix for this
-        setSelectedEvent(event);
-      }
-      // TODO : delete this statement, this is just to check if the event update is working as intended
-      // setSelectedEvent(event);
+      //
+      //   // const parentEvent = eventsList.find((e: CalendarEvent) => e.id === event.parentEventId);
+
+      //   // if (parentEvent) {
+      //   //   setSelectedEvent(parentEvent);
+      //   // } else {
+      //   //   setSelectedEvent(event);
+      //   // }
+
+      // } else {
+      //   // TODO : this seems somewhat repetitive, find a fix for this
+      //   setSelectedEvent(event);
+      // }
+      // console.log(`Selected Event : ${JSON.stringify(event)}`);
+      setSelectedEvent(event);
       setShowExistingEventModal(true);
     },
     [eventsList]
@@ -1149,14 +1076,14 @@ export default function Schedule() {
     events_data: eventsList,
   };
 
-  // console.log('Events Payload Data Retrieved : ', events_payload);
-
-  // TODO : fix this implementation
   useEffect(() => {
-    // console.log(`List of events : ${syntaxHighlight(JSON.stringify(eventsList))}`);
-    console.log(`Changes to Event List Detected : ${JSON.stringify(eventsList)}`);
-    console.log(`Detected changes to recurrence event modal : ${recurrenceDeleteModal}`);
-  }, [eventsList, recurrenceDeleteModal]);
+    console.log(`Selected Event : ${JSON.stringify(selectedEvent)}`);
+  });
+  // useEffect(() => {
+  //   console.log('Detected changes to event lists.');
+  //   console.log(eventsList);
+  // }, [eventsList]);
+
   return (
     <View
       style={{
@@ -1185,26 +1112,24 @@ export default function Schedule() {
         // TODO : convert this into tailwindcss based styling for uniformity
         // the css here ensures that the button is positioned within the bottom right portion of the screen
         style={{
-          position: 'absolute', // ensures that the element is positioned exactly where it has been specified
-          bottom: 10, // ensures that elements are placed on the bottom right portion of the screen
-          right: 10, // ensures that elements are positioned at the right hand side of the screen
-          zIndex: 1000, // determines the ordering of the elements toward which they should appear
-          backgroundColor: '#3498db', // skyblue hexademical code
-          borderRadius: 20, // creates a circular outline of the background color
+          position: 'absolute',
+          bottom: 10,
+          right: 10,
+          zIndex: 1000,
+          backgroundColor: '#3498db',
+          borderRadius: 20,
           width: 40,
           height: 40,
-          justifyContent: 'center', // ensures that the background and the content is aligned within the center
+          justifyContent: 'center',
           alignItems: 'center',
           shadowColor: '#000',
-
-          // responsible for setting the drop shadow offset (native to IOS)
           shadowOffset: {
             width: 0,
             height: 2,
           },
-          shadowOpacity: 0.3, // determines the visibillity of the shadow to be rendered
-          shadowRadius: 3, // sets the drop shadow blur radius
-          elevation: 5, // sets the elevation of android
+          shadowOpacity: 0.3,
+          shadowRadius: 3,
+          elevation: 5,
         }}
         // TODO : this requires some additioanl modifications
         onPress={handleCreateNewEvent}
@@ -1220,36 +1145,19 @@ export default function Schedule() {
         minDate="2025-01-01"
         maxDate="2026-12-31"
         // initialDate={new Date().toISOString().split('T')[0]}
-
-        // this essentially represents the "current date", don't be confused by the prop name
         initialDate={currentCalendarDate.split('T')[0]}
-        numberOfDays={numberOfDays} // changed from 3 (static value)
-        // scrollByDay={numberOfDays <= 4} // should only hold true for smaller values
+        numberOfDays={numberOfDays}
         scrollByDay={true}
         events={eventsList}
-        overlapType="overlap" // events should overlap, similar to google calendar
-        rightEdgeSpacing={1} // supporting prop related to event overlappping
-        // defines the minimum start time difference in minutes for events to be considered overlapping
+        overlapType="overlap"
+        rightEdgeSpacing={1}
         minStartDifference={15}
-        // to prevent unneccessary re-renders
-        // the event handler function will be memoized using useCallback hook
-        // refer to the function definition
         onPressEvent={handlePressEvent}
         ref={calendarRef}
       >
         {showExistingEventModal && (
-          // TODO : fix the issue with text input not working and changing the current functions into reusable reference functions
           <ExistingEventModal
-            // minor modification needed to determine whether to close single deletion modal
-            // or recurring modal
             handleOnPressDeleteCancellation={() => {
-              // if (selectedEvent.isRecurring) {
-              //   setRecurrenceDeleteModal(false);
-              // } else {
-              //   setDeleteEventModal(false);
-              // }
-
-              // same thing
               selectedEvent.isRecurring
                 ? setRecurrenceDeleteModal(false)
                 : setDeleteEventModal(false);
@@ -1275,6 +1183,7 @@ export default function Schedule() {
             end_time={endDate}
             start_time={startDate} // pass in the start and end date for the date time picker
             current_event={selectedEvent}
+            setEventListUseStateSetter={setEventList}
             visibillity_state={showExistingEventModal}
             onRequestClose={() => setShowExistingEventModal(false)}
             isEditable={isModalEditable}
@@ -1288,14 +1197,8 @@ export default function Schedule() {
                   ...prev,
                   title: newUserInputTitle,
                 }));
-
-                // this wouldn't work due to asynchronous nature of the code
-                // setSelectedEvent(currentEventData);
               }
             }}
-            // TODO : change to a reference function for reusabillity
-            // TODO : fix this, the incorrect state is being updated here
-            // change from setCurrentEventData -> setSelectedEvent(prev => ...prev, { title : newUserInputTitle}) instead
             handleOnChangeDescription={(newUserInputDescription: any) => {
               if (isModalEditable) {
                 setSelectedEvent((prevData: CalendarEvent) => ({
