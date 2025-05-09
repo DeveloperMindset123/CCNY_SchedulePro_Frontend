@@ -10,21 +10,6 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRoute } from '@react-navigation/native';
 
-// this is not being used, since it doesn't render the content as intended
-// import { Select, SelectProvider } from '@mobile-reality/react-native-select-pro';
-/**
- * @TODO_1 : wrap the textInput components around a map component as before as well
- * @TODO_2 :
- * @input1 First name --> basic input box should suffice
- * @input2 last Name --> basic input box should suffice
- * @NOTE First and last name should be in row-format
- * @CollegeYear Can use a slider for this
- * @DOB --> can use a calendar based view for this
- * @Pronouns --> can use a dropdown for this
- * @see https://react.dev/learn/conditional-rendering --> to better understand how conditional rendering works based on react-documentation
- * @see https://www.npmjs.com/package/@react-native-community/datetimepicker/v/5.0.0 --> react-community-datetimepicker docs
- */
-
 const OnboardingScreen3: React.FC = () => {
   // define all the relevant useState hooks
   const [firstName, setFirstName] = useState<string>('');
@@ -104,33 +89,6 @@ const OnboardingScreen3: React.FC = () => {
     return null;
   };
 
-  // const collectedData = {
-  //   firstName: firstName,
-  //   lastName: lastName,
-  //   studentYear: studentYear,
-  //   DOB: dateOfBirth,
-  //   pronouns: currentPronounDropdownValue,
-  //   Gender: currentGenderDropdownValue,
-  //   // TODO : add more fields as needed
-  //   // TODO : this is the data that will be sent when API call is made
-  //   // ** @see https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-  //   // above link will help better explain how the POSt method for APi works
-  // };
-
-  // rust struct reference, the payload here should match
-  //   pub struct NewUser<'a> {
-  //     pub first_name : &'a str,
-  //     pub last_name : &'a str,
-  //     pub email : &'a str,
-  //     pub user_password : &'a str,
-  //     pub major : &'a str,
-  //     pub date_of_birth : &'a str,
-  //     pub pronouns : &'a str,
-  //     pub gender : &'a str,
-  //     pub degree_type : &'a str,
-  //     pub college_year : &'a str
-  // }
-
   interface payload_type {
     first_name: string;
     last_name: string;
@@ -158,9 +116,6 @@ const OnboardingScreen3: React.FC = () => {
     college_year: studentYear.toString(), // proper conversion logic to string type
   };
 
-  console.log(`Payload data : ${JSON.stringify(payload)}`);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // upon clicking proceed at this point, all the information collected from the user should be passed.
   const sendRegistrationData = async () => {
     try {

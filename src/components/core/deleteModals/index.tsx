@@ -91,7 +91,6 @@ interface DeleteRecurringEventsType {
   visible: boolean;
   setModalVisibillity: any;
   setEventsLists: any;
-  onPressDeleteConfirmation?: any;
   onPressDeleteCancellation?: any;
   buttonStyling: any;
   recurrenceEventStyles: any;
@@ -104,6 +103,7 @@ interface DeleteRecurringEventsType {
   handleRecurringEventDeletionCallback: any | undefined;
   currentRadioButton: string;
   setEventsList: any;
+  handleOnPressEventDeletionCallback: any;
 }
 
 // TODO : implement this
@@ -111,19 +111,16 @@ export const DeleteRecurringEvents = ({
   visible,
   setModalVisibillity,
   setEventsLists,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onPressDeleteConfirmation,
   onPressDeleteCancellation,
   buttonStyling,
   recurrenceEventStyles,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   list_of_events,
   handleOnRequestModalClose,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   selectedEvent,
   handleRadioButtonOnChange,
   currentRadioButton,
-  handleRecurringEventDeletionCallback,
+  // handleRecurringEventDeletionCallback,
+  handleOnPressEventDeletionCallback,
   setEventsList,
 }: DeleteRecurringEventsType) => {
   const deleteAllEvents = () => {
@@ -149,7 +146,7 @@ export const DeleteRecurringEvents = ({
         (currentEvent) =>
           !(
             currentEvent.id.includes(selectedEvent.parentEventId) &&
-            parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >
+            parseInt(currentEvent.id.split('_')[currentEvent.id.split('_').length - 1]) >=
               recurrence_unit
           )
       );
@@ -184,7 +181,7 @@ export const DeleteRecurringEvents = ({
 
       console.info(`Updated list of events : ${updated_event_list}`);
       setEventsList(updated_event_list);
-      setModalVisibillity(!visible);
+      // setModalVisibillity(!visible);
     } catch (error) {
       console.error('Error : ', error);
       return error;
@@ -305,7 +302,8 @@ export const DeleteRecurringEvents = ({
                 //   // setModalVisibillity(!visible);
 
                 // }}
-                onPress={handleRecurringEventDeletionInternal}
+                onPressIn={handleRecurringEventDeletionInternal}
+                onPressOut={handleOnPressEventDeletionCallback}
               >
                 <Text style={recurrenceEventStyles.textStyles}>Ok</Text>
               </TouchableOpacity>

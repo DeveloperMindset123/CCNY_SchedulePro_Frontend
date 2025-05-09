@@ -72,7 +72,7 @@ interface ExistingEventModal {
   handleChangeEventColor: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleSaveEditedEvent: ((event: NativeSyntheticEvent<CalendarEvent>) => void) | undefined | any;
   handleCancelEditedEvent: any;
-  handleOnPressDeleteConfirmation:
+  handleOnPressDeleteConfirmationSingleEvent:
     | ((event: NativeSyntheticEvent<CalendarEvent>) => void)
     | undefined
     | any;
@@ -88,6 +88,7 @@ interface ExistingEventModal {
   currentSelectedRadioButton: string;
   setListOfEventsSecondChild: any;
   set_delete_event_modal_recurring: any;
+  handleOnPressRecurringDeletionCallback: any;
 }
 
 // TODO : requires lots of refactoring, badly written composition code
@@ -113,7 +114,7 @@ const ExistingEventModal = ({
   handleCancelEditedEvent,
   start_time,
   end_time,
-  handleOnPressDeleteConfirmation,
+  handleOnPressDeleteConfirmationSingleEvent,
   handleOnPressDeleteCancellation,
   delete_event_modal,
   delete_event_modal_recurring,
@@ -123,6 +124,7 @@ const ExistingEventModal = ({
   setListOfEventsSecondChild,
   radioButtonChangeHandler,
   currentSelectedRadioButton,
+  handleOnPressRecurringDeletionCallback,
 }: ExistingEventModal) => {
   return (
     <Modal
@@ -200,7 +202,6 @@ const ExistingEventModal = ({
                       visible={delete_event_modal_recurring}
                       setEventsLists={setEventListUseStateSetter}
                       setModalVisibillity={set_delete_event_modal_recurring}
-                      onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
                       buttonStyling={ButtonStyling}
                       recurrenceEventStyles={recurrenceEventStyling}
@@ -211,11 +212,12 @@ const ExistingEventModal = ({
                       handleRecurringEventDeletionCallback={undefined}
                       currentRadioButton={currentSelectedRadioButton}
                       setEventsList={setListOfEventsSecondChild}
+                      handleOnPressEventDeletionCallback={handleOnPressRecurringDeletionCallback}
                     />
                   ) : (
                     <DeleteSingleEvent
                       visibillity={delete_event_modal}
-                      onPressDeleteConfirmation={handleOnPressDeleteConfirmation}
+                      onPressDeleteConfirmation={handleOnPressDeleteConfirmationSingleEvent}
                       onPressDeleteCancellation={handleOnPressDeleteCancellation}
                       buttonStyling={ButtonStyling}
                     />
@@ -399,13 +401,11 @@ const ExistingEventModal = ({
                   valueField="value"
                   placeholder={current_event.recurrence_frequency || 'Select item'}
                   searchPlaceholder="Search..."
-                  // this should come from the recurrence_frequency specified
                   value={current_event.recurrence_frequency}
                   onChange={handleDropdownFunction}
                   renderLeftIcon={() => (
                     <AntDesign style={dropdownStyles.icon} color="black" name="Safety" size={20} />
                   )}
-                  // TODO : implement the appropriate reference function here
                   renderItem={renderDropdownItem}
                   dropdownPosition="top"
                 />
@@ -455,46 +455,9 @@ const ExistingEventModal = ({
 };
 
 export default function Schedule() {
-  // function to improve json syntax highlighting for debugging purpose
-  // copied from stack overflow
-  // function not being used anymore
-  function _syntaxHighlight(json: any) {
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(
-      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-      function (match: any) {
-        let cls = 'number';
-        if (/^"/.test(match)) {
-          if (/:$/.test(match)) {
-            cls = 'key';
-          } else {
-            cls = 'string';
-          }
-        } else if (/true|false/.test(match)) {
-          cls = 'boolean';
-        } else if (/null/.test(match)) {
-          cls = 'null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-      }
-    );
-  }
-
-  // relevant functions to handle deletion of events
-  /**
-   * @listOfEvents : the array of objects containing information about the events themselves.
-   * @event : the event to be deleted, which will be passed in as a parameter
-   */
-
-  // useState hook to keep track of which radio button has been selected
   const [currentRadioButton, setCurrentRadioButton] = useState('all-event');
   const [radioButtonSelected, setRadioButtonSelected] = useState(false);
-
-  // // helper functions to handle different instances of events that needs to be deleted
   const deleteAllEvents = async (originalEvent: any[], eventToDelete: any) => {
-    // const parentEventID = eventToDelete.id;
-    // NOTE the negation operator within the filter predicate
-    // TODO : the logic for this isn't entirely correct, needs to be fixed
     if (eventToDelete.id.includes('recurring')) {
       const parentEventID = eventToDelete.parentId;
       return await originalEvent.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
@@ -508,8 +471,6 @@ export default function Schedule() {
     return await listOfEvents.filter((event) => event.id !== eventToDelete.id);
   };
   const deleteSubsequentEvents = async (listOfEvents: any[], event: any) => {
-    // check if current event happens to be the recurring event
-    // otherwise, it's an original event (in which case we can go ahead and delete all events)
     if (event.id.includes('recurring')) {
       const event_id_array = event.id.split('_');
       const recurrence_unit = parseInt(event_id_array[event_id_array.length - 1]);
@@ -528,9 +489,6 @@ export default function Schedule() {
   // TODO : needs wrapped around a function
   const handleRecurringEventDeletion = async () => {
     switch (currentRadioButton) {
-      // this means user wants to delete all subsequent events
-      // invoke the function to delete all the events corresponding to the id
-      // all three function variation will
       case 'all-event':
         await deleteAllEvents(eventsList, selectedEvent);
         break;
@@ -556,6 +514,7 @@ export default function Schedule() {
     setRadioButtonSelected(true);
   };
   const route_params = useLocalSearchParams();
+  const mutatedEventID = useRef('');
 
   // extract email (for payload)
   const { email } = route_params;
@@ -937,28 +896,9 @@ export default function Schedule() {
     isRecurring: false, // TODO : determine appropriate calculation logic for recurring events
     recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
   });
-
-  // TODO : check if this needs to be used in the first place, otherwise, remove as part of cleanup
-  const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
-
-  // TODO : Reference to this useState hook --> this array should be updated in the following conditions:
-  // 1. once a new event has been created (meaning the save button within the modal has been clicked)
-  // 2. once an existing event has been modified (a seperate modal will be used for this)
-  // 3. once an event has been deleted (the same modal that has been used for editing an event can be reused)
+  // const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
   const [eventsList, setEventList] = useState<any>([]);
-
-  // define the function for saving newly created event
-  // assign a new random id for the current event
-  // this function handles determining and assigning a new unique id to a calendar event
-  // due to the asynchronous nature of state updates, it is ideal to only update one state at a time.
   const handleCreateSaveNewEvent = useCallback(async () => {
-    // implement logic for handling empty user input
-    // for title and time (description for event should be optional)
-    /**
-     * @param {Alert} defintiion
-     * @param {title} - Missing Information (represents the title of this particular alert in the event that title input is empty)
-     * @param {message} - Corresponding message to be rendered in accordance to the particular alert
-     */
     if (!currentEventData.title) {
       Alert.alert('Missing Information', 'Please select title for your event.');
       return;
@@ -973,8 +913,6 @@ export default function Schedule() {
     }
 
     const uniqueId = `event_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-    // check if the newly generated id happens to exist within the current event list
-    // TODO : Handle issue regarding existence of potential duplicate generated events as well
     const id_existence = eventsList.findIndex(
       (current_event: any) => current_event.id === uniqueId
     );
@@ -1003,20 +941,15 @@ export default function Schedule() {
       isRecurring: false,
       recurrence_frequency: null,
     });
+
+    return await sendEventData({
+      email : email,
+      event_id : mutatedEventID,
+      events_data : eventsList
+    })
   }, [currentEventData, calculateRecurringEvents, eventsList]);
 
-  // TODO : event object should also contain a description tag (alongside location, start, end and whether or not it's a recurring event, which if set to true, should have a dropdown pop up specifying how often this event ought to be recurring.)
-  // TODO : the classes should automatically be added to the schedule (although that's something to consider later) but this should be an unique standout feature of it's own
-  // define the function that will handle the creation of new events
-  // note that the modal for this should be different from the existing event modal
-  // NOTE : it would be more appropriate to call this functon "renderNewEventModal"
-
-  // TLDR : this function gets triggered when the "+" icon gets selected
   const handleCreateNewEvent = () => {
-    // for now the only behavior we want is for the useState hook variable
-    // when this modal view is set to true, the modal will be displayed
-    // reset all the previous relevant data (so that the modal doesn't render old data that was previously entered by user)
-    // TODO : issue with DRY, fix this
     setCurrentEventData({
       id: -1,
       title: '',
@@ -1071,18 +1004,44 @@ export default function Schedule() {
   );
 
   // prototype of the data that needs to be sent out to the datbase
-  const events_payload = {
-    email: email,
-    events_data: eventsList,
-  };
+  //
+
+  // trigger if eventsList is empty
+  const sendEventData = async (payload_data : any) => {
+    try {
+      const response_create_event = await fetch("http://127.0.0.1:5000/sendEventData", {
+        headers : {
+          'Content-Type' : 'application/json',
+        },
+        method : 'POST',
+        body : JSON.stringify(payload_data),
+      }).then((res) => {
+        console.log(`Response Status : ${JSON.stringify(res)}`);
+      })
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
   useEffect(() => {
-    console.log(`Selected Event : ${JSON.stringify(selectedEvent)}`);
-  });
+    console.log(eventsList)
+  }, [eventsList]);
+
   // useEffect(() => {
   //   console.log('Detected changes to event lists.');
   //   console.log(eventsList);
   // }, [eventsList]);
+
+  const handleCloseRecurrenceModal = () => {
+    // setRecurrenceDeleteModal(false);
+    setShowExistingEventModal(false);
+    setRecurrenceDeleteModal(false);
+  };
+
+  useEffect(() => {
+    console.log(`Status of recurring modal : ${recurrenceDeleteModal}`);
+  }, [recurrenceDeleteModal]);
 
   return (
     <View
@@ -1157,40 +1116,34 @@ export default function Schedule() {
       >
         {showExistingEventModal && (
           <ExistingEventModal
+            handleOnPressRecurringDeletionCallback={handleCloseRecurrenceModal}
             handleOnPressDeleteCancellation={() => {
               selectedEvent.isRecurring
                 ? setRecurrenceDeleteModal(false)
                 : setDeleteEventModal(false);
             }}
-            handleOnPressDeleteConfirmation={async () => {
+            handleOnPressDeleteConfirmationSingleEvent={async () => {
               // logic for deleting a particular event
               const updatedEvents = await eventsList.filter(
                 (event: any) => event.id !== selectedEvent.id
               );
               // TODO : delete later, this is to experiment to check if the current event has been deleted or not
-              console.log(`The updated events are : ${updatedEvents}`);
-              // close the relevant modals after update has taken place
               setEventList(updatedEvents);
               setDeleteEventModal(false);
               setShowExistingEventModal(false); // close the event
             }}
-            // handles visibillity of single event modal
             delete_event_modal={deleteEventModal}
-            // handles visibillity of multiple event modal
             delete_event_modal_recurring={recurrenceDeleteModal}
-            // NOTE that theoretically I can just define a reference function that closes the modal as well within the parent component instead (and potentially wrap it around using useCallback to prevent unneccessary re-renders)
             set_delete_event_modal_recurring={setRecurrenceDeleteModal}
             end_time={endDate}
-            start_time={startDate} // pass in the start and end date for the date time picker
+            start_time={startDate}
             current_event={selectedEvent}
             setEventListUseStateSetter={setEventList}
             visibillity_state={showExistingEventModal}
             onRequestClose={() => setShowExistingEventModal(false)}
             isEditable={isModalEditable}
             onRequestEdit={() => setIsModalEditable(true)}
-            // NOTE : this can be changed to be reused as a reference function insted
             handleOnChangeTitle={(newUserInputTitle: any) => {
-              // we only want the edit to take place if the modal happens to be editable
               if (isModalEditable) {
                 console.log(`Detected changes to user input : ${newUserInputTitle}`);
                 setSelectedEvent((prev: CalendarEvent) => ({
@@ -1205,15 +1158,8 @@ export default function Schedule() {
                   ...prevData,
                   description: newUserInputDescription,
                 }));
-                // setCurrentEventData((prev) => ({
-                //   ...prev,
-                //   title: newUserInputTitle,
-                // }));
               }
             }}
-            // the function logic for the datetimepicker needs to be slighlyt different
-            // rather than updating the currentEventsData useState hook
-            // instead the setSelectedEvent useState hook needs to be updated
             handleOnChangeStart={async (_event: any, selectedDate: any) => {
               const currentDate = await selectedDate;
               const updatedDatetime = {
@@ -1337,25 +1283,18 @@ export default function Schedule() {
                 style={{
                   position: 'relative',
                   width: '100%',
-                  // paddingBottom: 15,
-                  marginBottom: 15, // adding paddingBottom and marginBottom does not yield the same result
-                  // paddingBottom: 30,
+                  marginBottom: 15,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                {/**Render the text that will display the modal's title itself */}
                 <Text
-                  // styling for the header title that is to be rendered at the top of the modal
                   style={{
                     fontSize: 18,
                     fontWeight: 'bold',
                     marginBottom: 15,
                     textAlign: 'center',
                     color: '#333',
-
-                    // conditional rendering of fonts
-                    // the fonts are quite generic
                     fontFamily: Platform.OS == 'ios' ? 'AppleSDGothicNeo-Bold' : 'Roboto',
                   }}
                 >
@@ -1369,11 +1308,6 @@ export default function Schedule() {
                     right: 0,
                     top: -2,
                   }}
-                  // upon clicking on the delete button, modal should close
-                  // no data should be saved in reagrds to this modal
-                  // in this case, no eventhas been created so we simply need to discard the data by closing the modal
-                  // we don't need to make additional modficaitions here, since the event's data hasn't been saved in the first place
-                  // we do however need to make this modification on the existing modal where the data needs to be deleted based on the id specified
                   onPress={() => {
                     setNewEventModal(false);
                   }}
