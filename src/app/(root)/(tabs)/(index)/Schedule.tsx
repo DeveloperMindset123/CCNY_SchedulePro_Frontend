@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -32,8 +32,6 @@ import CalendarNavigation from '@/components/core/calendarNavigation';
 import { useLocalSearchParams } from 'expo-router';
 import DeleteSingleEvent, { DeleteRecurringEvents } from '@/components/core/deleteModals';
 
-// TODO : define the edit event and new event modal as seperate components and pass down data as a prop instead
-// TODO : add an interface referencing the event useState hook
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -91,8 +89,6 @@ interface ExistingEventModal {
   handleOnPressRecurringDeletionCallback: any;
 }
 
-// TODO : requires lots of refactoring, badly written composition code
-// TODO : see how you can replace prop drilling with context since there are quite a few repetitive props
 const ExistingEventModal = ({
   current_event,
   setEventListUseStateSetter,
@@ -377,12 +373,9 @@ const ExistingEventModal = ({
                   ]}
                   onPress={handleOnPressRecurring}
                 >
-                  {
-                    // render a checkmark if isRecurring is set to true
-                    current_event.isRecurring && (
-                      <Ionicon name="checkmark" size={16} color="white" />
-                    )
-                  }
+                  {current_event.isRecurring && (
+                    <Ionicon name="checkmark" size={16} color="white" />
+                  )}
                 </TouchableOpacity>
               </View>
               {current_event.isRecurring && (
@@ -462,8 +455,6 @@ export default function Schedule() {
       const parentEventID = eventToDelete.parentId;
       return await originalEvent.filter((currentEvent) => !currentEvent.id.includes(parentEventID));
     }
-
-    // otherwise, if it happens to be an original event itself rather than recurring one
     return originalEvent.filter((currentEvent) => !currentEvent.id.includes(eventToDelete.id));
   };
 
@@ -486,7 +477,6 @@ export default function Schedule() {
       await deleteAllEvents(listOfEvents, event);
     }
   };
-  // TODO : needs wrapped around a function
   const handleRecurringEventDeletion = async () => {
     switch (currentRadioButton) {
       case 'all-event':
@@ -515,24 +505,7 @@ export default function Schedule() {
   };
   const route_params = useLocalSearchParams();
   const mutatedEventID = useRef('');
-
-  // extract email (for payload)
   const { email } = route_params;
-  // supporting variables for the calendar mode switcher
-  // NOTE : useRef allows us to persist values between renders
-  /**
-   * @Documentation regarding the differentiation between some of the core react hooks
-   * @useMemo : is to memoize a calculation result between a function's calls and between renders
-   * @useCallback : is to memoize a callback itself (referential equality) between renders
-   * @useRef : is to keep data between renders (updating does not fire re-rendering) --> this is helpful for persisitng data
-   * @useState : is to keep data between renders (updating does fire re-rendering)
-   *
-   * Additional information:
-   * @param {Callback} - a callback is a function passed as an argument to another function (this is the most basic definition)
-   *
-   *
-   */
-
   const calendarRef = useRef<CalendarKitHandle>(null);
 
   // by default, the mode should be set to 3 days
@@ -546,9 +519,7 @@ export default function Schedule() {
   // function to handle different calendar modes
   // the function should be wrapped around an useCallback hook
   const handleModeChange = useCallback((mode: string, days: number) => {
-    setIsLoading(true); // start loading animation
-
-    // update state values to adjust mode and days
+    setIsLoading(true);
     setCalendarMode(mode);
     setNumberOfDays(days);
 
@@ -588,15 +559,9 @@ export default function Schedule() {
 
   // function to calculate recurring events based on recurrence frequency
   const calculateRecurringEvents = useCallback((event: any) => {
-    // handle the edge cases in which the event does not recur
-    // simply return an array containing a single element
-    // the element being the event itself
     if (!event.isRecurring || !event.recurrence_frequency) {
       return [event];
     }
-
-    // otherwise, use spread operator to copy the original event
-    // and store it within originalEvent variable
     const originalEvent = { ...event };
 
     const additionalEvents = [];
@@ -607,23 +572,13 @@ export default function Schedule() {
       `value of duration : ${duration}, value of start time : ${startDate}, value of end date : ${endDate}`
     );
 
-    // switch statement to handle the cases for event recurrence
     switch (event.recurrence_frequency) {
-      // since we want the date to repeat each day
-      // NOTE : i = 1 so that the same event doesn't repeat twice
       case 'Daily':
         for (let i = 1; i <= 120; i++) {
-          // calculate the start
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
-
-          // calculate the end
           const newEnd = new Date(newStart.getTime() + duration);
-          // const newEnd = new Date(endDate);
           endDate.setDate(endDate.getDate() + duration);
-
-          // add the events to the additional events array
-          // NOTE : observe the 2 new properties being added here [and the other switch statement cases] (isRecurringInstance, parentEventId)
           additionalEvents.push({
             ...originalEvent,
             id: `${originalEvent.id}_recurring_${i}`,
@@ -635,9 +590,6 @@ export default function Schedule() {
         }
         break;
 
-      // similar logic to daily
-      // primary differentiation is that i is being multiplied by 7
-      // for the newStart date calculation
       case 'Weekly':
         for (let i = 1; i <= 112; i++) {
           const newStart = new Date(startDate);
@@ -656,7 +608,6 @@ export default function Schedule() {
         break;
 
       case 'Every Weekday':
-        // last for 4 months (since each semester spans 4 month timeframe)
         for (let i = 1; i <= 120; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
@@ -678,18 +629,14 @@ export default function Schedule() {
         break;
 
       case 'Every Weekend':
-        // let weekendCount = 0
         for (let i = 1; i <= 120; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
-
-          // avoid weekdays?
-          // not entirely sure of this logic
           if (newStart.getDay() !== 0 && newStart.getDay() !== 6) {
             continue;
           }
 
-          const newEnd = new Date(newStart.getTime() + duration); // observe the recurring logic
+          const newEnd = new Date(newStart.getTime() + duration);
 
           additionalEvents.push({
             ...originalEvent,
@@ -722,19 +669,14 @@ export default function Schedule() {
 
       // add logic for rendering custom event modal
       case 'Custom':
-        // get selected days from custom recurrence
-        // TODO : the original event may need customRecurrenceDays field added to it
         // eslint-disable-next-line no-case-declarations
         const customDays = event.customRecurrenceDays || [];
         if (customDays.length === 0) break; // if no custom days has been provided, nothing to repeat
 
-        // create events for next 52 weeks
-        // TODO : adjust this value accordingly
         for (let i = 1; i <= 365; i++) {
           const newStart = new Date(startDate);
           newStart.setDate(startDate.getDate() + i);
 
-          // only create events for selected days of the week
           if (!customDays.includes(newStart.getDay())) {
             continue;
           }
@@ -788,30 +730,17 @@ export default function Schedule() {
   );
 
   const [newEventModal, setNewEventModal] = useState<boolean>(false);
-
-  // this hook will determine whether to show the current existing event in the form of a modal
   const [showExistingEventModal, setShowExistingEventModal] = useState(false);
-
   const [deleteEventModal, setDeleteEventModal] = useState(false);
   const [isModalEditable, setIsModalEditable] = useState(false);
-  // this will determine the event that has been currently selected
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dropdownValue, setDropdownValue] = useState(null);
-
-  // TODO : you will need 2 modals here --> the first to pick the starting date and the second for the ending date
-  // modal to handle the date and time picker logic
-  const [startDate, setStartDate] = useState(new Date()); // default should be current date
+  const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [show, setShow] = useState(true); // determines whether the datetime-picker modal should open or remain closed
-
-  // hook to handle displaying custom recurrence modals
+  const [show, setShow] = useState(true);
   const [showCustomRecurrenceModal, setShowCustomRecurrenceModal] = useState(false);
-  const [customSelectedDays, setCustomSelectedDays] = useState([]); // stores the custom days the event should be repeated
-
-  // useState hook variable for currentCalendarDate
+  const [customSelectedDays, setCustomSelectedDays] = useState([]);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date().toISOString());
-
-  // modal to handle rendering of recurrence modal
   const [recurrenceDeleteModal, setRecurrenceDeleteModal] = useState(false);
 
   const handleCalendarDateChange = useCallback((newDate: string | any) => {
@@ -823,12 +752,7 @@ export default function Schedule() {
     });
   }, []);
 
-  // this is just an example of how to add hours to the current time
-  // this variable is intended to be a reference, it is not being used
   const _four_hours_delay = new Date().getHours() + 4;
-
-  // TODO : This is something to consider later, but retrieve the user-locate and adjust according to the locale of the user
-  // this should be part of the feature that implements multilingual support in terms of languages to attract users from different location.
   const initialLocales: Record<string, Partial<LocaleConfigsProps>> = {
     en: {
       weekDayShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
@@ -848,37 +772,29 @@ export default function Schedule() {
   };
 
   const onChangeStart = async (event: any, selectedDate: any) => {
-    // we want a delay for the selected date
     const currentDate = await selectedDate;
-    // setShow(false); // turn the modal view off (the "modal" is inline and always rendered, therefore not needed)
-
-    console.log(`current date that has been detected based on user input : ${currentDate}`);
-
-    // NOTE : needs to be converted into ISO string
     const updatedDatetime = {
       dateTime: currentDate,
     };
 
-    // NOTE : it may not be ideal to set two states within a single function
-    setStartDate(currentDate); // there is not really a need for this useState hook
+    setStartDate(currentDate);
     setCurrentEventData((previousEventData) => ({
       ...previousEventData,
       start: updatedDatetime,
     }));
   };
 
-  // mirror of onChangeStart (a bit on the repetitive end)
   const onChangeEnd = async (event: any, selectedDate: any) => {
     const currentDate = await selectedDate;
 
     const updatedDatetime = {
       dateTime: currentDate,
     };
-    // console.log(`Current available events : ${event}`);
+
     setEndDate(currentDate);
     setCurrentEventData((previousEventData) => ({
       ...previousEventData,
-      end: updatedDatetime, // update the endDate (experimental)
+      end: updatedDatetime,
     }));
   };
 
@@ -889,14 +805,13 @@ export default function Schedule() {
 
     start: { dateTime: '' },
     end: { dateTime: '' },
-    color: '#4285F4', // default event color set to blue
+    color: '#4285F4',
 
-    // TODO : this isn't really being used, could be ideal to remove altogether
     location: 'Not Specified',
-    isRecurring: false, // TODO : determine appropriate calculation logic for recurring events
-    recurrence_frequency: null, // this value should only be modified if isRecurring is set to true
+    isRecurring: false,
+    recurrence_frequency: null,
   });
-  // const [retrieveUserLocation, setRetrieveUserLocation] = useState<boolean>(false);
+
   const [eventsList, setEventList] = useState<any>([]);
   const handleCreateSaveNewEvent = useCallback(async () => {
     if (!currentEventData.title) {
@@ -943,11 +858,11 @@ export default function Schedule() {
     });
 
     return await sendEventData({
-      email : email,
-      event_id : mutatedEventID,
-      events_data : eventsList
-    })
-  }, [currentEventData, calculateRecurringEvents, eventsList]);
+      email: email,
+      event_id: mutatedEventID,
+      events_data: eventsList,
+    });
+  }, [currentEventData, eventsList, email, calculateRecurringEvents]);
 
   const handleCreateNewEvent = () => {
     setCurrentEventData({
@@ -978,63 +893,33 @@ export default function Schedule() {
   // set regardless
   const handlePressEvent = useCallback(
     (event: CalendarEvent | any) => {
-      // NOTE : the properties isRecurringInstance and parentEventId comes from the calculateRecurringEvents function
-      // refer to the defintition of calculateRecurringEvents definition for reference
-      // if (event.isRecurringInstance && event.parentEventId) {
-      //   // parentEvent : simply the original event set to be recurring
-
-      //
-      //   // const parentEvent = eventsList.find((e: CalendarEvent) => e.id === event.parentEventId);
-
-      //   // if (parentEvent) {
-      //   //   setSelectedEvent(parentEvent);
-      //   // } else {
-      //   //   setSelectedEvent(event);
-      //   // }
-
-      // } else {
-      //   // TODO : this seems somewhat repetitive, find a fix for this
-      //   setSelectedEvent(event);
-      // }
-      // console.log(`Selected Event : ${JSON.stringify(event)}`);
       setSelectedEvent(event);
       setShowExistingEventModal(true);
     },
     [eventsList]
   );
 
-  // prototype of the data that needs to be sent out to the datbase
-  //
-
-  // trigger if eventsList is empty
-  const sendEventData = async (payload_data : any) => {
+  const sendEventData = async (payload_data: any) => {
     try {
-      const response_create_event = await fetch("http://127.0.0.1:5000/sendEventData", {
-        headers : {
-          'Content-Type' : 'application/json',
+      const response_create_event = await fetch('http://127.0.0.1:5000/sendEventData', {
+        headers: {
+          'Content-Type': 'application/json',
         },
-        method : 'POST',
-        body : JSON.stringify(payload_data),
+        method: 'POST',
+        body: JSON.stringify(payload_data),
       }).then((res) => {
         console.log(`Response Status : ${JSON.stringify(res)}`);
-      })
+      });
     } catch (error) {
       console.error(error);
     }
-  }
-
+  };
 
   useEffect(() => {
-    console.log(eventsList)
+    console.log(eventsList);
   }, [eventsList]);
 
-  // useEffect(() => {
-  //   console.log('Detected changes to event lists.');
-  //   console.log(eventsList);
-  // }, [eventsList]);
-
   const handleCloseRecurrenceModal = () => {
-    // setRecurrenceDeleteModal(false);
     setShowExistingEventModal(false);
     setRecurrenceDeleteModal(false);
   };
@@ -1046,7 +931,6 @@ export default function Schedule() {
   return (
     <View
       style={{
-        // this ensures that calendar view still gets rendered insted of a blank screen display
         flex: 1,
         position: 'relative',
       }}
@@ -1058,18 +942,12 @@ export default function Schedule() {
         onDateChange={handleCalendarDateChange}
       />
 
-      {/*
-       * insert acitivity Indicator animation loading logic here
-       * through conditional rendering
-       */}
       {isLoading && (
         <View style={calendarStyling.loadingOverlay}>
           <ActivityIndicator size="large" color="#3498db" />
         </View>
       )}
       <TouchableOpacity
-        // TODO : convert this into tailwindcss based styling for uniformity
-        // the css here ensures that the button is positioned within the bottom right portion of the screen
         style={{
           position: 'absolute',
           bottom: 10,
@@ -1096,14 +974,12 @@ export default function Schedule() {
         <Ionicon name="add-circle-sharp" size={32} color={'white'} />
       </TouchableOpacity>
       <CalendarContainer
-        // TODO : define a function that will dynamically, this will require adjustment to the initialLocales variable.
         locale="en"
         allowPinchToZoom={true}
         initialLocales={initialLocales}
         timeZone="America/New_York"
         minDate="2025-01-01"
         maxDate="2026-12-31"
-        // initialDate={new Date().toISOString().split('T')[0]}
         initialDate={currentCalendarDate.split('T')[0]}
         numberOfDays={numberOfDays}
         scrollByDay={true}
@@ -1123,14 +999,12 @@ export default function Schedule() {
                 : setDeleteEventModal(false);
             }}
             handleOnPressDeleteConfirmationSingleEvent={async () => {
-              // logic for deleting a particular event
               const updatedEvents = await eventsList.filter(
                 (event: any) => event.id !== selectedEvent.id
               );
-              // TODO : delete later, this is to experiment to check if the current event has been deleted or not
               setEventList(updatedEvents);
               setDeleteEventModal(false);
-              setShowExistingEventModal(false); // close the event
+              setShowExistingEventModal(false);
             }}
             delete_event_modal={deleteEventModal}
             delete_event_modal_recurring={recurrenceDeleteModal}
@@ -1184,8 +1058,6 @@ export default function Schedule() {
                 end: updatedDatetime,
               }));
             }}
-            // TODO : change this to a reference function instead
-            // TODO : replace setCurrentEventData with setSelectedEvent state
             handleOnPressRecurring={() =>
               setSelectedEvent((previousData: CalendarEvent) => ({
                 ...previousData,
@@ -1193,7 +1065,6 @@ export default function Schedule() {
               }))
             }
             dropdown_list={dropdownData}
-            // TODO : figure out why this isn't working
             handleDropdownFunction={() => {
               console.log('Do something');
             }}
