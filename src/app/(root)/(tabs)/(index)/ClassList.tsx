@@ -1,7 +1,41 @@
+import { json } from 'express';
+import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 export default function ClassList() {
-  // TODO : Convert to API endpoint that will be calling on data
+  const retrieveListOfDepartments = async () => {
+    const departmnet_list = await fetch('http://127.0.0.1:5000/ccny/department_lists');
+    const department_list_json = departmnet_list.json();
+    setListOfDepartments(department_list_json);
+  };
+  const [classesData, setClassesData] = useState<any>([{}]);
+  const [listOfDepartments, setListOfDepartments] = useState<any>(['']);
+
+  // TODO : delete after, for testing purpose only
+  useEffect(() => {
+    const retrieveCurrentCourseList = async () => {
+      const response = await fetch('http://127.0.0.1:5000/rmp/get_professor_list');
+      const json_format = response.json();
+      // console.log(response.text());
+      console.log(json_format);
+      setClassesData(json_format);
+    };
+    retrieveCurrentCourseList();
+    retrieveListOfDepartments();
+  }, []);
+
+  // TODO : delete after, for testing purpose only
+  useEffect(() => {
+    // console.log(JSON.stringify(listOfDepartments));
+
+    listOfDepartments['_j'].map((classes: string) => {
+      console.log(classes);
+    });
+  }, [classesData, listOfDepartments]);
+
+  // const getCourseInfoByDepartment = (current_department: string) => {
+  //   for
+  // }
   const classes = [
     {
       title: 'CSC 33500 - Programming Language Paradigms',
@@ -32,11 +66,6 @@ export default function ClassList() {
       professor: 'Leonid Gurvits',
     },
   ];
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const viewClassDetails = (classInfo: any) => {
-    throw new Error('Not Yet Implemented');
-  };
 
   return (
     <View style={styles.container}>

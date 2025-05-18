@@ -10,21 +10,16 @@ export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const iconColor = colorScheme === 'dark' ? 'white' : 'black';
-  //const router = useRouter();
-  //const [currentColor, setColor] = useState('red');
 
   return (
     <Tabs
       screenOptions={{
         headerStyle: {
           backgroundColor: 'black',
-          // backgroundColor: 'transparent',
         },
         tabBarStyle: {
           backgroundColor: 'black',
-          // backgroundColor: 'transparent',
         },
-        // tabBarActiveTintColor: iconColor,
       }}
     >
       <Tabs.Screen
@@ -41,7 +36,6 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           headerShown: true,
-          // tabBarIcon: () => <TabBarIcon name="chat" pathnames={['/two']} />,
           tabBarIcon: () => <Ionicon name="chatbubble-ellipses" color="white" size={28} />,
         }}
       />
